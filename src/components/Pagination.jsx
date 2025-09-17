@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+"use client";
+import { useState } from "react";
 
-
-function Pagination({ totalPages, onChange }) {
+export default function Pagination({ totalPages, onChange }) {
     const [currentPage, setCurrentPage] = useState(1);
 
     const handleClick = (page) => {
@@ -24,4 +24,3 @@ function Pagination({ totalPages, onChange }) {
     );
 }
 
-export default Pagination;
