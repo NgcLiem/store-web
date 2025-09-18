@@ -1,26 +1,14 @@
 "use client";
 
 import { useState } from "react";
-
-const accessories = [
-    { id: 5, name: "Dây giày flat đen", price: "90.000 ₫", icon: "👟" },
-    { id: 6, name: "Crep Mark On | Bút Tô Đế Giày", price: "480.000 ₫", icon: "🖊️" },
-    { id: 7, name: "Crep Eraser | Gôm Tẩy Vệ Sinh", price: "320.000 ₫", icon: "🧽" },
-    { id: 8, name: "Crep Cure Kit | Bộ Kit Khử", price: "450.000 ₫", icon: "🧴" },
-    // 👉 bạn có thể thêm nhiều phụ kiện khác vào đây
-];
+import Image from "next/image"; // hoặc accessories.css nếu bạn tách riêng
 
 export default function Accessories() {
     const [currentPage, setCurrentPage] = useState(1);
 
-    const itemsPerPage = 4;
-    const totalPages = 5; // giả định có 5 trang phụ kiện
-
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const visibleAccessories = accessories.slice(
-        startIndex,
-        startIndex + itemsPerPage
-    );
+    const handlePageChange = (page) => {
+        setCurrentPage(page);
+    };
 
     return (
         <section className="accessories" id="other">
@@ -33,32 +21,83 @@ export default function Accessories() {
                 </div>
             </div>
 
+            {/* Accessories Grid */}
             <div className="accessories-grid">
-                {visibleAccessories.map((item) => (
-                    <div key={item.id} className={`product-card-hot product-${item.id}`}>
-                        <div className="product-image">
-                            <div className="accessory-icon">{item.icon}</div>
+                {/* Trang 1 */}
+                <div className={`product-page ${currentPage === 1 ? "active" : ""}`}>
+                    <div className="product-card-hot">
+                        <div className="containProduct">
+                            <img src="/images/image 203.png" className="product-image" alt="Nike Air Max 270" />
                         </div>
                         <div className="product-info">
-                            <div className="product-name">{item.name}</div>
-                            <div className="product-price">{item.price}</div>
+                            <div className="product-name">Dây giày flat đen</div>
+                            <div className="product-price">90.000 ₫</div>
                         </div>
                     </div>
-                ))}
+
+                    <div className="product-card-hot">
+                        <div className="containProduct">
+                            <img src="/images/image 203.png" className="product-image" alt="Nike Air Max 270" />
+                        </div>
+                        <div className="product-info">
+                            <div className="product-name">Crep Mark On | Bút Tô Đế Giày</div>
+                            <div className="product-price">480.000 ₫</div>
+                        </div>
+                    </div>
+
+                    <div className="product-card-hot">
+                        <div className="containProduct">
+                            <img src="/images/image 203.png" className="product-image" alt="Nike Air Max 270" />
+                        </div>
+                        <div className="product-info">
+                            <div className="product-name">Crep Eraser | Gôm Tẩy Vệ Sinh</div>
+                            <div className="product-price">320.000 ₫</div>
+                        </div>
+                    </div>
+
+                    <div className="product-card-hot">
+                        <div className="containProduct">
+                            <img src="/images/image 203.png" className="product-image" alt="Nike Air Max 270" />
+                        </div>
+                        <div className="product-info">
+                            <div className="product-name">Crep Cure Kit | Bộ Kit Khử</div>
+                            <div className="product-price">450.000 ₫</div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Trang 2 (demo thêm, bạn thay dữ liệu khác) */}
+                <div className={`product-page ${currentPage === 2 ? "active" : ""}`}>
+                    <div className="product-card-hot">
+                        <div className="product-image">
+                            <div className="accessory-icon">🎒</div>
+                        </div>
+                        <div className="product-info">
+                            <div className="product-name">Balo Sneaker</div>
+                            <div className="product-price">700.000 ₫</div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             {/* Pagination */}
             <div className="pagination">
-                {Array.from({ length: totalPages }, (_, i) => (
-                    <button
-                        key={i + 1}
-                        onClick={() => setCurrentPage(i + 1)}
-                        className={currentPage === i + 1 ? "active" : ""}
-                    >
-                        {i + 1}
-                    </button>
-                ))}
-                <button disabled>...</button>
+                <button
+                    onClick={() => handlePageChange(1)}
+                    className={currentPage === 1 ? "active" : ""}
+                >
+                    1
+                </button>
+                <button
+                    onClick={() => handlePageChange(2)}
+                    className={currentPage === 2 ? "active" : ""}
+                >
+                    2
+                </button>
+                <button>3</button>
+                <button>4</button>
+                <button>5</button>
+                <button>...</button>
             </div>
         </section>
     );

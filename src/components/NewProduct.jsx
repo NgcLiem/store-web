@@ -15,7 +15,7 @@ export default function Products() {
             <div className="container">
                 <div className="section-header">
                     <h2 className="section-title">Sản phẩm mới</h2>
-                    <a href="/tat-ca-phu-kien" className="view-all">
+                    <a href="/newProducts" className="view-all">
                         Xem tất cả &raquo;
                     </a>
                 </div>
@@ -25,6 +25,7 @@ export default function Products() {
                 {/* Trang 1 */}
                 <div className={`product-page page-1 ${currentPage === 1 ? "active" : ""}`}>
                     <div className="product-card">
+                        <div className="product-badge">Sale</div>
                         <div className="containProduct">
                             <img src="/images/image 203.png" className="product-image" alt="Nike Air Max 270" />
                         </div>
@@ -35,6 +36,7 @@ export default function Products() {
                     </div>
 
                     <div className="product-card">
+                        <div className="product-badge">Sale</div>
                         <div className="containProduct">
                             <img
                                 src="/images/image 204.png"
@@ -50,6 +52,7 @@ export default function Products() {
                     </div>
 
                     <div className="product-card">
+                        <div className="product-badge">Sale</div>
                         <div className="containProduct">
                             <img
                                 src="/images/image 205.png"
@@ -64,7 +67,9 @@ export default function Products() {
                         </div>
                     </div>
 
+                    <div className="product-badge">Sale</div>
                     <div className="product-card">
+                        <div className="product-badge">Sale</div>
                         <div className="containProduct">
                             <img
                                 src="/images/image 206.png"
