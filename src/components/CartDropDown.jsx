@@ -1,14 +1,13 @@
-"use client"; // để có thể dùng sự kiện onClick trong App Router
+"use client";
 
 import { useState } from "react";
 
 export default function CartDropdown() {
-    const [items, setItems] = useState([]); // mảng sản phẩm trong giỏ
+    const [items, setItems] = useState([]);
 
     // Hàm xử lý thanh toán
     const checkout = () => {
         alert("Đi tới trang thanh toán...");
-        // Ở đây bạn có thể dùng router.push("/checkout") hoặc gọi API
     };
 
     // Tính tổng tiền
@@ -16,10 +15,7 @@ export default function CartDropdown() {
 
     return (
         <div className="cart-dropdown">
-            {/* Header */}
             <div className="cart-header">Giỏ Hàng Của Bạn</div>
-
-            {/* Items */}
             <div className="cart-items">
                 {items.length === 0 ? (
                     <div className="empty-cart">

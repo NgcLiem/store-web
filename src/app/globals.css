@@ -1069,6 +1069,7 @@ main {
     max-width: 400px;
     overflow: hidden;
     position: relative;
+    margin: auto;
 }
 
 .form-container-login {

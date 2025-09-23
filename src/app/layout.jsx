@@ -5,7 +5,7 @@ import Footer from "../components/Footer";
 import Hero from "@/components/Hero";
 
 export const metadata = {
-  title: "DONIDG STUDIO",
+  title: "DONIDG",
   description: "Cửa hàng giày sneaker chính hãng",
 };
 
