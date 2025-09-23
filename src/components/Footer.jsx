@@ -22,8 +22,6 @@ export default function Footer() {
                         <h3>Thương Hiệu</h3>
                         <p><a href="#nike">Nike</a></p>
                         <p><a href="#adidas">Adidas</a></p>
-                        <p><a href="#jordan">Jordan</a></p>
-                        <p><a href="#yeezy">Yeezy</a></p>
                     </div>
 
                     <div className="footer-section">

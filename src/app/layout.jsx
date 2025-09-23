@@ -2,6 +2,7 @@ import "./globals.css";
 import React from "react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import Hero from "@/components/Hero";
 
 export const metadata = {
   title: "DONIDG STUDIO",
@@ -20,6 +21,7 @@ export default function RootLayout({ children }) {
       </head>
       <body>
         <Header />
+        <Hero />
         <main>{children}</main>
         <Footer />
       </body>
