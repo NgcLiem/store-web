@@ -88,7 +88,6 @@ export default function Products() {
                 </div>
             </div>
 
-            {/* Grid hiển thị sản phẩm */}
             <div className="products-grid">
                 {products.map((product, index) => (
                     <div key={index} className="product-card">

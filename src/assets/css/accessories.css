@@ -24,13 +24,28 @@
   letter-spacing: 1px;
 }
 
+.view-all {
+  position: absolute;
+  right: 0;
+  top: 8px;
+  /* dính về bên phải */
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #4CAF50;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.view-all:hover {
+  color: #388e3c;
+}
+
 .accessories-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 1.5rem;
   margin-top: 20px;
   min-height: 300px;
-  
   position: relative;
 }
 
