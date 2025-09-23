@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import "../assets/css/header.css"
 
 export default function Header() {
     const [query, setQuery] = useState("");

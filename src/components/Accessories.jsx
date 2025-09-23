@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import "../assets/css/accessories.css"
 
 export default function Accessories() {
     const [currentPage, setCurrentPage] = useState(1);

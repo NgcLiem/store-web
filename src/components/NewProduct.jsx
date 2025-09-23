@@ -1,4 +1,5 @@
 "use client";
+import "../assets/css/newProduct.css"
 
 export default function Products() {
     const products = [

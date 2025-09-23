@@ -1,3 +1,5 @@
+import "../assets/css/footer.css"
+
 export default function Footer() {
     return (
         <footer className="footer" id="contact">
@@ -30,6 +32,14 @@ export default function Footer() {
                         <p><a href="#">Instagram</a></p>
                         <p><a href="#">Tiktok</a></p>
                         <p><a href="#">YouTube</a></p>
+                    </div>
+
+                    <div className="footer-section">
+                        <h3>Hỗ trợ</h3>
+                        <p><a href="#">Hướng dẫn đặt hàng</a></p>
+                        <p><a href="#">Chính sách đổi hàng</a></p>
+                        <p><a href="#">7 cách bảo quản giày</a></p>
+                        <p><a href="#">Ngày hot deal</a></p>
                     </div>
                 </div>
             </div>

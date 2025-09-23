@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import "../assets/css/cartDropdown.css";
 
 export default function CartDropdown() {
     const [items, setItems] = useState([]);
@@ -10,7 +11,6 @@ export default function CartDropdown() {
         alert("Đi tới trang thanh toán...");
     };
 
-    // Tính tổng tiền
     const total = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
 
     return (

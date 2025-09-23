@@ -1,0 +1,44 @@
+.accessories {
+  background: #f8f9fa;
+  padding: 3rem 2rem 2rem;
+  box-shadow: 0 5px 20px rgb(0 0 0 / 23%);
+  margin: 0 auto;
+}
+
+.accessories-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  margin-bottom: 2rem;
+  padding: 0 1rem;
+}
+
+.accessories-title {
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 3rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.accessories-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  margin-top: 20px;
+  min-height: 300px;
+  
+  position: relative;
+}
+
+.section-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  margin-bottom: 2rem;
+  padding: 0 1rem;
+}

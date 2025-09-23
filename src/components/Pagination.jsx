@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import "../assets/css/pagination.css"
 
 export default function Pagination({ totalPages, onChange }) {
     const [currentPage, setCurrentPage] = useState(1);

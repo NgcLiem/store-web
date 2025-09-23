@@ -1,8 +1,9 @@
-"use client"; // để dùng useState, useEffect trong Next.js App Router
+"use client";
 
 import { useState, useEffect } from "react";
-import Image from "next/image"; // dùng Next.js Image để tối ưu
+import Image from "next/image";
 import Link from "next/link";
+import "../assets/css/hero.css"
 
 const slides = [
     { src: "/images/DONIDG.jpg", alt: "Slide 1" },
@@ -15,7 +16,6 @@ const slides = [
 export default function Hero() {
     const [current, setCurrent] = useState(0);
 
-    // Tự động chuyển slide mỗi 5s
     useEffect(() => {
         const interval = setInterval(() => {
             setCurrent((prev) => (prev + 1) % slides.length);
@@ -25,7 +25,6 @@ export default function Hero() {
 
     return (
         <section className="hero" id="home">
-            {/* Slider */}
             <div className="hero-slider">
                 {slides.map((slide, index) => (
                     <div
@@ -53,7 +52,6 @@ export default function Hero() {
                 </Link>
             </div>
 
-            {/* Indicator dots */}
             <div className="slider-dots">
                 {slides.map((_, index) => (
                     <span

@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import "../assets/css/auth.css"
 
 export default function LoginPage() {
     const [showRegister, setShowRegister] = useState(false);
