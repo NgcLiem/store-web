@@ -32,10 +32,6 @@ export default function Footer() {
                         <p><a href="#">YouTube</a></p>
                     </div>
                 </div>
-
-                <div className="footer-bottom">
-                    <p>&copy; 2024 DONIDG STUDIO. All rights reserved.</p>
-                </div>
             </div>
         </footer>
     );
