@@ -8,7 +8,11 @@ export default function CartPage() {
     // Demo giỏ hàng (bạn có thể thay bằng data từ props hoặc context)
     const [cartItems, setCartItems] = useState([
         { id: 1, name: "Dép Cao Gót Nữ Đông Hải Quai Đan Đế Ánh Kim", price: 620000, qty: 1, image: "/shoes1.jpg", size: "36", color: "Kem" },
-        // Thêm sản phẩm khác nếu muốn
+        { id: 2, name: "Dép Cao Gót Nữ Đông Hải Quai Đan Đế Ánh Kim", price: 620000, qty: 1, image: "/shoes1.jpg", size: "36", color: "Kem" },
+        { id: 3, name: "Dép Cao Gót Nữ Đông Hải Quai Đan Đế Ánh Kim", price: 620000, qty: 1, image: "/shoes1.jpg", size: "36", color: "Kem" },
+        { id: 4, name: "Dép Cao Gót Nữ Đông Hải Quai Đan Đế Ánh Kim", price: 620000, qty: 1, image: "/shoes1.jpg", size: "36", color: "Kem" },
+        { id: 7, name: "Dép Cao Gót Nữ Đông Hải Quai Đan Đế Ánh Kim", price: 620000, qty: 1, image: "/shoes1.jpg", size: "36", color: "Kem" },
+
     ]);
 
     // Xóa sản phẩm khỏi giỏ
@@ -29,12 +33,10 @@ export default function CartPage() {
 
     return (
         <div className="cart-popup">
-            {/* Header */}
             <div className="cart-header">
                 <div className="cart-title">Giỏ Hàng{cartItems.length > 0 && <span className="cart-title-count">({cartItems.length} sản phẩm)</span>}</div>
                 <button className="cart-close" title="Đóng">×</button>
             </div>
-            {/* Nội dung */}
             {cartItems.length === 0 ? (
                 <>
                     <div className="cart-empty">Giỏ hàng của bạn hiện đang trống. Hãy mua sắm ngay nhé!</div>
@@ -80,7 +82,7 @@ export default function CartPage() {
                     </div>
                 </>
             )}
-            <div style={{ textAlign: 'center', marginTop: 24 }}>
+            <div style={{ textAlign: 'center', padding: 24 }}>
                 <button className="continue-shopping-btn" onClick={handleContinueShopping}>
                     Tiếp Tục Mua Sắm
                 </button>

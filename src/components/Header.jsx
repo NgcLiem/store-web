@@ -39,7 +39,12 @@ export default function Header() {
                             <i className="fa-solid fa-search"></i>
                         </button>
                     </form>
-                    <Link href="/login">
+                    <Link href="/login" onClick={() => {
+                        if (typeof window !== "undefined") {
+                            localStorage.setItem("redirectAfterLogin", window.location.pathname);
+                        }
+                    }
+                    }>
                         <i className="fa-regular fa-user"></i>
                     </Link>
                     <Link href="/cart">

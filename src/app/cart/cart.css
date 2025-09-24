@@ -1,12 +1,12 @@
 .cart-popup {
   background: #fff;
-  min-height: 100vh;
   padding: 0;
   max-width: 640px;
   margin: 0 auto;
   border-radius: 12px;
   box-shadow: 0 2px 16px rgba(0,0,0,0.08);
   position: relative;
+
 }
 .cart-header {
   display: flex;
@@ -144,7 +144,6 @@
   font-size: 15px;
 }
 .cart-total-wrap {
-  position: absolute;
   left: 0;
   right: 0;
   bottom: 24px;
@@ -167,4 +166,30 @@
 .cart-total-btns {
   display: flex;
   gap: 16px;
+}
+
+.continue-shopping-btn {
+  height: 80px;
+  width: 300px;
+  background-color: #333;
+  padding: 0 16px;
+  color: #fff;
+  font-height: 600;
+  border-radius: 28px;
+  cursor: pointer;
+}
+
+.continue-shopping-btn:hover,
+.cart-btn-cod:hover,
+.cart-btn-pay:hover{
+  transform: translateY(-5px);
+   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+}
+
+.continue-shopping-btn:active{
+  transform: translateY(0);
+}
+
+.continue-shopping-btn, .cart-btn-cod, .cart-btn-pay{
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
