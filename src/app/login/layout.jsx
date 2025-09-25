@@ -1,14 +1,14 @@
-// src/app/login/layout.jsx
+import Footer from "@/components/Footer";
+import Header from "@/components/Header";
+
 export const metadata = {
     title: "Đăng nhập - DONIDG",
 };
 
 export default function LoginLayout({ children }) {
     return (
-        <html lang="vi">
-            <body>
-                {children}
-            </body>
-        </html>
+        <>
+            <main>{children}</main>
+        </>
     );
 }

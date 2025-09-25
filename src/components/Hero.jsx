@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import Link from "next/link";
-import "../assets/css/hero.css"
+import "../assets/css/hero.css";
 
 const slides = [
     { src: "/images/DONIDG.jpg", alt: "Slide 1" },
@@ -43,13 +42,12 @@ export default function Hero() {
                 ))}
             </div>
 
-            {/* Hero content */}
             <div className="hero-content">
                 <h1>DONIDG</h1>
                 <p>Chuyên cung cấp giày sneaker chính hãng với chất lượng tốt nhất</p>
-                <Link href="#products" className="btn">
+                <button className="btn">
                     Khám Phá Ngay
-                </Link>
+                </button>
             </div>
 
             <div className="slider-dots">

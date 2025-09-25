@@ -6,7 +6,7 @@
     max-width: 400px;
     overflow: hidden;
     position: relative;
-    margin: auto;
+    margin: 100px auto 20px;
 }
 
 .form-container-login {
@@ -16,9 +16,15 @@
 }
 
 .form-container-register {
-    padding: 2rem 2.5rem 5rem;
+    padding: 2rem 2.5rem 2rem;
     position: relative;
     min-height: 608px;
+}
+
+.form-container-forgot {
+    padding: 3rem 2.5rem;
+    position: relative;
+    min-height: 480px;
 }
 
 /* Header */
@@ -47,7 +53,7 @@
     font-size: 1.5rem;
     font-weight: 600;
     color: #333;
-    margin-bottom: 0.5rem;
+    margin-bottom: 1rem;
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
@@ -139,6 +145,7 @@
     transition: all 0.3s ease;
     text-decoration: none;
     color: #333;
+    margin-top: .5rem;
 }
 
 .switch-form-link:hover {
@@ -314,4 +321,3 @@
     margin-bottom: 1rem;
     border: 1px solid #f5c6cb;
 }
-

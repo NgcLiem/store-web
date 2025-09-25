@@ -5,20 +5,19 @@ import "../assets/css/auth.css";
 
 export default function Signup() {
     const [isRegister, setIsRegister] = useState(false);
+    const [isForgotPassword, setIsForgotPassword] = useState(false);
+
     const [messages, setMessages] = useState({ success: "", error: "" });
     const [loading, setLoading] = useState(false);
 
-    const [loginEmail, setLoginEmail] = useState("");
-    const [loginPassword, setLoginPassword] = useState("");
+    const [LoginEmail, setLoginEmail] = useState("");
 
-    const [firstName, setFirstName] = useState("");
-    const [lastName, setLastName] = useState("");
+    const [loginPassword, setLoginPassword] = useState("");
     const [registerEmail, setRegisterEmail] = useState("");
-    const [registerPassword, setRegisterPassword] = useState("");
     const [birthDate, setBirthDate] = useState("");
-    const [gender, setGender] = useState("male");
 
     const router = useRouter();
+
     useEffect(() => {
         const eighteenYearsAgo = new Date();
         eighteenYearsAgo.setFullYear(eighteenYearsAgo.getFullYear() - 18);
@@ -33,17 +32,6 @@ export default function Signup() {
     const validateEmail = (email) =>
         /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
-    // Khôi phục mật khẩu
-    const showForgotPassword = (email) => {
-        if (!email) {
-            setMessages({ error: "Vui lòng nhập email trước khi khôi phục mật khẩu" });
-        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-            setMessages({ error: "Vui lòng nhập email hợp lệ để khôi phục mật khẩu" });
-        } else {
-            setMessages({ success: `Link khôi phục mật khẩu đã được gửi đến ${email}` });
-        }
-    };
-
     const handleLogin = (e) => {
         e.preventDefault();
         const email = e.target.loginEmail.value;
@@ -54,12 +42,8 @@ export default function Signup() {
         }
         if (email === "demo@123.com" || loginPassword === "123456") {
             showMessage("success", "Đăng nhập thành công! Chuyển hướng...");
-            // setTimeout(() => alert("Chào mừng bạn đến với DONIDG"), 1000);
-            // const redirect = localStorage.getItem("redirectAfterLogin") || "/";
-            // router.push(redirect);
 
             setTimeout(() => {
-                alert("Chào mừng bạn đến với DONIDG");
                 const redirectPath = localStorage.getItem("redirectAfterLogin") || "/";
                 router.push(redirectPath);
             }, 1000);
@@ -85,8 +69,13 @@ export default function Signup() {
         }
         const age = new Date().getFullYear() - new Date(birthDate).getFullYear();
 
-        if (age < 13) {
-            showMessage("error", "Bạn phải đủ 13 tuổi trở lên mới được đăng ký");
+        // if (age < 13) {
+        //     showMessage("error", "Bạn phải đủ 13 tuổi trở lên mới được đăng ký");
+        //     return;
+        // }
+
+        if (validateEmail(email)) {
+            showMessage("error", "Email không đúng định dạng");
             return;
         }
 
@@ -101,7 +90,7 @@ export default function Signup() {
 
     return (
         <div className="auth-container">
-            {!isRegister && (
+            {!isRegister && !isForgotPassword && (
                 <div className="form-container-login">
                     <div className="breadcrumb">
                         <a href="/">Trang chủ</a> &gt; Đăng nhập
@@ -135,7 +124,7 @@ export default function Signup() {
                         </div>
                         <div style={{ marginTop: "0.5rem" }}>
                             Quên mật khẩu?{" "}
-                            <a href="#" onClick={() => showForgotPassword(document.querySelector("[name='loginEmail']").value)}>
+                            <a href="#" onClick={() => setIsForgotPassword(true)}>
                                 Khôi phục mật khẩu
                             </a>
                         </div>
@@ -143,7 +132,6 @@ export default function Signup() {
                 </div>
             )}
 
-            {/* Register Form */}
             {isRegister && (
                 <div className="form-container-register">
                     <div className="breadcrumb">
@@ -194,6 +182,67 @@ export default function Signup() {
                     </a>
                 </div>
             )}
-        </div>
+
+            {isForgotPassword && (
+                <div className="form-container-forgot">
+                    <div className="breadcrumb">
+                        <a href="/">Trang chủ</a> &gt;{" "}
+                        <a href="#" onClick={() => setIsForgotPassword(false)}>
+                            Đăng nhập
+                        </a>{" "}
+                        &gt; Khôi phục mật khẩu
+                    </div>
+
+                    <div className="form-header">
+                        <h2 className="form-title">Khôi phục mật khẩu</h2>
+                        <p className="form-subtitle">
+                            Nhập email của bạn để nhận liên kết đặt lại mật khẩu
+                        </p>
+                    </div>
+
+                    {messages.success && <div className="success-message">{messages.success}</div>}
+                    {messages.error && <div className="error-message">{messages.error}</div>}
+
+                    <form onSubmit={(e) => {
+                        e.preventDefault();
+                        const email = e.target.forgotEmail.value;
+                        if (!email) {
+                            showMessage("error", "Vui lòng nhập email");
+                            return;
+                        }
+                        if (!validateEmail(email)) {
+                            showMessage("error", "Vui lòng nhập email hợp lệ");
+                            return;
+                        }
+                        setLoading(true);
+                        showMessage("success", "");
+                        setTimeout(() => {
+                            setLoading(false);
+                            showMessage(`Link khôi phục mật khẩu đã được gửi tới ${email}`, "",);
+                        }, 3000);
+                    }}
+                    >
+                        <div className="form-group">
+                            <input
+                                type="email"
+                                className="form-input"
+                                placeholder="Email"
+                                name="forgotEmail"
+                            />
+                        </div>
+                        <button type="submit" className={`btn-primary ${loading ? "btn-loading" : ""}`}
+                        >
+                            Gửi liên kết
+                        </button>
+                    </form>
+
+                    <a href="#" className="switch-form-link" onClick={() => setIsForgotPassword(false)}>
+                        ← Quay lại trang đăng nhập
+                    </a>
+
+                </div>
+            )
+            }
+        </div >
     );
 }

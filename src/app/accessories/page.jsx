@@ -1,5 +1,10 @@
+import Hero from "@/components/Hero";
+
 export default function Accessories() {
     return (
-        <h1>Đây là trang phụ kiện</h1>
+        <main>
+            <Hero />
+            <h1>Đây là trang phụ kiện</h1>
+        </main>
     );
 }

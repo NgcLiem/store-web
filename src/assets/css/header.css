@@ -111,3 +111,9 @@
   border-color: #4CAF50;
   box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
 }
+
+.fa-icon:hover {
+    color: #4CAF50;
+    transition: all 0.3s ease;
+    transform: translateY(-1px);
+}

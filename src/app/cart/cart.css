@@ -1,8 +1,8 @@
 .cart-popup {
   background: #fff;
   padding: 0;
-  max-width: 640px;
-  margin: 0 auto;
+  max-width: 840px;
+  margin: 100px auto 20px;
   border-radius: 12px;
   box-shadow: 0 2px 16px rgba(0,0,0,0.08);
   position: relative;
@@ -153,7 +153,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
+  margin: 12px 0 12px;
 }
 .cart-total-label {
   font-weight: 700;
@@ -171,12 +171,13 @@
 .continue-shopping-btn {
   height: 80px;
   width: 300px;
-  background-color: #333;
+  background-color: #4cfa10;
   padding: 0 16px;
   color: #fff;
   font-height: 600;
   border-radius: 28px;
   cursor: pointer;
+  font-size: 18px;
 }
 
 .continue-shopping-btn:hover,

@@ -45,10 +45,10 @@ export default function Header() {
                         }
                     }
                     }>
-                        <i className="fa-regular fa-user"></i>
+                        <i className="fa-icon fa-regular fa-user"></i>
                     </Link>
                     <Link href="/cart">
-                        <i className="fa-solid fa-cart-shopping"></i>
+                        <i className="fa-icon fa-solid fa-cart-shopping"></i>
                     </Link>
                 </div>
             </nav>
