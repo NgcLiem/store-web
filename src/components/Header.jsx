@@ -18,6 +18,9 @@ export default function Header() {
             <nav className="nav">
                 <div className="logo">
                     <img src="/images/logo.jpg" alt="DONIDG" />
+                    {/* <a href="#" className="switch-form-link" onClick={switchToLogin}>
+                            
+                        </a> */}
                 </div>
                 <ul className="nav-menu">
                     <li><Link href="/">Trang chủ</Link></li>

@@ -6,6 +6,7 @@ import "../assets/css/auth.css";
 export default function Signup() {
     const [isRegister, setIsRegister] = useState(false);
     const [isForgotPassword, setIsForgotPassword] = useState(false);
+    const [animating, setAnimating] = useState(false);
 
     const [messages, setMessages] = useState({ success: "", error: "" });
     const [loading, setLoading] = useState(false);
@@ -25,7 +26,10 @@ export default function Signup() {
     }, []);
 
     const showMessage = (type, text) => {
-        setMessages({ [type]: text });
+        if (!text)
+            return;
+        // setMessages({ [type]: text });
+        setMessages({ success: type === "success" ? text : "", error: type === "error" ? text : "" })
         setTimeout(() => setMessages({ success: "", error: "" }), 3000);
     };
 
@@ -74,9 +78,8 @@ export default function Signup() {
         //     return;
         // }
 
-        if (validateEmail(email)) {
-            showMessage("error", "Email không đúng định dạng");
-            return;
+        if (!validateEmail(email)) {
+            return showMessage("error", "Email không đúng định dạng");
         }
 
         showMessage("success", `Tài khoản đã được tạo thành công cho ${firstName} ${lastName}!`);
@@ -87,11 +90,52 @@ export default function Signup() {
         }, 2000);
     };
 
+    const handleForgotPassword = (e) => {
+        e.preventDefault();
+        const email = e.target.forgotEmail.value;
+        if (!email)
+            return showMessage("error", "Vui lòng nhập email");
+        if (!validateEmail(email))
+            return showMessage("error", "Vui lòng nhập đúng email")
+
+        setLoading(true);
+        setTimeout(() => {
+            setLoading(false);
+            showMessage("success", `Link khôi phục đã gửi đến ${email}`);
+        }, 1500);
+    }
+
+    const switchToRegister = () => {
+        setAnimating(true);
+        setTimeout(() => {
+            setIsRegister(true);
+            setIsForgotPassword(false);
+            setAnimating(false);
+        }, 300);
+    }
+
+    const switchToLogin = () => {
+        setAnimating(true);
+        setTimeout(() => {
+            setIsRegister(false);
+            setIsForgotPassword(false);
+            setAnimating(false);
+        }, 300);
+    }
+
+    const switchToForgotPassword = () => {
+        setAnimating(true);
+        setTimeout(() => {
+            setIsRegister(false);
+            setIsForgotPassword(true);
+            setAnimating(false);
+        }, 300)
+    }
 
     return (
         <div className="auth-container">
             {!isRegister && !isForgotPassword && (
-                <div className="form-container-login">
+                <div className={`form-container-login ${animating ? "fade-out" : "fade-in"}`}>
                     <div className="breadcrumb">
                         <a href="/">Trang chủ</a> &gt; Đăng nhập
                     </div>
@@ -118,130 +162,111 @@ export default function Signup() {
                     <div className="form-links">
                         <div>
                             Khách hàng mới?{" "}
-                            <a href="#" onClick={() => setIsRegister(true)}>
+                            <a href="#" onClick={switchToRegister}>
                                 Tạo tài khoản
                             </a>
                         </div>
                         <div style={{ marginTop: "0.5rem" }}>
                             Quên mật khẩu?{" "}
-                            <a href="#" onClick={() => setIsForgotPassword(true)}>
+                            <a href="#" onClick={switchToForgotPassword}>
                                 Khôi phục mật khẩu
                             </a>
                         </div>
                     </div>
                 </div>
-            )}
-
-            {isRegister && (
-                <div className="form-container-register">
-                    <div className="breadcrumb">
-                        <a href="/">Trang chủ</a> &gt;{" "}
-                        <a href="#" onClick={() => setIsRegister(false)}>
-                            Đăng nhập
-                        </a>{" "}
-                        &gt; Tạo tài khoản
-                    </div>
-                    <div className="form-header">
-                        <h2 className="form-title">Tạo tài khoản</h2>
-                    </div>
-
-                    {messages.success && <div className="success-message">{messages.success}</div>}
-                    {messages.error && <div className="error-message">{messages.error}</div>}
-
-                    <form onSubmit={handleRegister}>
-                        <div className="form-group-register">
-                            <input type="text" className="form-input" placeholder="Họ" name="lastName" />
-                        </div>
-                        <div className="form-group-register">
-                            <input type="text" className="form-input" placeholder="Tên" name="firstName" />
-                        </div>
-                        <div className="radio-group">
-                            <label className="radio-item">
-                                <input type="radio" name="gender" value="female" className="radio-input" /> Nữ
-                            </label>
-                            <label className="radio-item">
-                                <input type="radio" name="gender" value="male" defaultChecked className="radio-input" /> Nam
-                            </label>
-                        </div>
-                        <div className="form-group-register">
-                            <input type="date" className="form-input" name="birthDate" />
-                        </div>
-                        <div className="form-group-register">
-                            <input type="email" className="form-input" placeholder="Email" name="registerEmail" />
-                        </div>
-                        <div className="form-group-register">
-                            <input type="password" className="form-input" placeholder="Mật khẩu" name="registerPassword" />
-                        </div>
-                        <button type="submit" className={`btn-primary-register ${loading ? "btn-loading" : ""}`}>
-                            Đăng ký
-                        </button>
-                    </form>
-
-                    <a href="#" className="switch-form-link" onClick={() => setIsRegister(false)}>
-                        ← Quay lại trang đăng nhập
-                    </a>
-                </div>
-            )}
-
-            {isForgotPassword && (
-                <div className="form-container-forgot">
-                    <div className="breadcrumb">
-                        <a href="/">Trang chủ</a> &gt;{" "}
-                        <a href="#" onClick={() => setIsForgotPassword(false)}>
-                            Đăng nhập
-                        </a>{" "}
-                        &gt; Khôi phục mật khẩu
-                    </div>
-
-                    <div className="form-header">
-                        <h2 className="form-title">Khôi phục mật khẩu</h2>
-                        <p className="form-subtitle">
-                            Nhập email của bạn để nhận liên kết đặt lại mật khẩu
-                        </p>
-                    </div>
-
-                    {messages.success && <div className="success-message">{messages.success}</div>}
-                    {messages.error && <div className="error-message">{messages.error}</div>}
-
-                    <form onSubmit={(e) => {
-                        e.preventDefault();
-                        const email = e.target.forgotEmail.value;
-                        if (!email) {
-                            showMessage("error", "Vui lòng nhập email");
-                            return;
-                        }
-                        if (!validateEmail(email)) {
-                            showMessage("error", "Vui lòng nhập email hợp lệ");
-                            return;
-                        }
-                        setLoading(true);
-                        showMessage("success", "");
-                        setTimeout(() => {
-                            setLoading(false);
-                            showMessage(`Link khôi phục mật khẩu đã được gửi tới ${email}`, "",);
-                        }, 3000);
-                    }}
-                    >
-                        <div className="form-group">
-                            <input
-                                type="email"
-                                className="form-input"
-                                placeholder="Email"
-                                name="forgotEmail"
-                            />
-                        </div>
-                        <button type="submit" className={`btn-primary ${loading ? "btn-loading" : ""}`}
-                        >
-                            Gửi liên kết
-                        </button>
-                    </form>
-
-                    <a href="#" className="switch-form-link" onClick={() => setIsForgotPassword(false)}>
-                        ← Quay lại trang đăng nhập
-                    </a>
-
-                </div>
             )
+            }
+
+            {
+                isRegister && (
+                    <div className={`form-container-register ${animating ? "fade-out" : "fade-in"}`}>
+                        <div className="breadcrumb">
+                            <a href="/">Trang chủ</a> &gt;{" "}
+                            <a href="#" onClick={() => setIsRegister(false)}>
+                                Đăng nhập
+                            </a>{" "}
+                            &gt; Tạo tài khoản
+                        </div>
+                        <div className="form-header">
+                            <h2 className="form-title">Tạo tài khoản</h2>
+                        </div>
+
+                        {messages.success && <div className="success-message">{messages.success}</div>}
+                        {messages.error && <div className="error-message">{messages.error}</div>}
+
+                        <form onSubmit={handleRegister}>
+                            <div className="form-group-register">
+                                <input type="text" className="form-input" placeholder="Họ" name="lastName" />
+                            </div>
+                            <div className="form-group-register">
+                                <input type="text" className="form-input" placeholder="Tên" name="firstName" />
+                            </div>
+                            <div className="radio-group">
+                                <label className="radio-item">
+                                    <input type="radio" name="gender" value="female" className="radio-input" /> Nữ
+                                </label>
+                                <label className="radio-item">
+                                    <input type="radio" name="gender" value="male" defaultChecked className="radio-input" /> Nam
+                                </label>
+                            </div>
+                            <div className="form-group-register">
+                                <input type="date" className="form-input" name="birthDate" />
+                            </div>
+                            <div className="form-group-register">
+                                <input type="email" className="form-input" placeholder="Email" name="registerEmail" />
+                            </div>
+                            <div className="form-group-register">
+                                <input type="password" className="form-input" placeholder="Mật khẩu" name="registerPassword" />
+                            </div>
+                            <button type="submit" className={`btn-primary-register ${loading ? "btn-loading" : ""}`}>
+                                Đăng ký
+                            </button>
+                        </form >
+
+                        <a href="#" className="switch-form-link" onClick={switchToLogin}>
+                            ← Quay lại trang đăng nhập
+                        </a>
+                    </div >
+                )
+            }
+
+            {
+                isForgotPassword && (
+                    <div className={`form-container-forgot ${animating ? "fade-out" : "fade-in"}`}>
+                        <div className="breadcrumb">
+                            <a href="/">Trang chủ</a> &gt;{" "}
+                            <a href="#" onClick={() => setIsForgotPassword(false)}>
+                                Đăng nhập
+                            </a>{" "}
+                            &gt; Khôi phục mật khẩu
+                        </div>
+
+                        <div className="form-header">
+                            <h2 className="form-title">Khôi phục mật khẩu</h2>
+                            <p className="form-subtitle">
+                                Nhập email của bạn để nhận liên kết đặt lại mật khẩu
+                            </p>
+                        </div>
+
+                        {messages.success && <div className="success-message">{messages.success}</div>}
+                        {messages.error && <div className="error-message">{messages.error}</div>}
+
+                        <form onSubmit={handleForgotPassword}>
+                            <div className="form-group">
+                                <input type="email" className="form-input" placeholder="Email" name="forgotEmail" />
+                            </div>
+                            <button type="submit" className={`btn-primary ${loading ? "btn-loading" : ""}`}
+                            >
+                                Gửi liên kết
+                            </button>
+                        </form>
+
+                        <a href="#" className="switch-form-link" onClick={switchToLogin}>
+                            ← Quay lại trang đăng nhập
+                        </a>
+
+                    </div>
+                )
             }
         </div >
     );

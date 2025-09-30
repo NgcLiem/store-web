@@ -48,7 +48,6 @@ export default function Accessories() {
                             src="/images/image 205.png"
                             className="product-image"
                             alt="Jordan 1 Retro High"
-                            style={{ background: "linear-gradient(45deg, #f093fb, #f5576c)" }}
                         />
                     </div>
 
@@ -64,7 +63,6 @@ export default function Accessories() {
                             src="/images/image 206.png"
                             className="product-image"
                             alt="Yeezy Boost 350 V2"
-                            style={{ background: "linear-gradient(45deg, #4facfe, #00f2fe)" }}
                         />
                     </div>
 

@@ -1,12 +1,6 @@
 .services {
-  padding: 4rem 0;
+  padding: 3rem 0;
   background: #f8f9fa;
-}
-
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 2rem;
 }
 
 .services-grid {

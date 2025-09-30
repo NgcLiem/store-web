@@ -1,0 +1,42 @@
+.page-layout {
+  display: flex;
+  align-items: flex-start;
+  min-height: 80vh;
+}
+
+/* Sidebar */
+.sidebar {
+  min-width: 220px;
+  max-width: 260px;
+  width: 220px;
+  background: #fff;
+  border-right: 1px solid #eee;
+  padding: 16px;
+  height: 100%;
+  position: sticky;
+  top: 0;
+}
+
+.sidebar h3 {
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+/* Nội dung chính */
+.content {
+  flex: 1;
+  padding-left: 32px;
+}
+
+.content h2 {
+  margin-bottom: 1.5rem;
+}
+
+.product-image {
+  width: 100%;
+  border-radius: 8px;
+}
+
+.product-info h3 {
+  font-size: 1rem;
+}
