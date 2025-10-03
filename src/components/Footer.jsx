@@ -1,3 +1,4 @@
+import Link from "next/link";
 import "../assets/css/footer.css"
 
 export default function Footer() {
@@ -28,18 +29,18 @@ export default function Footer() {
 
                     <div className="footer-section">
                         <h3>Theo Dõi Chúng Tôi</h3>
-                        <p><a href="#">Facebook</a></p>
-                        <p><a href="#">Instagram</a></p>
-                        <p><a href="#">Tiktok</a></p>
-                        <p><a href="#">YouTube</a></p>
+                        <p><Link href="facebook">Facebook</Link></p>
+                        <p><Link href="instagram">Instagram</Link></p>
+                        <p><Link href="tiktok">Tiktok</Link></p>
+                        <p><Link href="youtube">YouTube</Link></p>
                     </div>
 
                     <div className="footer-section">
                         <h3>Hỗ trợ</h3>
-                        <p><a href="#">Hướng dẫn đặt hàng</a></p>
-                        <p><a href="#">Chính sách đổi hàng</a></p>
-                        <p><a href="#">7 cách bảo quản giày</a></p>
-                        <p><a href="#">Ngày hot deal</a></p>
+                        <p><Link href="huong-dan-dat-hang">Hướng dẫn đặt hàng</Link></p>
+                        <p><Link href="chinh-sach-doi-hang">Chính sách đổi hàng</Link></p>
+                        <p><Link href="bao-quan-giay">7 cách bảo quản giày</Link></p>
+                        <p><Link href="ngay-hot-deal">Ngày hot deal</Link></p>
                     </div>
                 </div>
             </div>

@@ -36,7 +36,7 @@ export default function Signup() {
     const validateEmail = (email) =>
         /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
-    const handleLogin = (e) => {
+    const handleLogin = async (e) => {
         e.preventDefault();
         const email = e.target.loginEmail.value;
         const password = e.target.loginPassword.value;
@@ -44,6 +44,26 @@ export default function Signup() {
             showMessage("error", "Vui lòng điền đầy đủ thông tin");
             return;
         }
+
+        // try {
+        //     const response = await fetch("/api/auth/login", {
+        //         method: "POST",
+        //         headers: {
+        //             "Content-Type": "application/json"
+        //         },
+        //         body: JSON.stringify({ email, password }),
+        //     });
+        //     const data = await response.json();
+        //     if (data.success) {
+        //         showMessage("success", "Đăng nhập thành công! Chuyển hướng...");
+        //         setTimeout(() => { router.push("/"), 1500 });
+        //     }
+        //     else {
+        //         showMessage("error", data.messages)
+        //     }
+        // } catch (error) {
+        //     showMessage("error", "Lỗi kết nết server");
+        // }
         if (email === "demo@123.com" || loginPassword === "123456") {
             showMessage("success", "Đăng nhập thành công! Chuyển hướng...");
 
@@ -176,7 +196,7 @@ export default function Signup() {
                 </div>
             )
             }
-
+            
             {
                 isRegister && (
                     <div className={`form-container-register ${animating ? "fade-out" : "fade-in"}`}>

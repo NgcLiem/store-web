@@ -16,12 +16,9 @@ export default function Header() {
     return (
         <header className="header">
             <nav className="nav">
-                <div className="logo">
-                    <img src="/images/logo.jpg" alt="DONIDG" />
-                    {/* <a href="#" className="switch-form-link" onClick={switchToLogin}>
-                            
-                        </a> */}
-                </div>
+                <Link href="/" className="logo">
+                    <img src="/images/logo1.png" alt="DONIDG" width={120} height={60} />
+                </Link>
                 <ul className="nav-menu">
                     <li><Link href="/">Trang chủ</Link></li>
                     <li><Link href="/nike">Nike</Link></li>

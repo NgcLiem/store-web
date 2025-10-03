@@ -3,6 +3,8 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --redcolor: #ff4d4f;
+  --maincolor: #4caf50;
 }
 
 @theme inline {
@@ -21,7 +23,7 @@
 
 body {
   background: #f5f5f5;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   line-height: 1.6;
 }
 
@@ -113,13 +115,13 @@ main {
 }
 
 @keyframes spin {
-    0% {
-        transform: translate(-50%, -50%) rotate(0deg);
-    }
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
 
-    100% {
-        transform: translate(-50%, -50%) rotate(360deg);
-    }
+  100% {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
 }
 
 .container {
@@ -165,7 +167,7 @@ main {
   position: absolute;
   top: 10px;
   left: 10px;
-  background: #ff4d4f;
+  background: var(--redcolor);
   color: #fff;
   font-size: 14px;
   padding: 4px 8px;
@@ -173,7 +175,7 @@ main {
 }
 
 .product-price {
-  color: #dc2739;
+  color: var(--redcolor);
   font-weight: bold;
   font-size: 1.2rem;
 }
@@ -185,7 +187,7 @@ main {
 }
 
 .product-image::after {
-  content: '👟';
+  content: "👟";
   position: absolute;
   top: 50%;
   left: 50%;
@@ -223,4 +225,3 @@ main {
   text-transform: uppercase;
   letter-spacing: 1px;
 }
-
