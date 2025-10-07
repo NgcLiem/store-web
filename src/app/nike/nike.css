@@ -35,11 +35,6 @@
 }
 
 /* Product grid */
-.products-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.5rem;
-}
 
 .product-card {
   border: 1px solid #eee;
@@ -72,7 +67,3 @@
   font-size: 1rem;
 }
 
-.product-price {
-  font-weight: bold;
-  color: #333;
-}

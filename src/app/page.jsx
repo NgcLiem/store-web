@@ -1,5 +1,5 @@
 import Services from "@/components/Services";
-import ProductSection from "@/components/NewProduct";
+import ProductSection from "@/components/ProductSection";
 import Accessories from "@/components/Accessories";
 import Hero from "@/components/Hero";
 

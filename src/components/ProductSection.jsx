@@ -80,6 +80,13 @@ export default function Products() {
         },
     ];
 
+    // useEffect(() => {
+    //     fetch("/api/products")
+    //         .then((res) => res.json())
+    //         .then((data) => setProducts(data))
+    //         .catch((err) => console.error("Fetch error:", err));
+    // }, []);
+
     return (
         <section className="products" id="products">
             <div className="container">

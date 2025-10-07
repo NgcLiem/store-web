@@ -33,59 +33,45 @@ export default function HotDeal() {
         return () => clearInterval(interval);
     }, []);
 
-    // Danh sách sản phẩm hot deal
-    const deals = [
-        {
-            id: 1,
-            name: "Adidas Ultraboost 22",
-            oldPrice: 3500000,
-            newPrice: 1990000,
-            img: "/images/shoes/ultraboost.jpg",
-        },
-        {
-            id: 2,
-            name: "Nike Air Force 1",
-            oldPrice: 3000000,
-            newPrice: 1790000,
-            img: "/images/shoes/airforce1.jpg",
-        },
-        {
-            id: 3,
-            name: "Converse Chuck Taylor",
-            oldPrice: 2200000,
-            newPrice: 1290000,
-            img: "/images/shoes/converse.jpg",
-        },
-    ];
+    const [products, setProducts] = useState([]);
+
+    useEffect(() => {
+        fetch("/api/products")
+            .then((res) => res.json())
+            .then((data) => setProducts(data))
+            .catch((err) => console.error("Fetch error:", err));
+    }, []);
 
     return (
-        <div className="hotdeal-container">
-            {/* Banner */}
-            <div className="hotdeal-banner">
-                <h1>🔥 Hot Deal Hôm Nay</h1>
-                <p>Giảm giá sốc – chỉ trong hôm nay!</p>
-                <div className="countdown">
-                    <span>{String(timeLeft.hours).padStart(2, "0")}giờ</span> :
-                    <span>{String(timeLeft.minutes).padStart(2, "0")}phút</span> :
-                    <span>{String(timeLeft.seconds).padStart(2, "0")}giây</span>
+        // <div className="hotdeal-container">
+        //     {/* Banner */}
+        //     <div className="hotdeal-banner">
+        //         <h1>🔥 Hot Deal Hôm Nay</h1>
+        //         <p>Giảm giá sốc – chỉ trong hôm nay!</p>
+        //         <div className="countdown">
+        //             <span>{String(timeLeft.hours).padStart(2, "0")}giờ</span> :
+        //             <span>{String(timeLeft.minutes).padStart(2, "0")}phút</span> :
+        //             <span>{String(timeLeft.seconds).padStart(2, "0")}giây</span>
+        //         </div>
+        //     </div>
+
+        <section className="hotdeal-section">
+            <div className="container">
+                <h2 className="title">🔥 HOT DEAL HÔM NAY</h2>
+                <div className="product-grid">
+                    {products.map((p) => (
+                        <div key={p.id} className="product-card">
+                            <img src={p.image} alt={p.name} className="product-img" />
+                            <div className="product-info">
+                                <h3>{p.name}</h3>
+                                <p>{p.description}</p>
+                                <div className="price">{p.price.toLocaleString()}₫</div>
+                            </div>
+                        </div>
+                    ))}
                 </div>
             </div>
-
-            {/* Danh sách sản phẩm */}
-            <div className="deal-list">
-                {deals.map((deal) => (
-                    <div className="deal-item" key={deal.id}>
-                        <img src={deal.img} alt={deal.name} />
-                        <h3>{deal.name}</h3>
-                        <p className="old-price">{deal.oldPrice.toLocaleString()}đ</p>
-                        <p className="new-price">{deal.newPrice.toLocaleString()}đ</p>
-                        <p className="discount">
-                            -{Math.round(((deal.oldPrice - deal.newPrice) / deal.oldPrice) * 100)}%
-                        </p>
-                        <button className="buy-btn">Mua Ngay</button>
-                    </div>
-                ))}
-            </div>
-        </div>
+        </section>
+        // </div>
     );
 }
