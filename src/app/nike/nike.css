@@ -12,9 +12,11 @@
   background: #fff;
   border-right: 1px solid #eee;
   padding: 16px;
-  height: 100%;
+  height: fit-content;
   position: sticky;
-  top: 0;
+  top: 80px; /* Để sidebar nằm ngang tiêu đề, không che header */
+  align-self: flex-start;
+  z-index: 2;
 }
 
 .sidebar h3 {
@@ -32,11 +34,45 @@
   margin-bottom: 1.5rem;
 }
 
+/* Product grid */
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+.product-card {
+  border: 1px solid #eee;
+  padding: 12px;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.product-badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: #ff3b30;
+    color: #fff;
+    padding: 4px 8px;
+    font-size: 0.75rem;
+    border-radius: 4px; 
+}
+
 .product-image {
   width: 100%;
   border-radius: 8px;
 }
 
+.product-info {
+  margin-top: 0.5rem;
+}
+
 .product-info h3 {
   font-size: 1rem;
+}
+
+.product-price {
+  font-weight: bold;
+  color: #333;
 }

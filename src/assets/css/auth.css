@@ -16,7 +16,7 @@
 }
 
 .form-container-register {
-    padding: 2rem 2.5rem 2rem;
+    padding: 2.25rem 2.5rem 2.5rem;
     position: relative;
     min-height: 608px;
 }
@@ -69,7 +69,21 @@
 }
 
 .form-group-register {
-    margin-bottom: 1rem;
+    margin-bottom: 0; /* spacing handled by form gap for consistent spacing */
+}
+
+/* Make register form use flex column with gap for reliable spacing */
+.form-container-register form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem; /* khoảng cách giữa các ô nhập */
+}
+
+/* Mobile: giảm padding nhưng giữ khoảng cách giữa các ô */
+@media (max-width: 480px) {
+    .form-container-register {
+        padding: 1.5rem 1.5rem 2rem;
+    }
 }
 
 .form-input {
