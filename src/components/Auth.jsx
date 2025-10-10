@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import "../assets/css/auth.css";
 
@@ -10,6 +10,7 @@ export default function Signup() {
     const [messages, setMessages] = useState({ success: "", error: "" });
     const [loading, setLoading] = useState(false);
     const [birthLimit, setBirthLimit] = useState("");
+    const [invalidFields, setInvalidFields] = useState([]);
 
     const router = useRouter();
 
@@ -19,25 +20,85 @@ export default function Signup() {
         setBirthLimit(eighteenYearsAgo.toISOString().split("T")[0]);
     }, []);
 
+    useEffect(() => {
+        const handleHashChange = () => {
+            const hash = window.location.hash;
+            if (hash === "#register") {
+                setIsRegister(true);
+                setIsForgotPassword(false);
+            } else if (hash === "#forgotPassword") {
+                setIsForgotPassword(true);
+                setIsRegister(false);
+            } else {
+                setIsRegister(false);
+                setIsForgotPassword(false);
+            }
+        };
+
+        window.addEventListener("popstate", handleHashChange);
+        handleHashChange(); // chạy lần đầu
+
+        return () => window.removeEventListener("popstate", handleHashChange);
+    }, []);
+
+
     const showMessage = (type, text) => {
         if (!text) return;
         setMessages({
             success: type === "success" ? text : "",
             error: type === "error" ? text : ""
         });
-        setTimeout(() => setMessages({ success: "", error: "" }), 3000);
+
+        setTimeout(() => {
+            const alertEl =
+                document.querySelector(".error-message") ||
+                document.querySelector(".success-message");
+            if (alertEl) {
+                alertEl.scrollIntoView({ behavior: "smooth", block: "center" });
+            }
+        }, 100);
+
+        setTimeout(() => {
+            setMessages({ success: "", error: "" });
+        }, 3000);
     };
+
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            const isClickInsideForm = e.target.closest(".auth-container");
+            if (!isClickInsideForm) {
+                setMessages({ success: "", error: "" });
+            }
+        };
+
+        document.addEventListener("click", handleClickOutside);
+
+        // Dọn dẹp khi component bị unmount
+        return () => {
+            document.removeEventListener("click", handleClickOutside);
+        };
+    }, []);
+
 
     const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
     // Đăng nhập
     const handleLogin = (e) => {
         e.preventDefault();
-        const email = e.target.loginEmail.value;
+        const email = e.target.loginEmail.value.trim();
         const password = e.target.loginPassword.value;
 
-        if (!email || !password) {
-            return showMessage("error", "Vui lòng điền đầy đủ thông tin");
+        const emptyFields = [];
+
+        if (!email) emptyFields.push("loginEmail");
+        if (!password) emptyFields.push("loginPassword");
+
+        if (emptyFields.length > 0) {
+            setInvalidFields(emptyFields);
+            showMessage("error", "Vui lòng điền đầy đủ thông tin");
+            return;
+        } else {
+            setInvalidFields([]);
         }
 
         // Giả lập đăng nhập thành công
@@ -55,8 +116,8 @@ export default function Signup() {
     // Đăng ký
     const handleRegister = (e) => {
         e.preventDefault();
-        const firstName = e.target.firstName.value.trim();
         const lastName = e.target.lastName.value.trim();
+        const firstName = e.target.firstName.value.trim();
         const email = e.target.registerEmail.value.trim();
         const password = e.target.registerPassword.value;
         const confirmPassword = e.target.registerConfirmPassword.value;
@@ -64,9 +125,24 @@ export default function Signup() {
         const phone = e.target.registerPhone.value.trim();
         const birthDate = e.target.birthDate.value;
 
-        if (!firstName || !lastName || !email || !password || !confirmPassword || !address || !phone || !birthDate) {
-            return showMessage("error", "Vui lòng điền đầy đủ thông tin");
+        const emptyFields = [];
+        if (!lastName) emptyFields.push("lastName");
+        if (!firstName) emptyFields.push("firstName");
+        if (!email) emptyFields.push("registerEmail");
+        if (!password) emptyFields.push("registerPassword");
+        if (!confirmPassword) emptyFields.push("registerConfirmPassword");
+        if (!address) emptyFields.push("registerAddress");
+        if (!phone) emptyFields.push("registerPhone");
+        if (!birthDate) emptyFields.push("birthDate");
+
+        if (emptyFields.length > 0) {
+            setInvalidFields(emptyFields);
+            showMessage("error", "Vui lòng điền đầy đủ thông tin");
+            return;
+        } else {
+            setInvalidFields([]);
         }
+
         if (password.length < 6) {
             return showMessage("error", "Mật khẩu phải có ít nhất 6 ký tự");
         }
@@ -90,8 +166,16 @@ export default function Signup() {
     // Quên mật khẩu
     const handleForgotPassword = (e) => {
         e.preventDefault();
-        const email = e.target.forgotEmail.value;
-        if (!email) return showMessage("error", "Vui lòng nhập email");
+        const email = e.target.forgotEmail.value.trim();
+        const emptyFields = [];
+        if (!email) emptyFields.push("forgotEmail");
+
+        if (emptyFields.length > 0) {
+            setInvalidFields(emptyFields);
+            showMessage("error", "Vui lòng nhập email");
+            return;
+        }
+
         if (!validateEmail(email)) return showMessage("error", "Email không hợp lệ");
 
         setLoading(true);
@@ -101,13 +185,13 @@ export default function Signup() {
         }, 1500);
     };
 
-    // Hiệu ứng chuyển form
     const switchToRegister = () => {
         setAnimating(true);
         setTimeout(() => {
             setIsRegister(true);
             setIsForgotPassword(false);
             setAnimating(false);
+            window.history.pushState({}, "", "/login#register");
         }, 300);
     };
     const switchToLogin = () => {
@@ -116,6 +200,7 @@ export default function Signup() {
             setIsRegister(false);
             setIsForgotPassword(false);
             setAnimating(false);
+            window.history.pushState({}, "", "/login");
         }, 300);
     };
     const switchToForgotPassword = () => {
@@ -124,8 +209,10 @@ export default function Signup() {
             setIsRegister(false);
             setIsForgotPassword(true);
             setAnimating(false);
+            window.history.pushState({}, "", "/login#forgotPassword");
         }, 300);
     };
+
 
     return (
         <div className="auth-container">
@@ -145,10 +232,26 @@ export default function Signup() {
 
                     <form onSubmit={handleLogin}>
                         <div className="form-group">
-                            <input type="email" className="form-input" placeholder="Email" name="loginEmail" />
+                            <input type="email"
+                                className={`form-input ${invalidFields.includes("loginEmail") ? "input-error" : ""}`}
+                                placeholder="Email"
+                                name="loginEmail"
+                                onChange={(e) => {
+                                    setInvalidFields((prev) => prev.filter(f => f !== e.target.name));
+                                }}
+                            />
                         </div>
+
                         <div className="form-group">
-                            <input type="password" className="form-input" placeholder="Mật khẩu" name="loginPassword" />
+                            <input type="password"
+                                className={`form-input ${invalidFields.includes("loginPassword") ? "input-error" : ""}`}
+                                placeholder="Mật Khẩu"
+                                name="loginPassword"
+                                onChange={(e) => {
+                                    setInvalidFields((prev) => prev.filter(f => f !== e.target.name));
+                                }}
+                            />
+
                         </div>
                         <button type="submit" className={`btn-primary ${loading ? "btn-loading" : ""}`}>
                             Đăng nhập
@@ -180,18 +283,74 @@ export default function Signup() {
                     {messages.error && <div className="error-message">{messages.error}</div>}
 
                     <form onSubmit={handleRegister}>
-                        <input type="text" className="form-input" placeholder="Họ" name="lastName" />
-                        <input type="text" className="form-input" placeholder="Tên" name="firstName" />
-                        <input type="text" className="form-input" placeholder="Địa chỉ" name="registerAddress" />
-                        <input type="text" className="form-input" placeholder="Số điện thoại" name="registerPhone" />
+                        <input type="text"
+                            className={`form-input ${invalidFields.includes("lastName") ? "input-error" : ""}`}
+                            placeholder="Họ"
+                            name="lastName"
+                            onChange={(e) => {
+                                setInvalidFields((prev) => prev.filter(f => f !== e.target.name));
+                            }}
+                        />
+                        <input type="text"
+                            className={`form-input ${invalidFields.includes("firstName") ? "input-error" : ""}`}
+                            placeholder="Tên"
+                            name="firstName"
+                            onChange={(e) => {
+                                setInvalidFields((prev) => prev.filter(f => f !== e.target.name));
+                            }}
+                        />
+                        <input type="text"
+                            className={`form-input ${invalidFields.includes("registerAddress") ? "input-error" : ""}`}
+                            placeholder="Địa chỉ"
+                            name="registerAddress"
+                            onChange={(e) => {
+                                setInvalidFields((prev) => prev.filter(f => f !== e.target.name));
+                            }}
+                        />
+                        <input type="text"
+                            className={`form-input ${invalidFields.includes("registerPhone") ? "input-error" : ""}`}
+                            placeholder="Số điện thoại"
+                            name="registerPhone"
+                            onChange={(e) => {
+                                setInvalidFields((prev) => prev.filter(f => f !== e.target.name));
+                            }}
+                        />
                         <div className="radio-group">
                             <label><input type="radio" name="gender" value="female" /> Nữ</label>
                             <label><input type="radio" name="gender" value="male" defaultChecked /> Nam</label>
                         </div>
-                        <input type="date" className="form-input" name="birthDate" max={birthLimit} />
-                        <input type="email" className="form-input" placeholder="Email" name="registerEmail" />
-                        <input type="password" className="form-input" placeholder="Mật khẩu" name="registerPassword" />
-                        <input type="password" className="form-input" placeholder="Nhập lại mật khẩu" name="registerConfirmPassword" />
+                        <input type="date"
+                            className={`form-input ${invalidFields.includes("birthDate") ? "input-error" : ""}`}
+                            name="birthDate"
+                            max={birthLimit}
+                            onChange={(e) => {
+                                setInvalidFields((prev) => prev.filter(f => f !== e.target.name));
+                            }}
+                        />
+                        <input type="email"
+                            className={`form-input ${invalidFields.includes("registerEmail") ? "input-error" : ""}`}
+                            placeholder="Email"
+                            name="registerEmail"
+                            onChange={(e) => {
+                                setInvalidFields((prev) => prev.filter(f => f !== e.target.name));
+                            }}
+                        />
+                        <input type="password"
+                            className={`form-input ${invalidFields.includes("registerPassword") ? "input-error" : ""}`}
+                            placeholder="Mật khẩu"
+                            name="registerPassword"
+                            onChange={(e) => {
+                                setInvalidFields((prev) => prev.filter(f => f !== e.target.name));
+                            }}
+                        />
+                        <input type="password"
+                            className={`form-input ${invalidFields.includes("registerConfirmPassword") ? "input-error" : ""}`}
+                            placeholder="Nhập lại mật khẩu"
+                            name="registerConfirmPassword"
+                            onChange={(e) => {
+                                setInvalidFields((prev) => prev.filter(f => f !== e.target.name));
+                            }}
+                        />
                         <button type="submit" className={`btn-primary-register ${loading ? "btn-loading" : ""}`}>
                             Đăng ký
                         </button>
@@ -215,7 +374,14 @@ export default function Signup() {
                     {messages.success && <div className="success-message">{messages.success}</div>}
                     {messages.error && <div className="error-message">{messages.error}</div>}
                     <form onSubmit={handleForgotPassword}>
-                        <input type="email" className="form-input" placeholder="Email" name="forgotEmail" />
+                        <input type="email"
+                            className={`form-input ${invalidFields.includes("forgotEmail") ? "input-error" : ""}`}
+                            placeholder="Email"
+                            name="forgotEmail"
+                            onChange={(e) => {
+                                setInvalidFields((prev) => prev.filter(f => f !== e.target.name));
+                            }}
+                        />
                         <button type="submit" className={`btn-primary ${loading ? "btn-loading" : ""}`}>
                             Gửi liên kết
                         </button>

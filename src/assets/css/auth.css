@@ -334,4 +334,25 @@
     border-radius: 4px;
     margin-bottom: 1rem;
     border: 1px solid #f5c6cb;
+    animation: shake 0.3s ease-in-out;
+}
+
+@keyframes shake {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  50% { transform: translateX(5px); }
+  75% { transform: translateX(-5px); }
+  100% { transform: translateX(0); }
+}
+
+.input-error {
+  border: 2px solid #e74c3c !important;
+  background-color: #ffeaea;
+  transition: border 0.3s ease, background-color 0.3s ease;
+}
+
+.input-error:focus {
+  outline: none;
+  border-color: #c0392b !important;
+  background-color: #fff5f5;
 }

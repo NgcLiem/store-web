@@ -43,35 +43,34 @@ export default function HotDeal() {
     }, []);
 
     return (
-        // <div className="hotdeal-container">
-        //     {/* Banner */}
-        //     <div className="hotdeal-banner">
-        //         <h1>🔥 Hot Deal Hôm Nay</h1>
-        //         <p>Giảm giá sốc – chỉ trong hôm nay!</p>
-        //         <div className="countdown">
-        //             <span>{String(timeLeft.hours).padStart(2, "0")}giờ</span> :
-        //             <span>{String(timeLeft.minutes).padStart(2, "0")}phút</span> :
-        //             <span>{String(timeLeft.seconds).padStart(2, "0")}giây</span>
-        //         </div>
-        //     </div>
+        <div className="hotdeal-container">
+            {/* Banner */}
+            <div className="hotdeal-banner">
+                <h1>🔥 Hot Deal Hôm Nay</h1>
+                <p>Giảm giá sốc – chỉ trong hôm nay!</p>
+                <div className="countdown">
+                    <span>{String(timeLeft.hours).padStart(2, "0")}giờ</span> :
+                    <span>{String(timeLeft.minutes).padStart(2, "0")}phút</span> :
+                    <span>{String(timeLeft.seconds).padStart(2, "0")}giây</span>
 
-        <section className="hotdeal-section">
-            <div className="container">
-                <h2 className="title">🔥 HOT DEAL HÔM NAY</h2>
-                <div className="product-grid">
-                    {products.map((p) => (
-                        <div key={p.id} className="product-card">
-                            <img src={p.image} alt={p.name} className="product-img" />
-                            <div className="product-info">
-                                <h3>{p.name}</h3>
-                                <p>{p.description}</p>
-                                <div className="price">{p.price.toLocaleString()}₫</div>
-                            </div>
+                    <div className="container">
+                        <div className="products-grid">
+                            {products.map((p) => (
+                                <div key={p.id} className="product-card">
+                                    <div className="containProduct">
+                                        <img src={p.image} alt={p.name} className="product-image" />
+                                    </div>
+                                    <div className="product-info">
+                                        <h3>{p.name}</h3>
+                                        <p>{p.description}</p>
+                                        <div className="product-price">{p.price.toLocaleString()}₫</div>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
-                    ))}
+                    </div>
                 </div>
             </div>
-        </section>
-        // </div>
+        </div>
     );
 }
