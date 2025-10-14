@@ -83,7 +83,7 @@ export default function Signup() {
     const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
     // Đăng nhập
-    const handleLogin = (e) => {
+    const handleLogin = async (e) => {
         e.preventDefault();
         const email = e.target.loginEmail.value.trim();
         const password = e.target.loginPassword.value;
@@ -101,20 +101,38 @@ export default function Signup() {
             setInvalidFields([]);
         }
 
-        // Giả lập đăng nhập thành công
-        if (email === "demo@123.com" && password === "123456") {
-            showMessage("success", "Đăng nhập thành công! Chuyển hướng...");
+        try {
+            const res = await fetch("/api/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, password }),
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                showMessage("error", data.error || "Đăng nhập thất bại!");
+                return;
+            }
+
+            localStorage.setItem("userEmail", data.user.email);
+            localStorage.setItem("userRole", data.user.role);
+
+            showMessage("success", "Đăng nhập thành công!");
+
             setTimeout(() => {
-                const redirectPath = localStorage.getItem("redirectAfterLogin") || "/";
-                router.push(redirectPath);
+                if (data.user.role === "admin") router.push("/admin");
+                else if (data.user.role === "staff") router.push("/staff");
+                else router.push("/");
             }, 1000);
-        } else {
-            showMessage("error", "Email hoặc mật khẩu không đúng");
+
+        } catch (err) {
+            showMessage("error", "Lỗi kết nối server!");
         }
     };
 
     // Đăng ký
-    const handleRegister = (e) => {
+    const handleRegister = async (e) => {
         e.preventDefault();
         const lastName = e.target.lastName.value.trim();
         const firstName = e.target.firstName.value.trim();
@@ -124,6 +142,8 @@ export default function Signup() {
         const address = e.target.registerAddress.value.trim();
         const phone = e.target.registerPhone.value.trim();
         const birthDate = e.target.birthDate.value;
+        const sex = e.target.gender.value;
+        const fullName = `${e.target.lastName.value} ${e.target.firstName.value}`;
 
         const emptyFields = [];
         if (!lastName) emptyFields.push("lastName");
@@ -156,14 +176,28 @@ export default function Signup() {
             return showMessage("error", "Email không đúng định dạng");
         }
 
-        showMessage("success", `Tài khoản ${firstName} ${lastName} đã được tạo!`);
-        setTimeout(() => {
-            setIsRegister(false);
-            showMessage("success", "Vui lòng đăng nhập bằng tài khoản vừa tạo.");
-        }, 2000);
+        try {
+            const res = await fetch("/api/register", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, password, fullName, phone, address, sex }),
+            });
+            console.log(9)
+            const data = await res.json();
+            console.log(data)
+            if (!res.ok) {
+                showMessage("error", data.error || "Đăng ký thất bại!");
+                return;
+            }
+
+            showMessage("success", "Tạo tài khoản thành công! Vui lòng đăng nhập.");
+            setTimeout(() => switchToLogin(), 2000);
+
+        } catch (err) {
+            showMessage("error", "Lỗi kết nối server!");
+        }
     };
 
-    // Quên mật khẩu
     const handleForgotPassword = (e) => {
         e.preventDefault();
         const email = e.target.forgotEmail.value.trim();
@@ -316,8 +350,8 @@ export default function Signup() {
                             }}
                         />
                         <div className="radio-group">
-                            <label><input type="radio" name="gender" value="female" /> Nữ</label>
-                            <label><input type="radio" name="gender" value="male" defaultChecked /> Nam</label>
+                            <label><input type="radio" name="gender" value="Nữ" /> Nữ</label>
+                            <label><input type="radio" name="gender" value="Nam" defaultChecked /> Nam</label>
                         </div>
                         <input type="date"
                             className={`form-input ${invalidFields.includes("birthDate") ? "input-error" : ""}`}

@@ -33,7 +33,6 @@ export default function NikePage() {
             <section className="products" id="nike-products">
                 <div className="container">
                     <div className="page-layout">
-                        {/* Sidebar */}
                         <aside className="sidebar">
                             <h3>Bộ lọc & Sắp xếp</h3>
                             <div>

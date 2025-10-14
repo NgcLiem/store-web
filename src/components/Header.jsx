@@ -26,6 +26,7 @@ export default function Header() {
                     <li><Link href="/otherBrand">Hãng khác</Link></li>
                     <li><Link href="/accessories">Phụ kiện</Link></li>
                     <li><Link href="/contact">Liên hệ</Link></li>
+                    <li><Link href="/ngay-hot-deal">Ngày Hot Deal</Link></li>
                 </ul>
                 <div className="nav-icons">
                     <form onSubmit={handleSearch} className="search-bar">
