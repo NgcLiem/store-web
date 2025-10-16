@@ -3,14 +3,16 @@
 import { useState } from "react";
 import Link from "next/link";
 import "../assets/css/header.css"
+import { useRouter } from "next/navigation";
 
 export default function Header() {
     const [query, setQuery] = useState("");
+    const router = useRouter();
 
     const handleSearch = (e) => {
         e.preventDefault();
         if (query.trim()) {
-            window.location.href = `/search?query=${encodeURIComponent(query)}`;
+            router.push(`/search?query=${encodeURIComponent(query)}`);
         }
     };
     return (
@@ -25,7 +27,6 @@ export default function Header() {
                     <li><Link href="/adidas">Adidas</Link></li>
                     <li><Link href="/otherBrand">Hãng khác</Link></li>
                     <li><Link href="/accessories">Phụ kiện</Link></li>
-                    <li><Link href="/contact">Liên hệ</Link></li>
                     <li><Link href="/ngay-hot-deal">Ngày Hot Deal</Link></li>
                 </ul>
                 <div className="nav-icons">

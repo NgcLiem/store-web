@@ -116,6 +116,29 @@
   align-items: center;
   margin: 10px 0;
 }
+
+.btn-remove{
+  margin: 8px;
+  border: 1px solid #bbb;
+  background: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 16px;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.btn-add{
+ margin: 8px;
+  border: 1px solid #bbb;
+  background: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 16px;
+  font-size: 18px;
+  cursor: pointer;
+}
+
 .cart-item-qty-btn {
   border: 1px solid #bbb;
   background: none;

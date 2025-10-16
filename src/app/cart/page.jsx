@@ -1,66 +1,86 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import "./cart.css";
 
 export default function CartPage() {
     const router = useRouter();
-    // Demo giỏ hàng (bạn có thể thay bằng data từ props hoặc context)
-    const [cartItems, setCartItems] = useState([
-        { id: 1, name: "Dép Cao Gót Nữ Đông Hải Quai Đan Đế Ánh Kim", price: 620000, qty: 1, image: "/shoes1.jpg", size: "36", color: "Kem" },
-        { id: 2, name: "Dép Cao Gót Nữ Đông Hải Quai Đan Đế Ánh Kim", price: 620000, qty: 1, image: "/shoes1.jpg", size: "36", color: "Kem" },
-        { id: 3, name: "Dép Cao Gót Nữ Đông Hải Quai Đan Đế Ánh Kim", price: 620000, qty: 1, image: "/shoes1.jpg", size: "36", color: "Kem" },
-        { id: 4, name: "Dép Cao Gót Nữ Đông Hải Quai Đan Đế Ánh Kim", price: 620000, qty: 1, image: "/shoes1.jpg", size: "36", color: "Kem" },
-        { id: 7, name: "Dép Cao Gót Nữ Đông Hải Quai Đan Đế Ánh Kim", price: 620000, qty: 1, image: "/shoes1.jpg", size: "36", color: "Kem" },
+    const [cartItems, setCartItems] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const userId = 3; // giả sử user_id = 3 (tạm thời)
 
-    ]);
+    useEffect(() => {
+        fetch(`/api/cart?user_id=${userId}`)
+            .then((res) => res.json())
+            .then((data) => {
+                setCartItems(data);
+                setLoading(false);
+            })
+            .catch((err) => {
+                console.error("Fetch cart error:", err);
+                setLoading(false);
+            });
+    }, []);
 
-    // Xóa sản phẩm khỏi giỏ
-    const handleRemove = (id) => {
-        setCartItems(cartItems.filter(item => item.id !== id));
+    // Xoá sản phẩm khỏi giỏ
+    const handleRemove = async (productId) => {
+        await fetch("/api/cart", {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ user_id: userId, product_id: productId }),
+        });
+        setCartItems(cartItems.filter((item) => item.product_id !== productId));
     };
 
-    // Hàm format tiền theo chuẩn VNĐ
-    const formatPrice = (price) => {
-        return new Intl.NumberFormat("vi-VN").format(price) + "đ";
+    // Cập nhật số lượng
+    const updateQuantity = async (productId, newQty) => {
+        if (newQty < 1) return;
+        await fetch("/api/cart", {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ user_id: userId, product_id: productId, quantity: newQty }),
+        });
+        setCartItems(cartItems.map((item) =>
+
+            item.product_id === productId ? { ...item, quantity: newQty } : item
+        ));
     };
 
-    // Tổng tiền
-    const totalPrice = cartItems.reduce(
-        (acc, item) => acc + item.price * item.qty,
-        0
-    );
+    const formatPrice = (price) => new Intl.NumberFormat("vi-VN").format(price) + "đ";
+
+    const totalPrice = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
+
+    if (loading) return <p>Đang tải giỏ hàng...</p>;
 
     return (
         <div className="cart-popup">
             <div className="cart-header">
-                <div className="cart-title">Giỏ Hàng{cartItems.length > 0 && <span className="cart-title-count">({cartItems.length} sản phẩm)</span>}</div>
-                <button className="cart-close" title="Đóng">×</button>
+                <div className="cart-title">
+                    Giỏ Hàng {cartItems.length > 0 && <span>({cartItems.length} sản phẩm)</span>}
+                </div>
+                <button className="cart-close" title="Đóng" onClick={() => router.push("/")}>×</button>
             </div>
             {cartItems.length === 0 ? (
-                <>
-                    <div className="cart-empty">Giỏ hàng của bạn hiện đang trống. Hãy mua sắm ngay nhé!</div>
-                    <div className="cart-empty-btn-wrap">
-                        <button className="cart-btn cart-btn-continue" onClick={() => router.push("/")}>Tiếp Tục Mua Sắm</button>
-                    </div>
-                </>
+                <div className="cart-empty">
+                    Giỏ hàng trống. <button onClick={() => router.push("/")}>Mua ngay</button>
+                </div>
             ) : (
                 <>
                     <div className="cart-list">
                         {cartItems.map((item) => (
-                            <div key={item.id} className="cart-item">
-                                <img src={item.image} alt={item.name} className="cart-item-img" />
+                            <div key={`${item.cart_id}-${item.product_id}`}
+                                className="cart-item">
+                                <img src={item.image_url} alt={item.name} className="cart-item-img" />
                                 <div className="cart-item-info">
                                     <div className="cart-item-name">{item.name}</div>
-                                    <div className="cart-item-desc">{item.color} / {item.size}</div>
                                     <div className="cart-item-qty-wrap">
-                                        <button className="cart-item-qty-btn">-</button>
-                                        <span className="cart-item-qty">{item.qty}</span>
-                                        <button className="cart-item-qty-btn">+</button>
+                                        <button className="btn-remove" onClick={() => updateQuantity(item.product_id, item.quantity - 1)}>-</button>
+                                        <span>{item.quantity}</span>
+                                        <button className="btn-add" onClick={() => updateQuantity(item.product_id, item.quantity + 1)}>+</button>
                                     </div>
                                 </div>
-                                <div className="cart-item-total">{formatPrice(item.price * item.qty)}</div>
-                                <button onClick={() => handleRemove(item.id)} className="cart-item-remove">Xoá</button>
+                                <div className="cart-item-total">{formatPrice(item.price * item.quantity)}</div>
+                                <button onClick={() => handleRemove(item.product_id)} className="cart-item-remove">Xoá</button>
                             </div>
                         ))}
                     </div>
@@ -90,6 +110,8 @@ export default function CartPage() {
         </div>
 
     );
+
+
     // Function to handle continue shopping
     function handleContinueShopping() {
         router.push("/");
