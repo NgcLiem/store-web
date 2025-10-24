@@ -1,8 +1,35 @@
 import pool from "@/lib/db";
 
-export async function GET() {
+export async function GET(req) {
+    const { searchParams } = new URL(req.url);
+    const category_id = searchParams.get('category_id');
+    const brand = searchParams.get('brand');
+
+    let query = "SELECT * FROM products";
+    const params = [];
+
+    // Build WHERE clause dynamically
+    const conditions = [];
+    if (category_id) {
+        conditions.push("category_id = ?");
+        params.push(category_id);
+    }
+    if (brand) {
+        conditions.push("brand = ?");
+        params.push(brand);
+    }
+
+    if (conditions.length > 0) {
+        query += " WHERE " + conditions.join(" AND ");
+    }
+
+    query += " ORDER BY id DESC";
+
     try {
-        const [rows] = await pool.query("SELECT * FROM products ORDER BY id DESC");
+        console.log("Executing query:", query);
+        console.log("With params:", params);
+        const [rows] = await pool.query(query, params);
+        console.log("Found rows:", rows.length);
         return new Response(JSON.stringify(rows), { status: 200 });
     } catch (error) {
         console.error("Database error:", error);

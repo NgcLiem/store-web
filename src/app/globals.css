@@ -140,6 +140,8 @@ main {
 .products-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
+  /* ensure each grid cell is the same height so cards align */
+  grid-auto-rows: 1fr;
   gap: 1.5rem;
   margin-top: 2rem;
   position: relative;
@@ -157,6 +159,10 @@ main {
   position: relative;
   border: 1px solid #eee;
   padding: 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%; /* fill the grid cell so all cards have equal height */
 }
 
 .product-card:hover {

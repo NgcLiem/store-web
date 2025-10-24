@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import "./hotdeal.css";
+import { formatPrice } from "@/lib/format";
 
 export default function HotDeal() {
     // Countdown Timer
@@ -38,7 +39,11 @@ export default function HotDeal() {
     useEffect(() => {
         fetch("/api/products")
             .then((res) => res.json())
-            .then((data) => setProducts(data))
+            .then((data) => {
+                if (Array.isArray(data)) setProducts(data);
+                else if (data && Array.isArray(data.rows)) setProducts(data.rows);
+                else setProducts([]);
+            })
             .catch((err) => console.error("Fetch error:", err));
     }, []);
 
@@ -63,7 +68,7 @@ export default function HotDeal() {
                                     <div className="product-info">
                                         <h3>{p.name}</h3>
                                         <p>{p.description}</p>
-                                        <div className="product-price">{p.price.toLocaleString()}₫</div>
+                                        <div className="product-price">{formatPrice(p.price || p.priceValue)}</div>
                                     </div>
                                 </div>
                             ))}

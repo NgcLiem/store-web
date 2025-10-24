@@ -2,6 +2,7 @@
 import Hero from "@/components/Hero";
 import { useState, useEffect, useMemo } from "react";
 import "./nike.css";
+import { formatPrice } from "@/lib/format";
 
 export default function NikePage() {
     const [products, setProducts] = useState([]);
@@ -79,7 +80,7 @@ export default function NikePage() {
                                                 </div>
                                                 <div className="product-info">
                                                     <h3>{p.name}</h3>
-                                                    <div className="product-price">{p.price.toLocaleString("vi_VN")}₫</div>
+                                                    <div className="product-price">{formatPrice(p.price)}</div>
                                                 </div>
                                             </div>
                                         ))) : (
