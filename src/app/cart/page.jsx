@@ -13,11 +13,19 @@ export default function CartPage() {
         fetch(`/api/cart?user_id=${userId}`)
             .then((res) => res.json())
             .then((data) => {
-                setCartItems(data);
+                // Always set cartItems as array
+                if (Array.isArray(data)) {
+                    setCartItems(data);
+                } else if (data && Array.isArray(data.rows)) {
+                    setCartItems(data.rows);
+                } else {
+                    setCartItems([]);
+                }
                 setLoading(false);
             })
             .catch((err) => {
                 console.error("Fetch cart error:", err);
+                setCartItems([]);
                 setLoading(false);
             });
     }, []);
