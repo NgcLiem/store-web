@@ -114,10 +114,10 @@ export default function BrandProducts({ brand }) {
             <div key={product.id} className="product-card">
               {product.is_sale && <div className="product-badge">Sale</div>}
               <div className="containProduct">
-                <img 
-                  src={product.image_url || product.image} 
-                  alt={product.name} 
-                  className="product-image" 
+                <img
+                  src={product.image_url || product.image}
+                  alt={product.name}
+                  className="product-image"
                 />
               </div>
               <div className="product-info">

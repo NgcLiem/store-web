@@ -1,6 +1,7 @@
 "use client";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { formatVND } from "@/utils/money";
 import "./search.css"
 
 export default function SearchPage() {
@@ -34,12 +35,12 @@ export default function SearchPage() {
                         <div key={p.id} className="product-card">
                             {p.sale && <div className="product-badge">Sale</div>}
                             <div className="containProduct">
-                                <img src={p.img} alt={p.name} className="product-image" />
+                                <img src={p.image_url} alt={p.name} className="product-image" />
                             </div>
                             <div className="product-info">
                                 <h3>{p.name}</h3>
                                 <div className="product-price">
-                                    <p>{p.price.toLocaleString()}₫</p>
+                                    <p>{formatVND(p.price)}</p>
                                 </div>
                             </div>
                         </div>
