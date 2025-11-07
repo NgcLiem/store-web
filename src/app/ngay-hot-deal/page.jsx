@@ -63,7 +63,7 @@ export default function HotDeal() {
                             {products.map((p) => (
                                 <div key={p.id} className="product-card">
                                     <div className="containProduct">
-                                        <img src={p.image} alt={p.name} className="product-image" />
+                                        <img src={p.image_url} alt={p.name} className="product-image" />
                                     </div>
                                     <div className="product-info">
                                         <h3>{p.name}</h3>

@@ -2,6 +2,8 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import "../assets/css/auth.css";
+import { useAuth } from "../contexts/AuthContexts";
+
 
 export default function Signup() {
     const [isRegister, setIsRegister] = useState(false);
@@ -11,6 +13,7 @@ export default function Signup() {
     const [loading, setLoading] = useState(false);
     const [birthLimit, setBirthLimit] = useState("");
     const [invalidFields, setInvalidFields] = useState([]);
+    const { login } = useAuth();
 
     const router = useRouter();
 
@@ -108,22 +111,46 @@ export default function Signup() {
                 body: JSON.stringify({ email, password }),
             });
 
-            const data = await res.json();
+            // const data = await res.json();
+
+            // if (!res.ok) {
+            //     showMessage("error", data.error || data.message || "Đăng nhập thất bại!");
+            //     return;
+            // }
+
+            const text = await res.text();
+            let data = null;
+            try { data = JSON.parse(text); }
+            catch { throw new Error("API trả về không phải JSON: " + text); }
 
             if (!res.ok) {
-                showMessage("error", data.error || "Đăng nhập thất bại!");
-                return;
+                // lỗi từ server (401/404/500…)
+                throw new Error(data?.error || data?.message || `HTTP ${res.status}`);
             }
 
-            localStorage.setItem("userEmail", data.user.email);
-            localStorage.setItem("userRole", data.user.role);
+            // Sử dụng Context thay vì localStorage trực tiếp
+            // login(data.user);
+
+            try {
+                login?.(data.user); // cần { login } từ useAuth()
+            } catch (err) {
+                throw new Error("Lỗi khi gọi login(): " + err.message);
+            }
 
             showMessage("success", "Đăng nhập thành công!");
 
             setTimeout(() => {
-                if (data.user.role === "admin") router.push("/admin");
-                else if (data.user.role === "staff") router.push("/staff");
-                else router.push("/");
+                const redirectPath = localStorage.getItem("redirectAfterLogin") || "/";
+                localStorage.removeItem("redirectAfterLogin");
+
+                // Điều hướng theo role
+                if (data.user.role === "admin") {
+                    router.push("/admin");
+                } else if (data.user.role === "staff") {
+                    router.push("/staff");
+                } else {
+                    router.push(redirectPath);
+                }
             }, 1000);
 
         } catch (err) {

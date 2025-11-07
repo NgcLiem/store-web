@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import "../assets/css/header.css"
 import { useRouter } from "next/navigation";
+import { useAuth } from "../contexts/AuthContexts";
 
 export default function Header() {
     const [query, setQuery] = useState("");
@@ -11,9 +12,12 @@ export default function Header() {
     const [searchHistory, setSearchHistory] = useState([]);
     const [showDropdown, setShowDropdown] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [showUserMenu, setShowUserMenu] = useState(false);
     const router = useRouter();
     const dropdownRef = useRef(null);
+    const userMenuRef = useRef(null);
     const debounceTimer = useRef(null);
+    const { user, logout, isAuthenticated } = useAuth();
 
     // Load lịch sử tìm kiếm khi component mount
     useEffect(() => {
@@ -26,6 +30,9 @@ export default function Header() {
         const handleClickOutside = (event) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
                 setShowDropdown(false);
+            }
+            if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
+                setShowUserMenu(false);
             }
         };
         document.addEventListener("mousedown", handleClickOutside);
@@ -119,12 +126,18 @@ export default function Header() {
         handleSearch(null, name);
     };
 
-    // const handleSearch = (e) => {
-    //     e.preventDefault();
-    //     if (query.trim()) {
-    //         router.push(`/search?query=${encodeURIComponent(query)}`);
-    //     }
-    // };
+    const handleLogout = () => {
+        logout();
+        setShowUserMenu(false);
+        router.push("/");
+    };
+
+    const getUserDashboard = () => {
+        if (user?.role === "admin") return "/admin";
+        if (user?.role === "staff") return "/staff";
+        return "/profile";
+    };
+
     return (
         <header className="header">
             <nav className="nav">
@@ -140,97 +153,140 @@ export default function Header() {
                     <li><Link href="/ngay-hot-deal">Ngày Hot Deal</Link></li>
                 </ul>
                 <div className="nav-icons">
-                    <form onSubmit={handleSearch} className="search-bar">
-                        <input
-                            type="text"
-                            placeholder="Bạn đang tìm gì?"
-                            value={query}
-                            onChange={(e) => setQuery(e.target.value)}
-                        />
-                        <button type="submit">
-                            <i className="fa-solid fa-search"></i>
-                        </button>
-                    </form>
+                    <div className="search-container" ref={dropdownRef}>
+                        <form onSubmit={handleSearch} className="search-bar">
+                            <input
+                                type="text"
+                                placeholder="Bạn đang tìm gì?"
+                                value={query}
+                                onChange={(e) => setQuery(e.target.value)}
+                            />
+                            <button type="submit">
+                                <i className="fa-solid fa-search"></i>
+                            </button>
+                        </form>
 
-                    {/* Dropdown gợi ý và lịch sử */}
-                    {showDropdown && (
-                        <div className="search-dropdown">
-                            {/* Hiển thị loading */}
-                            {isLoading && (
-                                <div className="dropdown-loading">
-                                    <i className="fa-solid fa-spinner fa-spin"></i>
-                                    Đang tìm kiếm...
-                                </div>
-                            )}
-
-                            {/* Hiển thị gợi ý */}
-                            {!isLoading && suggestions.length > 0 && (
-                                <div className="dropdown-section">
-                                    <div className="dropdown-header">Gợi ý</div>
-                                    {suggestions.map((item) => (
-                                        <div
-                                            key={item.id}
-                                            className="dropdown-item"
-                                            onClick={() => handleSuggestionClick(item.name)}
-                                        >
-                                            <i className="fa-solid fa-search"></i>
-                                            <span>{item.name}</span>
-                                            {item.product_code && (
-                                                <span className="item-code">#{item.product_code}</span>
-                                            )}
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-
-                            {/* Hiển thị lịch sử */}
-                            {!isLoading && suggestions.length === 0 && searchHistory.length > 0 && (
-                                <div className="dropdown-section">
-                                    <div className="dropdown-header">
-                                        <span>Tìm kiếm gần đây</span>
-                                        <button
-                                            className="clear-history-btn"
-                                            onClick={clearHistory}
-                                        >
-                                            Xóa tất cả
-                                        </button>
+                        {/* Dropdown gợi ý và lịch sử */}
+                        {showDropdown && (
+                            <div className="search-dropdown">
+                                {/* Hiển thị loading */}
+                                {isLoading && (
+                                    <div className="dropdown-loading">
+                                        <i className="fa-solid fa-spinner fa-spin"></i>
+                                        Đang tìm kiếm...
                                     </div>
-                                    {searchHistory.map((item, index) => (
-                                        <div
-                                            key={index}
-                                            className="dropdown-item"
-                                            onClick={(e) => handleSearch(e, item)}
-                                        >
-                                            <i className="fa-solid fa-clock-rotate-left"></i>
-                                            <span>{item}</span>
-                                            <button
-                                                className="remove-item-btn"
-                                                onClick={(e) => removeFromHistory(e, item)}
+                                )}
+
+                                {/* Hiển thị gợi ý */}
+                                {!isLoading && suggestions.length > 0 && (
+                                    <div className="dropdown-section">
+                                        <div className="dropdown-header">Gợi ý</div>
+                                        {suggestions.map((item) => (
+                                            <div
+                                                key={item.id}
+                                                className="dropdown-item"
+                                                onClick={() => handleSuggestionClick(item.name)}
                                             >
-                                                <i className="fa-solid fa-xmark"></i>
+                                                <i className="fa-solid fa-search"></i>
+                                                <span>{item.name}</span>
+                                                {item.product_code && (
+                                                    <span className="item-code">#{item.product_code}</span>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+
+                                {/* Hiển thị lịch sử */}
+                                {!isLoading && suggestions.length === 0 && searchHistory.length > 0 && (
+                                    <div className="dropdown-section">
+                                        <div className="dropdown-header">
+                                            <span>Tìm kiếm gần đây</span>
+                                            <button
+                                                className="clear-history-btn"
+                                                onClick={clearHistory}
+                                            >
+                                                Xóa tất cả
                                             </button>
                                         </div>
-                                    ))}
-                                </div>
-                            )}
+                                        {searchHistory.map((item, index) => (
+                                            <div
+                                                key={index}
+                                                className="dropdown-item"
+                                                onClick={(e) => handleSearch(e, item)}
+                                            >
+                                                <i className="fa-solid fa-clock-rotate-left"></i>
+                                                <span>{item}</span>
+                                                <button
+                                                    className="remove-item-btn"
+                                                    onClick={(e) => removeFromHistory(e, item)}
+                                                >
+                                                    <i className="fa-solid fa-xmark"></i>
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
 
-                            {/* Không có kết quả */}
-                            {!isLoading && suggestions.length === 0 && searchHistory.length === 0 && query.length >= 2 && (
-                                <div className="dropdown-empty">
-                                    Không tìm thấy kết quả
+                                {/* Không có kết quả */}
+                                {!isLoading && suggestions.length === 0 && searchHistory.length === 0 && query.length >= 2 && (
+                                    <div className="dropdown-empty">
+                                        Không tìm thấy kết quả
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </div>
+
+                    {isAuthenticated() ? (
+                        <div className="user-menu-container" ref={userMenuRef}>
+                            <button
+                                className="user-btn"
+                                onClick={() => setShowUserMenu(!showUserMenu)}
+                            >
+                                <i className="fa-icon fa-regular fa-user"></i>
+                            </button>
+                            {showUserMenu && (
+                                <div className="user-dropdown">
+                                    <div className="user-info">
+                                        <i className="fa-solid fa-user-circle"></i>
+                                        <div>
+                                            <p className="user-email">{user?.email}</p>
+                                            <p className="user-role">
+                                                {user?.role === "admin" && "Admin"}
+                                                {user?.role === "staff" && "Nhân viên"}
+                                                {user?.role === "customer" && "Khách hàng"}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div className="user-menu-divider"></div>
+                                    <Link href={getUserDashboard()} className="user-menu-item">
+                                        <i className="fa-solid fa-dashboard"></i>
+                                        Dashboard
+                                    </Link>
+                                    {user?.role === "customer" && (
+                                        <Link href="/orders" className="user-menu-item">
+                                            <i className="fa-solid fa-shopping-bag"></i>
+                                            Đơn hàng của tôi
+                                        </Link>
+                                    )}
+                                    <div className="user-menu-divider"></div>
+                                    <button onClick={handleLogout} className="user-menu-item logout">
+                                        <i className="fa-solid fa-sign-out"></i>
+                                        Đăng xuất
+                                    </button>
                                 </div>
                             )}
                         </div>
+                    ) : (
+                        <Link href="/login" onClick={() => {
+                            if (typeof window !== "undefined") {
+                                localStorage.setItem("redirectAfterLogin", window.location.pathname);
+                            }
+                        }}>
+                            <i className="fa-icon fa-regular fa-user"></i>
+                        </Link>
                     )}
-
-                    <Link href="/login" onClick={() => {
-                        if (typeof window !== "undefined") {
-                            localStorage.setItem("redirectAfterLogin", window.location.pathname);
-                        }
-                    }
-                    }>
-                        <i className="fa-icon fa-regular fa-user"></i>
-                    </Link>
                     <Link href="/cart">
                         <i className="fa-icon fa-solid fa-cart-shopping"></i>
                     </Link>

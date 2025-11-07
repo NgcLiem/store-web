@@ -2,7 +2,8 @@ import "./globals.css";
 import React from "react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import Hero from "@/components/Hero";
+import Providers from "../components/Providers";
+import AppShell from "../components/AppShell";
 
 export const metadata = {
   title: "DONIDG",
@@ -20,9 +21,11 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body>
-        <Header />
-        <main>{children}</main>
-        <Footer />
+        <Providers>
+          <AppShell>
+            <main>{children}</main>
+          </AppShell>
+        </Providers>
       </body>
     </html>
   );
