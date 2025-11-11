@@ -5,32 +5,73 @@ const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
     const [user, setUser] = useState(null);
+    const [token, setToken] = useState(null);
     const [loading, setLoading] = useState(true);
 
+    // 🔹 Khi app load lại: kiểm tra token có hợp lệ không
     useEffect(() => {
-        // Load user từ localStorage khi app khởi động
-        const email = localStorage.getItem("userEmail");
-        const role = localStorage.getItem("userRole");
-        const userId = localStorage.getItem("userId");
+        const savedToken = localStorage.getItem("token");
+        const savedUser = localStorage.getItem("user");
 
-        if (email && role) {
-            setUser({ id: userId, email, role });
+        // Nếu không có token → coi là khách
+        if (!savedToken) {
+            setLoading(false);
+            return;
         }
-        setLoading(false);
+
+        // Xác minh token bằng API /api/me
+        (async () => {
+            try {
+                const res = await fetch("/api/me", {
+                    headers: { Authorization: `Bearer ${savedToken}` },
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    setUser(data.user);
+                    setToken(savedToken);
+                    localStorage.setItem("user", JSON.stringify(data.user));
+                } else {
+                    // Token hết hạn / sai → xóa
+                    localStorage.removeItem("token");
+                    localStorage.removeItem("user");
+                    setUser(null);
+                    setToken(null);
+                }
+            } catch {
+                localStorage.removeItem("token");
+                localStorage.removeItem("user");
+                setUser(null);
+                setToken(null);
+            } finally {
+                setLoading(false);
+            }
+        })();
     }, []);
 
-    const login = (userData) => {
+    // 🔹 Hàm đăng nhập: lưu user + token
+    const login = (userData, jwtToken) => {
+        setUser(userData);
+        setToken(jwtToken);
+
+        // lưu vào localStorage
+        localStorage.setItem("user", JSON.stringify(userData));
+        localStorage.setItem("token", jwtToken);
+
+        // (tuỳ chọn) giữ lại 3 key cũ cho UI cũ
         localStorage.setItem("userId", userData.id);
         localStorage.setItem("userEmail", userData.email);
         localStorage.setItem("userRole", userData.role);
-        setUser(userData);
     };
 
+    // 🔹 Đăng xuất: xóa tất cả key
     const logout = () => {
+        setUser(null);
+        setToken(null);
+        localStorage.removeItem("user");
+        localStorage.removeItem("token");
         localStorage.removeItem("userId");
         localStorage.removeItem("userEmail");
         localStorage.removeItem("userRole");
-        setUser(null);
     };
 
     const isAdmin = () => user?.role === "admin";
@@ -42,6 +83,7 @@ export function AuthProvider({ children }) {
         <AuthContext.Provider
             value={{
                 user,
+                token,
                 loading,
                 login,
                 logout,
@@ -58,6 +100,7 @@ export function AuthProvider({ children }) {
 
 export default AuthProvider;
 
+// Hook tiện dụng
 export function useAuth() {
     const context = useContext(AuthContext);
     if (!context) {

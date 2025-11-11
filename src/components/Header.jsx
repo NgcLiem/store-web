@@ -135,7 +135,7 @@ export default function Header() {
     const getUserDashboard = () => {
         if (user?.role === "admin") return "/admin";
         if (user?.role === "staff") return "/staff";
-        return "/profile";
+        return "/account";
     };
 
     return (
@@ -262,7 +262,7 @@ export default function Header() {
                                     <div className="user-menu-divider"></div>
                                     <Link href={getUserDashboard()} className="user-menu-item">
                                         <i className="fa-solid fa-dashboard"></i>
-                                        Dashboard
+                                        Trang chủ
                                     </Link>
                                     {user?.role === "customer" && (
                                         <Link href="/orders" className="user-menu-item">

@@ -4,6 +4,7 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import { useAuth } from "@/contexts/AuthContexts";
 import { usePathname, useRouter } from "next/navigation";
 import "./admin.css";
+import Link from "next/link";
 
 export default function AdminLayout({ children }) {
     const { user, logout } = useAuth();
@@ -22,12 +23,12 @@ export default function AdminLayout({ children }) {
                     </div>
 
                     <nav className="sidebar-menu">
-                        <a href="/admin" className={isActive("/admin")}><i className="fa-solid fa-clock"></i> <span>Dashboard</span></a>
-                        <a href="/admin/products" className={isActive("/admin/products")}><i className="fa-solid fa-box"></i> <span>Quản lý sản phẩm</span></a>
-                        <a href="/admin/orders" className={isActive("/admin/orders")}><i className="fa-solid fa-cart-shopping"></i> <span>Quản lý đơn hàng</span></a>
-                        <a href="/admin/users" className={isActive("/admin/users")}><i className="fa-solid fa-users"></i> <span>Quản lý người dùng</span></a>
-                        <a href="/admin/staff" className={isActive("/admin/staff")}><i className="fa-solid fa-user-tie"></i> <span>Quản lý nhân viên</span></a>
-                        <a href="/admin/statistics" className={isActive("/admin/statistics")}><i className="fa-solid fa-chart-line"></i> <span>Thống kê</span></a>
+                        <Link href="/admin" className={isActive("/admin")}><i className="fa-solid fa-clock"></i> <span>Trang chủ</span></Link>
+                        <Link href="/admin/products" className={isActive("/admin/products")}><i className="fa-solid fa-box"></i> <span>Quản lý sản phẩm</span></Link>
+                        <Link href="/admin/orders" className={isActive("/admin/orders")}><i className="fa-solid fa-cart-shopping"></i> <span>Quản lý đơn hàng</span></Link>
+                        <Link href="/admin/users" className={isActive("/admin/users")}><i className="fa-solid fa-users"></i> <span>Quản lý người dùng</span></Link>
+                        <Link href="/admin/staff" className={isActive("/admin/staff")}><i className="fa-solid fa-user-tie"></i> <span>Quản lý nhân viên</span></Link>
+                        <Link href="/admin/statistics" className={isActive("/admin/statistics")}><i className="fa-solid fa-chart-line"></i> <span>Thống kê</span></Link>
                     </nav>
 
                     <div className="sidebar-footer">

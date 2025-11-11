@@ -33,18 +33,17 @@ export async function GET(req) {
 // POST /api/staffs
 export async function POST(req) {
     try {
-        const { email, full_name } = await req.json();
+        const { email, full_name, password } = await req.json();
         if (!email) return Response.json({ message: "Thiếu email" }, { status: 400 });
 
-        const defaultPassword = "Staff@123";
-        const hash = await bcrypt.hash(defaultPassword, 10);
+        const hash = await bcrypt.hash(password, 10);
 
         const [rs] = await pool.query(
             `INSERT INTO users (email, password, role, full_name)
        VALUES (?, ?, 'staff', ?)`,
             [email, hash, full_name || null]
         );
-        return Response.json({ id: rs.insertId, temp_password: defaultPassword }, { status: 201 });
+        return Response.json({ id: rs.insertId, temp_password: password }, { status: 201 });
     } catch (e) {
         console.error("STAFF POST:", e);
         return Response.json({ message: "Server error" }, { status: 500 });

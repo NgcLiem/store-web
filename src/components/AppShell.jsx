@@ -8,7 +8,6 @@ import Footer from "./Footer";
 export default function AppShell({ children }) {
     const { user, loading } = useAuth();
 
-    // Loading lần đầu -> tránh nháy header/footer
     if (loading) return <main>{children}</main>;
 
     const role = user?.role?.toLowerCase?.();

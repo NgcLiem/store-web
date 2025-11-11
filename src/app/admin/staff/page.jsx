@@ -10,7 +10,7 @@ export default function AdminStaffPage() {
     const [loading, setLoading] = useState(true);
     const [modalOpen, setModalOpen] = useState(false);
     const [editing, setEditing] = useState(null);
-    const [form, setForm] = useState({ email: "", full_name: "" });
+    const [form, setForm] = useState({ email: "", full_name: "", password: "" });
 
     const load = async () => {
         setLoading(true);
@@ -23,12 +23,12 @@ export default function AdminStaffPage() {
 
     const submitSearch = (e) => { e.preventDefault(); load(); };
 
-    const openCreate = () => { setEditing(null); setForm({ email: "", full_name: "" }); setModalOpen(true); };
+    const openCreate = () => { setEditing(null); setForm({ email: "", full_name: "", password: "" }); setModalOpen(true); };
     const openEdit = (s) => { setEditing(s); setForm({ email: s.email || "", full_name: s.full_name || "" }); setModalOpen(true); };
 
     const save = async (e) => {
         e.preventDefault();
-        const payload = { email: form.email.trim(), full_name: form.full_name.trim(), role: "staff" };
+        const payload = { email: form.email.trim(), full_name: form.full_name.trim(), password: form.password.trim(), role: "staff" };
         const url = editing ? `/api/staffs/${editing.id}` : `/api/staffs`;
         const method = editing ? "PUT" : "POST";
         const res = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
@@ -99,8 +99,9 @@ export default function AdminStaffPage() {
                     <div style={{ background: "#fff", padding: 20, borderRadius: 12, width: 520, maxWidth: "95%" }}>
                         <h3>{editing ? "Sửa nhân viên" : "Thêm nhân viên"}</h3>
                         <form onSubmit={save} style={{ display: "grid", gap: 10, marginTop: 10 }}>
-                            <input className="form-input" placeholder="Email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
-                            <input className="form-input" placeholder="Họ tên" value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} />
+                            <input className="form-input" placeholder="Email" value={form.email || ""} onChange={(e) => setForm({ ...form, email: e.target.value })} />
+                            <input className="form-input" placeholder="Họ tên" value={form.full_name || ""} onChange={(e) => setForm({ ...form, full_name: e.target.value })} />
+                            <input className="form-input" placeholder="Mật khẩu" value={form.password || ""} onChange={(e) => setForm({ ...form, password: e.target.value })} />
                             <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
                                 <button type="button" className="action-btn" onClick={() => setModalOpen(false)}>Huỷ</button>
                                 <button type="submit" className="action-btn"><i className="fa-solid fa-save" /> Lưu</button>

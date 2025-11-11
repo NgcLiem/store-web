@@ -4,6 +4,7 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import { useAuth } from "@/contexts/AuthContexts";
 import { useRouter } from "next/navigation";
 import "./staff.css";
+import Link from "next/link";
 
 export default function StaffLayout({ children }) {
     const { user, logout } = useAuth();
@@ -24,18 +25,18 @@ export default function StaffLayout({ children }) {
                     </div>
 
                     <nav className="sidebar-menu">
-                        <a href="/staff" className="menu-item">
-                            <i className="fa-solid fa-gauge"></i> <span>Dashboard</span>
-                        </a>
-                        <a href="/staff/orders" className="menu-item">
+                        <Link href="/staff" className="menu-item">
+                            <i className="fa-solid fa-gauge"></i> <span>Trang chủ</span>
+                        </Link>
+                        <Link href="/staff/orders" className="menu-item">
                             <i className="fa-solid fa-cart-shopping"></i> <span>Quản lý đơn hàng</span>
-                        </a>
-                        <a href="/staff/products" className="menu-item">
+                        </Link>
+                        <Link href="/staff/products" className="menu-item">
                             <i className="fa-solid fa-box"></i> <span>Sản phẩm</span>
-                        </a>
-                        <a href="/staff/customers" className="menu-item">
+                        </Link>
+                        <Link href="/staff/customers" className="menu-item">
                             <i className="fa-solid fa-users"></i> <span>Khách hàng</span>
-                        </a>
+                        </Link>
                     </nav>
 
                     <div className="sidebar-footer">

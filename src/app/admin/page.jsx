@@ -17,7 +17,7 @@ function AdminContent() {
     return (
         <>
             <div className="admin-header">
-                <h1>Dashboard</h1>
+                <h1>Trang chủ</h1>
                 <div className="admin-stats">
                     <div className="stat-card">
                         <i className="fa-solid fa-box"></i>

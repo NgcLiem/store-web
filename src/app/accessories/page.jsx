@@ -1,10 +1,10 @@
-import Hero from "@/components/Hero";
+"use client";
+import AccessoriesSection from "@/components/Accessories";
 
-export default function Accessories() {
+export default function AccessoriesPage() {
     return (
-        <main>
-            <Hero />
-            <h1>Đây là trang phụ kiện</h1>
-        </main>
+        <>
+            <AccessoriesSection title="Phụ kiện" categoryId={3} />
+        </>
     );
 }

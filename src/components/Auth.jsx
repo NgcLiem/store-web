@@ -39,7 +39,7 @@ export default function Signup() {
         };
 
         window.addEventListener("popstate", handleHashChange);
-        handleHashChange(); // chạy lần đầu
+        handleHashChange();
 
         return () => window.removeEventListener("popstate", handleHashChange);
     }, []);
@@ -76,12 +76,10 @@ export default function Signup() {
 
         document.addEventListener("click", handleClickOutside);
 
-        // Dọn dẹp khi component bị unmount
         return () => {
             document.removeEventListener("click", handleClickOutside);
         };
     }, []);
-
 
     const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
@@ -111,28 +109,17 @@ export default function Signup() {
                 body: JSON.stringify({ email, password }),
             });
 
-            // const data = await res.json();
-
-            // if (!res.ok) {
-            //     showMessage("error", data.error || data.message || "Đăng nhập thất bại!");
-            //     return;
-            // }
-
             const text = await res.text();
             let data = null;
             try { data = JSON.parse(text); }
             catch { throw new Error("API trả về không phải JSON: " + text); }
 
             if (!res.ok) {
-                // lỗi từ server (401/404/500…)
                 throw new Error(data?.error || data?.message || `HTTP ${res.status}`);
             }
 
-            // Sử dụng Context thay vì localStorage trực tiếp
-            // login(data.user);
-
             try {
-                login?.(data.user); // cần { login } từ useAuth()
+                login?.(data.user, data.token);
             } catch (err) {
                 throw new Error("Lỗi khi gọi login(): " + err.message);
             }

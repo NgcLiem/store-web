@@ -11,7 +11,7 @@
 .admin-sidebar,
 .staff-sidebar {
   width: 260px;
-  background: #2c3e50;
+  background: rgba(20 , 70, 35, 0.9);
   color: white;
   display: flex;
   flex-direction: column;
@@ -56,12 +56,12 @@
 
 .menu-item:hover {
   background: rgba(255, 255, 255, 0.1);
-  border-left-color: #3498db;
+  border-left-color: rgba(21, 240, 35, 0.9);;
 }
 
 .menu-item.active {
   background: rgba(52, 152, 219, 0.2);
-  border-left-color: #3498db;
+  border-left-color: rgba(21, 240, 35, 0.9);;
 }
 
 .menu-item i {
@@ -142,7 +142,7 @@
 
 .stat-card i {
   font-size: 2.5rem;
-  color: #3498db;
+  color: var(--maincolor);
   width: 60px;
   height: 60px;
   background: rgba(52, 152, 219, 0.1);
@@ -189,7 +189,7 @@
 
 .action-btn {
   padding: 0.75rem 1.5rem;
-  background: #3498db;
+  background: var(--maincolor);
   color: white;
   border: none;
   border-radius: 8px;
@@ -202,7 +202,7 @@
 }
 
 .action-btn:hover {
-  background: #2980b9;
+  background: rgba(28, 180, 70, 0.8);
   transform: translateY(-2px);
 }
 
