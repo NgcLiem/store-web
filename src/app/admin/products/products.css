@@ -1,0 +1,157 @@
+/* admin.css - PHẦN BỔ SUNG CHO TRANG QUẢN LÝ SẢN PHẨM & CHUNG */
+
+/* --- Định kiểu Form và Bảng --- */
+
+/* Form tìm kiếm */
+.product-search-form {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+    align-items: center;
+}
+
+.search-input-wide {
+    max-width: 360px;
+}
+
+/* Wrapper cho table để có thể scroll ngang */
+.table-wrapper {
+    overflow-x: auto;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    margin-top: 16px; /* Cách header/form tìm kiếm */
+}
+
+/* Định kiểu cho bảng */
+.product-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 800px; /* Đảm bảo bảng hiển thị đủ cột */
+}
+
+/* Header của bảng */
+.table-header-row {
+    background: #f8f8f8;
+    border-bottom: 2px solid #ddd;
+}
+
+.table-header-cell {
+    padding: 12px;
+    font-weight: 600;
+    color: #444;
+}
+
+/* Căn lề chung */
+.text-left { text-align: left !important; }
+.text-right { text-align: right !important; }
+.text-center { text-align: center !important; }
+
+/* Cột ảnh sản phẩm */
+.product-image-header {
+    width: 90px;
+}
+.product-image-cell {
+    padding: 12px;
+    text-align: center;
+}
+.no-image-text {
+    font-size: 12px;
+    color: #888;
+}
+
+
+/* Dòng dữ liệu */
+.table-body-row {
+    border-bottom: 1px solid #eee;
+}
+
+.table-body-row:last-child {
+    border-bottom: none;
+}
+
+.table-cell {
+    padding: 12px;
+    color: #555;
+    vertical-align: middle;
+}
+
+.table-cell-center {
+    text-align: center;
+    color: #999;
+}
+
+/* Cell chứa nút thao tác */
+.table-actions-cell {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    padding: 12px;
+    white-space: nowrap; /* Giữ các nút cùng dòng */
+}
+
+/* --- Modal (Popup) --- */
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000; /* Đảm bảo modal nằm trên các element khác */
+}
+
+.modal-content-wrapper {
+    background: #fff;
+    padding: 25px;
+    border-radius: 12px;
+    width: 520px;
+    max-width: 95%;
+    box-shadow: 0 5px 15px rgba(0,0,0,.2);
+    animation: fadeIn 0.3s ease-out; /* Thêm animation nhẹ */
+}
+
+.modal-content-wrapper h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 1.5rem;
+    color: #333;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+.modal-form {
+    display: grid;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    margin-top: 20px;
+}
+
+/* Định kiểu các nút chung (Cần style lại action-btn trong theme mới nếu chưa có) */
+.btn-danger {
+    background: #e74c3c;
+}
+.btn-danger:hover {
+    background: #c0392b;
+}
+
+.btn-secondary {
+    background: #bdc3c7; /* Màu xám cho nút Huỷ */
+    color: #333;
+}
+.btn-secondary:hover {
+    background: #95a5a6;
+    color: #fff;
+}
+
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}

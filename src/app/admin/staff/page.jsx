@@ -1,8 +1,8 @@
-// src/app/admin/staff/page.jsx
 "use client";
 
 import { useEffect, useState } from "react";
 import "../admin.css";
+import "./staff.css";
 
 export default function AdminStaffPage() {
     const [items, setItems] = useState([]);
@@ -55,36 +55,36 @@ export default function AdminStaffPage() {
             </div>
 
             <div className="admin-content">
-                <form onSubmit={submitSearch} style={{ display: "flex", gap: 12, marginBottom: 16 }}>
-                    <input value={q} onChange={(e) => setQ(e.target.value)} className="form-input" placeholder="Tìm theo email / tên" style={{ maxWidth: 360 }} />
+                <form onSubmit={submitSearch} className="search-form-row">
+                    <input value={q} onChange={(e) => setQ(e.target.value)} className="form-input search-input-narrow" placeholder="Tìm theo email / tên" />
                     <button className="action-btn" type="submit"><i className="fa-solid fa-search" /> Tìm</button>
                 </form>
 
-                <div style={{ overflowX: "auto" }}>
-                    <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                <div className="table-responsive-wrapper">
+                    <table className="staff-table">
                         <thead>
-                            <tr style={{ background: "#f1f2f6" }}>
-                                <th style={{ padding: 12, textAlign: "left" }}>Email</th>
-                                <th style={{ padding: 12, textAlign: "left" }}>Họ tên</th>
-                                <th style={{ padding: 12, textAlign: "center" }}>Trạng thái</th>
-                                <th style={{ padding: 12, textAlign: "center" }}>Thao tác</th>
+                            <tr className="table-header-row">
+                                <th className="table-header-cell text-left">Email</th>
+                                <th className="table-header-cell text-left">Họ tên</th>
+                                <th className="table-header-cell text-center">Trạng thái</th>
+                                <th className="table-header-cell text-center">Thao tác</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {loading ? <tr><td colSpan={4} style={{ padding: 20, textAlign: "center" }}>Đang tải...</td></tr> :
-                                items.length === 0 ? <tr><td colSpan={4} style={{ padding: 20, textAlign: "center" }}>Không có dữ liệu</td></tr> :
+                            {loading ? <tr><td colSpan={4} className="table-cell table-cell-center">Đang tải...</td></tr> :
+                                items.length === 0 ? <tr><td colSpan={4} className="table-cell table-cell-center">Không có dữ liệu</td></tr> :
                                     items.map(s => (
-                                        <tr key={s.id} style={{ borderBottom: "1px solid #eee" }}>
-                                            <td style={{ padding: 12 }}>{s.email}</td>
-                                            <td style={{ padding: 12 }}>{s.full_name || "-"}</td>
-                                            <td style={{ padding: 12, textAlign: "center" }}>
-                                                <span style={{ padding: "4px 8px", borderRadius: 6, color: "#fff", background: s.active ? "#27ae60" : "#7f8c8d", fontSize: 12 }}>
+                                        <tr key={s.id} className="table-body-row">
+                                            <td className="table-cell">{s.email}</td>
+                                            <td className="table-cell">{s.full_name || "-"}</td>
+                                            <td className="table-cell text-center">
+                                                <span className={`status-badge ${s.active ? 'status-active' : 'status-inactive'}`}>
                                                     {s.active ? "Đang hoạt động" : "Đã khoá"}
                                                 </span>
                                             </td>
-                                            <td style={{ padding: 12, textAlign: "center", display: "flex", gap: 8, justifyContent: "center" }}>
+                                            <td className="table-cell table-actions-cell">
                                                 <button className="action-btn" onClick={() => openEdit(s)}><i className="fa-solid fa-pen" /> Sửa</button>
-                                                <button className="action-btn" onClick={() => remove(s)}><i className="fa-solid fa-trash" /> Xoá</button>
+                                                <button className="action-btn btn-danger" onClick={() => remove(s)}><i className="fa-solid fa-trash" /> Xoá</button>
                                             </td>
                                         </tr>
                                     ))}
@@ -95,15 +95,24 @@ export default function AdminStaffPage() {
 
             {/* Modal */}
             {modalOpen && (
-                <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.35)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <div style={{ background: "#fff", padding: 20, borderRadius: 12, width: 520, maxWidth: "95%" }}>
+                <div className="modal-overlay">
+                    <div className="modal-content-wrapper">
                         <h3>{editing ? "Sửa nhân viên" : "Thêm nhân viên"}</h3>
-                        <form onSubmit={save} style={{ display: "grid", gap: 10, marginTop: 10 }}>
-                            <input className="form-input" placeholder="Email" value={form.email || ""} onChange={(e) => setForm({ ...form, email: e.target.value })} />
-                            <input className="form-input" placeholder="Họ tên" value={form.full_name || ""} onChange={(e) => setForm({ ...form, full_name: e.target.value })} />
-                            <input className="form-input" placeholder="Mật khẩu" value={form.password || ""} onChange={(e) => setForm({ ...form, password: e.target.value })} />
-                            <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
-                                <button type="button" className="action-btn" onClick={() => setModalOpen(false)}>Huỷ</button>
+                        <form onSubmit={save} className="modal-form">
+                            <div className="floating-group">
+                                <input type="text" placeholder=" " required value={form.email || ""} onChange={(e) => setForm({ ...form, email: e.target.value })} />
+                                <label >Email</label>
+                            </div>
+                            <div className="floating-group">
+                                <input type="text" placeholder=" " required value={form.full_name || ""} onChange={(e) => setForm({ ...form, full_name: e.target.value })} />
+                                <label >Họ và Tên</label>
+                            </div>
+                            <div className="floating-group">
+                                <input type="text" placeholder=" " required value={form.password || ""} onChange={(e) => setForm({ ...form, password: e.target.value })} />
+                                <label >Mật khẩu</label>
+                            </div>
+                            <div className="modal-actions">
+                                <button type="button" className="action-btn btn-secondary" onClick={() => setModalOpen(false)}>Huỷ</button>
                                 <button type="submit" className="action-btn"><i className="fa-solid fa-save" /> Lưu</button>
                             </div>
                         </form>

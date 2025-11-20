@@ -2,18 +2,21 @@
 
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { useAuth } from "@/contexts/AuthContexts";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import "./staff.css";
 import Link from "next/link";
 
 export default function StaffLayout({ children }) {
     const { user, logout } = useAuth();
     const router = useRouter();
+    const pathname = usePathname();
 
     const handleLogout = () => {
         logout();
         router.push("/login");
     };
+
+    const isActive = (href) => (pathname === href ? "menu-item active" : "menu-item");
 
     return (
         <ProtectedRoute allowedRoles={["staff"]}>
@@ -25,16 +28,17 @@ export default function StaffLayout({ children }) {
                     </div>
 
                     <nav className="sidebar-menu">
-                        <Link href="/staff" className="menu-item">
+                        <Link href="/staff" className={isActive("/staff")}>
                             <i className="fa-solid fa-gauge"></i> <span>Trang chủ</span>
                         </Link>
-                        <Link href="/staff/orders" className="menu-item">
+                        {/* <Link href="/admin" className={isActive("/admin")}><i className="fa-solid fa-clock"></i> <span>Trang chủ</span></Link> */}
+                        <Link href="/staff/orders" className={isActive("/staff/orders")}>
                             <i className="fa-solid fa-cart-shopping"></i> <span>Quản lý đơn hàng</span>
                         </Link>
-                        <Link href="/staff/products" className="menu-item">
+                        <Link href="/staff/products" className={isActive("/staff/products")}>
                             <i className="fa-solid fa-box"></i> <span>Sản phẩm</span>
                         </Link>
-                        <Link href="/staff/customers" className="menu-item">
+                        <Link href="/staff/customers" className={isActive("/staff/customers")}>
                             <i className="fa-solid fa-users"></i> <span>Khách hàng</span>
                         </Link>
                     </nav>
