@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import Link from 'next/link';
 import "../assets/css/productSection.css"
 import { formatPrice } from "@/lib/format";
 
@@ -57,7 +58,7 @@ export default function Products() {
 
             <div className="products-grid">
                 {paginated.length > 0 ? paginated.map(p => (
-                    <div key={p.id} className="product-card">
+                    <Link key={p.id} href={`/product/${p.id}`} className="product-card">
                         <div className="product-badge">Sale</div>
                         <div className="containProduct">
                             <img
@@ -75,7 +76,7 @@ export default function Products() {
                             <h3>{p.name}</h3>
                             <div className="product-price">{formatPrice(p.price)}</div>
                         </div>
-                    </div>
+                    </Link>
                 )) : (
                     <div style={{gridColumn: '1/-1', textAlign: 'center', color: '#666'}}>Không có sản phẩm hiển thị</div>
                 )}
