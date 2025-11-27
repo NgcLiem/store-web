@@ -1,5 +1,6 @@
 "use client";
 import { createContext, useContext, useState, useEffect } from "react";
+import { mergeLocalCart, getLocalCart } from "@/lib/localCart";
 
 const AuthContext = createContext();
 
@@ -61,6 +62,18 @@ export function AuthProvider({ children }) {
         localStorage.setItem("userId", userData.id);
         localStorage.setItem("userEmail", userData.email);
         localStorage.setItem("userRole", userData.role);
+
+        // Nếu có giỏ hàng local (guest), merge lên server trong nền
+        try {
+            const local = getLocalCart();
+            if (local && local.length) {
+                mergeLocalCart(userData.id, jwtToken)
+                    .then((res) => console.log('Merged local cart:', res))
+                    .catch((err) => console.warn('Merge local cart failed', err));
+            }
+        } catch (e) {
+            console.warn('Error merging local cart after login', e);
+        }
     };
 
     // 🔹 Đăng xuất: xóa tất cả key

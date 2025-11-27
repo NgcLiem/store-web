@@ -4,7 +4,7 @@ import pool from "@/lib/db";
 // Lấy chi tiết 1 sản phẩm
 export async function GET(req, { params }) {
     try {
-        const id = Number(params.id);
+        const id = Number((await params).id);
         if (!id) return Response.json({ message: "Thiếu id" }, { status: 400 });
 
         const [rows] = await pool.query("SELECT * FROM products WHERE id = ?", [id]);
@@ -19,7 +19,7 @@ export async function GET(req, { params }) {
 // Cập nhật sản phẩm
 export async function PUT(req, { params }) {
     try {
-        const id = Number(params.id);
+        const id = Number((await params).id);
         if (!id) return Response.json({ message: "Thiếu id" }, { status: 400 });
         const body = await req.json();
 
@@ -52,7 +52,7 @@ export async function PUT(req, { params }) {
 // Xóa sản phẩm
 export async function DELETE(req, { params }) {
     try {
-        const id = Number(params.id);
+        const id = Number((await params).id);
         if (!id) return Response.json({ message: "Thiếu id" }, { status: 400 });
 
         await pool.query("DELETE FROM products WHERE id = ?", [id]);

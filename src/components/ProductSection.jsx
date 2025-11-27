@@ -7,7 +7,7 @@ import { formatPrice } from "@/lib/format";
 export default function Products() {
     const [products, setProducts] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
-    const pageSize = 8; // max products per page
+    const pageSize = 16; // max products per page
 
     useEffect(() => {
         fetch("/api/products")

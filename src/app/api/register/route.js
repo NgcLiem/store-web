@@ -28,7 +28,7 @@ export async function POST(req) {
 
         // 🔥 Tạo luôn giỏ hàng cho user mới
         await pool.query(
-            "INSERT INTO carts (user_id, status) VALUES (?, 'active')",
+            "INSERT INTO carts (user_id) VALUES (?)",
             [newUserId]
         );
 

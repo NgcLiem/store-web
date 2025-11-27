@@ -1,19 +1,63 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContexts";
+import { getLocalCart, saveLocalCart, clearLocalCart } from "@/lib/localCart";
 import "./cart.css";
 
 export default function CartPage() {
     const router = useRouter();
+    const { user, loading } = useAuth();
     const [cartItems, setCartItems] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const userId = 3; // giả sử user_id = 3 (tạm thời)
+    const [loadingCart, setLoadingCart] = useState(true);
 
     useEffect(() => {
-        fetch(`/api/cart?user_id=${userId}`)
+        if (loading) return; // wait until auth is resolved
+
+        // Guest: load from localStorage and fetch product details
+        if (!user) {
+            (async () => {
+                try {
+                    const local = getLocalCart();
+                    if (!local.length) {
+                        setCartItems([]);
+                        setLoadingCart(false);
+                        return;
+                    }
+
+                    const fetched = await Promise.all(local.map(async (it) => {
+                        try {
+                            const res = await fetch(`/api/products/${it.product_id}`);
+                            if (!res.ok) return { cart_id: null, product_id: it.product_id, name: '(Không tìm thấy)', price: 0, image_url: '/images/no-image.png', quantity: it.quantity };
+                            const prod = await res.json();
+                            return {
+                                cart_id: null,
+                                product_id: it.product_id,
+                                name: prod.name,
+                                price: prod.price,
+                                image_url: prod.image_url || (prod.image ? `/images/${prod.image}` : '/images/no-image.png'),
+                                quantity: it.quantity,
+                            };
+                        } catch (e) {
+                            return { cart_id: null, product_id: it.product_id, name: '(Lỗi)', price: 0, image_url: '/images/no-image.png', quantity: it.quantity };
+                        }
+                    }));
+
+                    setCartItems(fetched);
+                } catch (e) {
+                    console.error('Load local cart error', e);
+                    setCartItems([]);
+                } finally {
+                    setLoadingCart(false);
+                }
+            })();
+
+            return;
+        }
+
+        fetch(`/api/cart?user_id=${user.id}`)
             .then((res) => res.json())
             .then((data) => {
-                // Always set cartItems as array
                 if (Array.isArray(data)) {
                     setCartItems(data);
                 } else if (data && Array.isArray(data.rows)) {
@@ -21,21 +65,28 @@ export default function CartPage() {
                 } else {
                     setCartItems([]);
                 }
-                setLoading(false);
+                setLoadingCart(false);
             })
             .catch((err) => {
                 console.error("Fetch cart error:", err);
                 setCartItems([]);
-                setLoading(false);
+                setLoadingCart(false);
             });
-    }, []);
+    }, [loading, user]);
 
     // Xoá sản phẩm khỏi giỏ
     const handleRemove = async (productId) => {
+        if (!user) {
+            // remove from local cart
+            const local = getLocalCart().filter(it => it.product_id !== productId);
+            saveLocalCart(local);
+            setCartItems(cartItems.filter((item) => item.product_id !== productId));
+            return;
+        }
         await fetch("/api/cart", {
             method: "DELETE",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ user_id: userId, product_id: productId }),
+            body: JSON.stringify({ user_id: user.id, product_id: productId }),
         });
         setCartItems(cartItems.filter((item) => item.product_id !== productId));
     };
@@ -43,10 +94,18 @@ export default function CartPage() {
     // Cập nhật số lượng
     const updateQuantity = async (productId, newQty) => {
         if (newQty < 1) return;
+        if (!user) {
+            const local = getLocalCart().map(it => it.product_id === productId ? { ...it, quantity: newQty } : it);
+            saveLocalCart(local);
+            setCartItems(cartItems.map((item) =>
+                item.product_id === productId ? { ...item, quantity: newQty } : item
+            ));
+            return;
+        }
         await fetch("/api/cart", {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ user_id: userId, product_id: productId, quantity: newQty }),
+            body: JSON.stringify({ user_id: user.id, product_id: productId, quantity: newQty }),
         });
         setCartItems(cartItems.map((item) =>
 
@@ -58,7 +117,7 @@ export default function CartPage() {
 
     const totalPrice = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
 
-    if (loading) return <p>Đang tải giỏ hàng...</p>;
+    if (loading || loadingCart) return <p>Đang tải giỏ hàng...</p>;
 
     return (
         <div className="cart-popup">
