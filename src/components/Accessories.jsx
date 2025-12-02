@@ -65,7 +65,6 @@ export default function AccessoriesSection({ categoryId = 4, pageSize = 16, titl
             <div className="container">
                 <div className="section-header">
                     <h2 className="section-title">{title}</h2>
-                    <p className="section-subtitle">Bổ sung outfit của bạn với phụ kiện chính hãng</p>
                 </div>
             </div>
 
