@@ -13,7 +13,7 @@ export default function OtherBrand() {
         // Make sure products is an array
         const items = Array.isArray(products) ? products : [];
         let result = [...items];
-        
+
         if (sort === "price-asc") result.sort((a, b) => a.price - b.price);
         if (sort === "price-desc") result.sort((a, b) => b.price - a.price);
         if (sort === "newest") result.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
@@ -23,7 +23,7 @@ export default function OtherBrand() {
 
     useEffect(() => {
         // Fetch products from categories 5-9 (Other brands)
-        const categories = [5, 6, 7, 8, 9];
+        const categories = [3, 5, 6, 7, 8, 9];
         Promise.all(
             categories.map(categoryId =>
                 fetch(`/api/products?category_id=${categoryId}`)
@@ -32,7 +32,7 @@ export default function OtherBrand() {
         )
             .then((results) => {
                 // Combine all products from different categories
-                const allProducts = results.flatMap(data => 
+                const allProducts = results.flatMap(data =>
                     Array.isArray(data) ? data : data.rows || []
                 );
                 setProducts(allProducts);

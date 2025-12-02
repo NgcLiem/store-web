@@ -11,11 +11,11 @@ export async function GET(req) {
         }
         // 🔍 Thử lấy theo schema carts/cart_items (preferred)
         const [cartRows] = await pool.query(
-            `SELECT c.id AS cart_id, p.id AS product_id, p.name, p.price, p.image_url, ci.quantity, ci.size
+            `SELECT c.id AS cart_id, p.id AS product_id, p.name, p.price, p.image_url, ci.quantity
              FROM carts c
              JOIN cart_items ci ON c.id = ci.cart_id
              JOIN products p ON ci.product_id = p.id
-             WHERE c.user_id = ? AND c.status = 'active'`,
+             WHERE c.user_id = ? `,
             [userId]
         );
 
@@ -26,7 +26,7 @@ export async function GET(req) {
         // Nếu không có theo schema preferred, thử fallback sang bảng `cart` nếu project dùng bảng đơn giản
         try {
             const [simpleRows] = await pool.query(
-                `SELECT c.id AS cart_id, c.product_id, p.name, p.price, p.image_url, c.quantity, c.size
+                `SELECT c.id AS cart_id, c.product_id, p.name, p.price, p.image_url, c.quantity
                  FROM cart c
                  LEFT JOIN products p ON c.product_id = p.id
                  WHERE c.user_id = ?`,
@@ -54,62 +54,62 @@ export async function GET(req) {
 /** ➕ THÊM SẢN PHẨM VÀO GIỎ HÀNG */
 export async function POST(req) {
     try {
-        const { user_id, product_id, quantity, size } = await req.json();
-        if (!user_id || !product_id)
+        const { user_id, product_id, quantity = 1, size = null } = await req.json();
+        if (!user_id || !product_id) {
             return new Response(JSON.stringify({ message: "Thiếu thông tin" }), { status: 400 });
-
-        // Try the preferred carts/cart_items schema first
+        }
+        const conn = await pool.getConnection();
         try {
-            const [carts] = await pool.query(
-                "SELECT id FROM carts WHERE user_id = ? AND status = 'active'",
+            await conn.beginTransaction();
+
+            // find active cart for user (lock row)
+            // select the most recent cart for the user (no status column in schema)
+            const [carts] = await conn.query(
+                "SELECT id FROM carts WHERE user_id = ? ORDER BY id DESC LIMIT 1 FOR UPDATE",
                 [user_id]
             );
             let cartId = carts.length ? carts[0].id : null;
 
             if (!cartId) {
-                const [newCart] = await pool.query(
-                    "INSERT INTO carts (user_id, status) VALUES (?, 'active')",
+                const [res] = await conn.query(
+                    "INSERT INTO carts (user_id) VALUES (?)",
                     [user_id]
                 );
                 // mysql2 returns an OkPacket in newCart
-                cartId = newCart.insertId || (newCart[0] && newCart[0].insertId) || null;
+                cartId = res.insertId;
             }
 
-            // If we still don't have cartId, throw to try fallback
-            if (!cartId) throw new Error('Không tạo được carts row');
-
-            const [exists] = await pool.query(
-                "SELECT id FROM cart_items WHERE cart_id = ? AND product_id = ?",
+            const [existing] = await conn.query(
+                "SELECT id, quantity FROM cart_items WHERE cart_id = ? AND product_id = ? FOR UPDATE",
                 [cartId, product_id]
             );
 
-            if (exists.length > 0) {
-                await pool.query(
-                    "UPDATE cart_items SET quantity = quantity + ? WHERE cart_id = ? AND product_id = ?",
-                    [quantity || 1, cartId, product_id]
+            let itemId;
+            let newQuantity = quantity;
+            if (existing.length > 0) {
+                itemId = existing[0].id;
+                newQuantity = (existing[0].quantity || 0) + quantity;
+                await conn.query(
+                    "UPDATE cart_items SET quantity = ? WHERE id = ?",
+                    [newQuantity, itemId]
                 );
             } else {
-                await pool.query(
+                const [ins] = await conn.query(
                     "INSERT INTO cart_items (cart_id, product_id, quantity) VALUES (?, ?, ?)",
-                    [cartId, product_id, quantity || 1]
+                    [cartId, product_id, quantity]
                 );
+                itemId = ins.insertId;
             }
 
-            return new Response(JSON.stringify({ message: "Đã thêm vào giỏ hàng" }), { status: 200 });
-        } catch (innerErr) {
-            // If preferred schema is not available, try a simple `cart` table fallback
-            console.warn('Preferred carts/cart_items schema failed, trying fallback:', innerErr && innerErr.message);
+            await conn.commit();
 
-            try {
-                await pool.query(
-                    "INSERT INTO cart (user_id, product_id, quantity, size) VALUES (?, ?, ?, ?)",
-                    [user_id, product_id, quantity || 1, size || null]
-                );
-                return new Response(JSON.stringify({ message: "Đã thêm vào giỏ hàng (fallback)" }), { status: 200 });
-            } catch (fallbackErr) {
-                console.error('Fallback insert into cart failed:', fallbackErr);
-                return new Response(JSON.stringify({ message: 'Lỗi DB khi thêm giỏ hàng', detail: String(fallbackErr) }), { status: 500 });
-            }
+            return new Response(JSON.stringify({ ok: true, cart_id: cartId, item_id: itemId, product_id, quantity: newQuantity }), { status: 200 });
+        } catch (txErr) {
+            await conn.rollback();
+            console.error('Transaction error adding to cart:', txErr);
+            return new Response(JSON.stringify({ message: 'Lỗi khi thêm vào giỏ hàng', detail: String(txErr) }), { status: 500 });
+        } finally {
+            conn.release();
         }
     } catch (error) {
         console.error("POST Cart Error:", error);
@@ -127,7 +127,7 @@ export async function PUT(req) {
             return new Response(JSON.stringify({ message: "Thiếu thông tin" }), { status: 400 });
 
         const [carts] = await pool.query(
-            "SELECT id FROM carts WHERE user_id = ? AND status = 'active'",
+            "SELECT id FROM carts WHERE user_id = ? ORDER BY id DESC LIMIT 1",
             [user_id]
         );
         if (!carts.length)
@@ -157,7 +157,7 @@ export async function DELETE(req) {
             return new Response(JSON.stringify({ message: "Thiếu thông tin" }), { status: 400 });
 
         const [carts] = await pool.query(
-            "SELECT id FROM carts WHERE user_id = ? AND status = 'active'",
+            "SELECT id FROM carts WHERE user_id = ? ORDER BY id DESC LIMIT 1",
             [user_id]
         );
         if (!carts.length)

@@ -3,6 +3,7 @@
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { useAuth } from "@/contexts/AuthContexts";
 import { useEffect, useMemo, useState } from "react";
+import "./orders.css";
 import "../staff.css";
 
 function OrdersPageContent() {
@@ -10,37 +11,32 @@ function OrdersPageContent() {
     const [loading, setLoading] = useState(true);
     const [orders, setOrders] = useState([]);
     const [q, setQ] = useState("");
-    const [status, setStatus] = useState("all"); // all | pending | processing | completed | canceled
+    const [status, setStatus] = useState("all");
     const [page, setPage] = useState(1);
     const pageSize = 10;
 
-    // Tải danh sách đơn
     const fetchOrders = async () => {
+        setLoading(true);
+
+        const params = new URLSearchParams();
+        if (q) params.set("q", q);
+        if (status !== "all") params.set("status", status);
+
         try {
-            setLoading(true);
-            const res = await fetch(`/api/orders?status=${status === "all" ? "" : status}&q=${encodeURIComponent(q)}`);
-            const data = await res.json();
-            if (!res.ok) throw new Error(data?.message || "Không tải được đơn hàng");
-            setOrders(data?.items || data || []);
-        } catch (e) {
-            console.error(e);
-            setOrders([]);
-            alert(e.message);
-        } finally {
-            setLoading(false);
+            const data = await apiGet(`/orders?${params.toString()}`);
+            setOrders(Array.isArray(data) ? data : []);
+        } catch (err) {
+            console.error(err);
+            alert("Không thể tải danh sách đơn hàng");
         }
+        setLoading(false);
     };
 
     useEffect(() => {
         fetchOrders();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [status]);
 
-    const submitSearch = (e) => {
-        e.preventDefault();
-        setPage(1);
-        fetchOrders();
-    };
+    const submitSearch = (e) => { e.preventDefault(); load(); };
 
     const paged = useMemo(() => {
         const start = (page - 1) * pageSize;
@@ -49,22 +45,26 @@ function OrdersPageContent() {
 
     const totalPages = Math.max(1, Math.ceil(orders.length / pageSize));
 
-    const updateStatus = async (id, newStatus) => {
-        if (!confirm(`Xác nhận cập nhật đơn #${id} sang trạng thái "${newStatus}"?`)) return;
+    const updateStatus = async (order, newStatus) => {
         try {
-            const res = await fetch(`/api/orders/${id}`, {
-                method: "PATCH",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ status: newStatus }),
-            });
-            const data = await res.json();
-            if (!res.ok) throw new Error(data?.message || "Cập nhật thất bại");
-            // Optimistic update
+            await apiSend(`/orders/${order.id}`, "PUT", { status: newStatus });
             setOrders((prev) =>
-                prev.map((o) => (o.id === id ? { ...o, status: newStatus } : o))
+                prev.map((o) =>
+                    o.id === order.id ? { ...o, status: newStatus } : o
+                )
             );
         } catch (e) {
-            alert(e.message);
+            alert("Cập nhật trạng thái thất bại");
+        }
+    };
+
+    const remove = async (order) => {
+        if (!confirm(`Xoá đơn #${order.id}?`)) return;
+        try {
+            await apiSend(`/orders/${order.id}`, "DELETE");
+            setOrders((prev) => prev.filter((o) => o.id !== order.id));
+        } catch (e) {
+            alert("Xoá đơn thất bại");
         }
     };
 
@@ -86,51 +86,81 @@ function OrdersPageContent() {
             </div>
 
             <div className="staff-content">
-                <form onSubmit={submitSearch} style={{ display: "flex", gap: 12, marginBottom: 16 }}>
+                <form onSubmit={submitSearch} className="order-search-form">
                     <input
                         value={q}
                         onChange={(e) => setQ(e.target.value)}
-                        className="form-input"
+                        className="form-input search-input-narrow"
                         placeholder="Tìm theo mã đơn / email / SĐT"
-                        style={{ maxWidth: 360 }}
                     />
-                    <select className="form-input" value={status} onChange={(e) => setStatus(e.target.value)} style={{ maxWidth: 220 }}>
+
+                    <select className="form-input status-select" value={status} onChange={(e) => setStatus(e.target.value)}>
                         <option value="all">Tất cả trạng thái</option>
                         <option value="pending">Chờ xử lý</option>
                         <option value="processing">Đang xử lý</option>
                         <option value="completed">Hoàn thành</option>
                         <option value="canceled">Đã hủy</option>
                     </select>
-                    <button className="action-btn" type="submit"><i className="fa-solid fa-search" /> Tìm</button>
+
+                    <button className="action-btn" type="submit">
+                        <i className="fa-solid fa-search" /> Tìm
+                    </button>
                 </form>
 
-                <div style={{ overflowX: "auto" }}>
-                    <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                <div className="table-wrapper">
+                    <table className="order-table">
                         <thead>
-                            <tr style={{ background: "#f1f2f6" }}>
-                                <th style={{ padding: 12, borderBottom: "1px solid #eee", textAlign: "left" }}>Mã đơn</th>
-                                <th style={{ padding: 12, borderBottom: "1px solid #eee", textAlign: "left" }}>Khách hàng</th>
-                                <th style={{ padding: 12, borderBottom: "1px solid #eee", textAlign: "right" }}>Tổng tiền</th>
-                                <th style={{ padding: 12, borderBottom: "1px solid #eee" }}>Trạng thái</th>
-                                <th style={{ padding: 12, borderBottom: "1px solid #eee" }}>Thao tác</th>
+                            <tr className="table-header-row">
+                                <th className="table-header-cell text-left">Mã đơn</th>
+                                <th className="table-header-cell text-left">Khách hàng</th>
+                                <th className="table-header-cell text-left">Ngày đặt hàng</th>
+                                <th className="table-header-cell text-right">Tổng tiền</th>
+                                <th className="table-header-cell text-center">Trạng thái</th>
+                                <th className="table-header-cell text-center">Phương thức thanh toán</th>
+                                <th className="table-header-cell text-center">Thao tác</th>
                             </tr>
                         </thead>
                         <tbody>
                             {loading ? (
-                                <tr><td colSpan={5} style={{ padding: 20, textAlign: "center" }}>Đang tải...</td></tr>
+                                <tr className="table-row-loading">
+                                    <td colSpan={5} className="table-cell-center">Đang tải...</td>
+
+                                </tr>
                             ) : paged.length === 0 ? (
-                                <tr><td colSpan={5} style={{ padding: 20, textAlign: "center" }}>Không có dữ liệu</td></tr>
+                                <tr className="table-row-loading">
+                                    <td colSpan={5} className="table-cell-center">Không có dữ liệu</td>
+                                </tr>
                             ) : (
                                 paged.map((o) => (
-                                    <tr key={o.id} style={{ borderBottom: "1px solid #f0f0f0" }}>
-                                        <td style={{ padding: 12 }}>{o.code || `#${o.id}`}</td>
-                                        <td style={{ padding: 12 }}>{o.customer_email || o.customer_name || "-"}</td>
-                                        <td style={{ padding: 12, textAlign: "right" }}>{(o.total || 0).toLocaleString()}₫</td>
-                                        <td style={{ padding: 12, textTransform: "capitalize", textAlign: "center" }}>{o.status}</td>
-                                        <td style={{ padding: 12, display: "flex", gap: 8, justifyContent: "center" }}>
-                                            {o.status !== "processing" && <button className="action-btn" onClick={() => updateStatus(o.id, "processing")}><i className="fa-solid fa-gear" /> Xử lý</button>}
-                                            {o.status !== "completed" && <button className="action-btn" onClick={() => updateStatus(o.id, "completed")}><i className="fa-solid fa-check" /> Hoàn thành</button>}
-                                            {o.status !== "canceled" && <button className="action-btn" onClick={() => updateStatus(o.id, "canceled")}><i className="fa-solid fa-ban" /> Hủy</button>}
+                                    <tr key={o.id} className="table-body-row">
+                                        <td className="table-cell">{o.id}</td>
+                                        <td className="table-cell">{o.user_id}</td>
+                                        <td>{o.order_date
+                                            ? new Date(o.order_date).toLocaleString("vi-VN")
+                                            : "-"}
+                                        </td>
+                                        <td className="table-cell text-right">{(Number(o.total_amount || 0)).toLocaleString()}₫</td>
+                                        <td className="table-cell order-status-cell">{o.status}</td>
+                                        <td className="table-cell text-center">{o.payment_method}</td>
+                                        <td className="table-cell table-actions-cell">
+                                            <select
+                                                value={o.status}
+                                                onChange={(e) => updateStatus(o, e.target.value)}
+                                                className="form-input"
+                                                style={{ maxWidth: 140, marginRight: 8 }}
+                                            >
+                                                <option value="pending">pending</option>
+                                                <option value="confirmed">confirmed</option>
+                                                <option value="shipped">shipped</option>
+                                                <option value="delivered">delivered</option>
+                                                <option value="cancelled">cancelled</option>
+                                            </select>
+                                            <button
+                                                className="action-btn"
+                                                onClick={() => remove(o)}
+                                            >
+                                                Xoá
+                                            </button>
                                         </td>
                                     </tr>
                                 ))
@@ -139,13 +169,14 @@ function OrdersPageContent() {
                     </table>
                 </div>
 
-                <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 16 }}>
-                    <button className="action-btn" disabled={page === 1} onClick={() => setPage(p => Math.max(1, p - 1))}>←</button>
-                    <div style={{ padding: "8px 12px" }}>{page}/{totalPages}</div>
-                    <button className="action-btn" disabled={page === totalPages} onClick={() => setPage(p => Math.min(totalPages, p + 1))}>→</button>
+                <div className="pagination-controls">
+                    <button className="action-btn pagination-btn" disabled={page === 1} onClick={() => setPage(p => Math.max(1, p - 1))}>←</button>
+                    <div className="page-info">{page}/{totalPages}</div>
+                    <button className="action-btn pagination-btn" disabled={page === totalPages} onClick={() => setPage(p => Math.min(totalPages, p + 1))}>→</button>
                 </div>
+
             </div>
-        </div>
+        </div >
     );
 }
 

@@ -1,16 +1,36 @@
-/* admin.css - PHẦN BỔ SUNG CHO TRANG QUẢN LÝ SẢN PHẨM & CHUNG */
-
-/* --- Định kiểu Form và Bảng --- */
-
 /* Form tìm kiếm */
 .product-search-form {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 16px;
-    align-items: center;
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+  align-items: center;
 }
 
-/* Wrapper cho table để có thể scroll ngang */
+.search-input-narrow {
+    max-width: 360px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    outline: none;
+    width: 100%;
+    padding: 12px 16px;
+    font-size: .95rem;
+    transition: all .3s;
+}
+
+.category-select {
+    max-width: 220px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    outline: none;
+    width: 100%;
+    padding: 12px 16px;
+    font-size: .95rem;
+    transition: all .3s;
+}
+
+/* Bảng */
 .table-wrapper {
     overflow-x: auto;
     border: 1px solid #e0e0e0;
@@ -18,34 +38,29 @@
     margin-top: 16px; 
 }
 
-/* Định kiểu cho bảng */
 .product-table {
-    width: 100%;
-    border-collapse: collapse;
-    min-width: 800px; /* Đảm bảo bảng hiển thị đủ cột */
+  width: 100%;
+  border-collapse: collapse;
+    min-width: 800px;
 }
 
-/* Header của bảng */
+/* Header */
 .table-header-row {
-    background: #f8f8f8;
-    border-bottom: 2px solid #ddd;
+  background: #f1f2f6;
+  border-bottom: 2px solid #ddd;
 }
 
 .table-header-cell {
-    padding: 12px;
-    font-weight: 600;
-    color: #444;
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+  font-weight: 600;
+  color: #444;
 }
 
-/* Căn lề chung */
-.text-left { text-align: left !important; }
-.text-right { text-align: right !important; }
-.text-center { text-align: center !important; }
-
-/* Cột ảnh sản phẩm */
 .product-image-header {
     width: 90px;
 }
+
 .product-image-cell {
     padding: 12px;
     text-align: center;
@@ -55,8 +70,9 @@
     color: #888;
 }
 
+/* Body */
 .table-body-row {
-    border-bottom: 1px solid #eee;
+  border-bottom: 1px solid #f0f0f0;
 }
 
 .table-body-row:last-child {
@@ -64,35 +80,48 @@
 }
 
 .table-cell {
-    padding: 12px;
-    color: #555;
-    vertical-align: middle;
+  padding: 12px;
+  color: #555;
+  vertical-align: middle
 }
 
 .table-cell-center {
-    text-align: center;
-    color: #999;
+  padding: 20px;
+  text-align: center;
+  color: #999;
 }
 
-/* Cell chứa nút thao tác */
+/* Căn lề */
+.text-left { text-align: left !important; }
+.text-right { text-align: right !important; }
+.text-center { text-align: center !important; }
+
+/* Nút thao tác */
 .table-actions-cell {
-    display: flex;
-    gap: 8px;
-    justify-content: center;
-    padding: 12px;
-    white-space: nowrap; /* Giữ các nút cùng dòng */
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  padding: 12px;
+  white-space: nowrap
 }
 
-/* --- Modal (Popup) --- */
+/* Nút xoá */
+.btn-danger {
+  background: #e74c3c;
+}
+.btn-danger:hover {
+  background: #c0392b;
+}
 
+/* Modal overlay */
 .modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,.35);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000; /* Đảm bảo modal nằm trên các element khác */
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
 }
 
 .modal-content-wrapper {
@@ -102,7 +131,7 @@
     width: 520px;
     max-width: 95%;
     box-shadow: 0 5px 15px rgba(0,0,0,.2);
-    animation: fadeIn 0.3s ease-out; /* Thêm animation nhẹ */
+    animation: fadeIn 0.3s ease-out;
 }
 
 .modal-content-wrapper h3 {
@@ -114,6 +143,15 @@
     padding-bottom: 10px;
 }
 
+.modal-box {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  width: 520px;
+  max-width: 95%;
+}
+
+/* Modal form */
 .modal-form {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -124,6 +162,13 @@
 .image-input-group {
     display: flex;
     flex-direction: column;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 6px;
 }
 
 .image-input-group {
@@ -151,33 +196,12 @@
     flex: 1;
 }
 
-.modal-actions {
-    display: flex;
-    gap: 8px;
-    justify-content: flex-end;
-    margin-top: 20px;
+/* Nút xem ảnh */
+.btn-preview {
+    background: var(--maincolor);
 }
-
-.btn-danger {
-    background: #e74c3c;
-}
-.btn-danger:hover {
-    background: #c0392b;
-}
-
-.btn-secondary {
-    background: #bdc3c7; /* Màu xám cho nút Huỷ */
-    color: #333;
-}
-.btn-secondary:hover {
-    background: #95a5a6;
-    color: #fff;
-}
-
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: scale(0.95); }
-    to { opacity: 1; transform: scale(1); }
+.btn-preview:hover {
+    background: rgba(28, 180, 70, 0.8);
 }
 
 /* Khu vực drag & drop */
@@ -238,4 +262,25 @@
     margin-top: 8px;
     color: #aaa;
     font-size: 0.9rem;
+}
+
+.input-readonly {
+  background-color: #f5f7fb;
+  color: #555;
+  cursor: not-allowed;
+  border-color: #e1e4f0;
+}
+
+.input-readonly:focus {
+  outline: none;
+  box-shadow: none;
+  border-color: #e1e4f0;
+}
+
+/* Ghi chú trong modal cho staff */
+.staff-note {
+  grid-column: span 2;
+  font-size: 0.85rem;
+  color: #888;
+  margin-bottom: 4px;
 }

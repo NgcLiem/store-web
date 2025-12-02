@@ -3,12 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import "../assets/css/productSection.css"; // tái dùng style của ProductSection
 import { formatPrice } from "@/lib/format";
 
-/**
- * AccessoriesSection
- * - Mặc định gọi /api/products với tham số category_id=3 (bạn chỉnh lại ID cho đúng DB).
- * - Nếu API không hỗ trợ category_id, sẽ lọc client-side theo tên/brand.
- */
-export default function AccessoriesSection({ categoryId = 3, pageSize = 8, title = "Phụ kiện" }) {
+export default function AccessoriesSection({ categoryId = 4, pageSize = 16, title = "Phụ kiện" }) {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
@@ -20,11 +15,9 @@ export default function AccessoriesSection({ categoryId = 3, pageSize = 8, title
                 setLoading(true);
                 setError("");
 
-                // Thử gọi theo category_id trước
                 let res = await fetch(`/api/products?category_id=${encodeURIComponent(categoryId)}`, { cache: "no-store" });
                 let data = await res.json().catch(() => null);
 
-                // Nếu API không hỗ trợ category_id -> gọi all rồi lọc client-side
                 if (!Array.isArray(data)) {
                     res = await fetch("/api/products", { cache: "no-store" });
                     data = await res.json().catch(() => []);
@@ -44,14 +37,11 @@ export default function AccessoriesSection({ categoryId = 3, pageSize = 8, title
         })();
     }, [categoryId]);
 
-    // Fallback filter client-side nếu cần (tên có “dây/đế/vớ/miếng lót”…)
     const normalized = useMemo(() => {
         if (!Array.isArray(products)) return [];
-        // nếu mảng đã đúng category thì trả luôn
         const inCat = products.filter(p => String(p.category_id) === String(categoryId));
         if (inCat.length > 0) return inCat;
 
-        // fallback đoán theo tên/brand
         const keys = ["phu kien", "phụ kiện", "sock", "vớ", "lot", "lót", "day", "dây", "de", "đế", "shoelace", "clean", "vệ sinh"];
         const hasKey = (s = "") => {
             const t = String(s).toLowerCase();
@@ -87,7 +77,6 @@ export default function AccessoriesSection({ categoryId = 3, pageSize = 8, title
                 ) : paginated.length ? (
                     paginated.map((p) => (
                         <div key={p.id} className="product-card">
-                            {/* badge optional */}
                             {p.is_hot ? <div className="product-badge">Hot</div> : null}
                             <div className="containProduct">
                                 <img

@@ -6,12 +6,6 @@
     align-items: center;
 }
 
-.search-input-narrow {
-    max-width: 360px; 
-    border: solid 1px #666;
-    padding: 10px;
-}
-
 /* --- Table Styles (Tái sử dụng) --- */
 
 .table-responsive-wrapper {

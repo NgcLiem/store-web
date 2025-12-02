@@ -1,4 +1,3 @@
-// src/app/admin/products/page.jsx ĐÃ SỬA ĐỔI
 "use client";
 
 import { useEffect, useState } from "react";
@@ -19,10 +18,13 @@ export default function AdminProductsPage() {
         image_url: ""
     });
     const [loading, setLoading] = useState(true);
+    const [uploading, setUploading] = useState(false);
+    const [dragActive, setDragActive] = useState(false);
 
     const load = async () => {
         setLoading(true);
-        const res = await fetch(`/api/products?q=${encodeURIComponent(q)}`);
+        const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+        const res = await fetch(`${API_BASE}/products?q=${encodeURIComponent(q)}`);
         const text = await res.text();
         let data = null;
         try {
@@ -95,6 +97,60 @@ export default function AdminProductsPage() {
         setItems(prev => prev.filter(it => it.id !== p.id));
     };
 
+    const uploadImage = async (file) => {
+        if (!file) return;
+        setUploading(true);
+        try {
+            const formData = new FormData();
+            formData.append("file", file);
+
+            // TODO: đổi endpoint này cho khớp backend của bạn
+            const res = await fetch(`${API_BASE}/upload`, {
+                method: "POST",
+                body: formData,
+            });
+
+            const data = await res.json().catch(() => null);
+            if (!res.ok) {
+                throw new Error(data?.message || "Upload ảnh thất bại");
+            }
+
+            // backend nên trả về { url: "..."} hoặc { image_url: "..." }
+            const url = data?.url || data?.image_url;
+            if (url) {
+                setForm((prev) => ({ ...prev, image_url: url }));
+            } else {
+                throw new Error("Không nhận được URL ảnh từ server");
+            }
+        } catch (e) {
+            alert(e.message);
+        } finally {
+            setUploading(false);
+        }
+    };
+
+    const handleFileChange = (e) => {
+        const file = e.target.files?.[0];
+        if (file) uploadImage(file);
+    };
+
+    const handleDrop = (e) => {
+        e.preventDefault();
+        setDragActive(false);
+        const file = e.dataTransfer.files?.[0];
+        if (file) uploadImage(file);
+    };
+
+    const handleDragOver = (e) => {
+        e.preventDefault();
+        setDragActive(true);
+    };
+
+    const handleDragLeave = (e) => {
+        e.preventDefault();
+        setDragActive(false);
+    };
+
     return (
         <>
             <div className="admin-header">
@@ -109,28 +165,28 @@ export default function AdminProductsPage() {
             <div className="admin-content">
                 <form
                     onSubmit={submitSearch}
-                    className="product-search-form" // Dùng className thay cho style inline
+                    className="product-search-form"
                 >
                     <input
                         value={q}
                         onChange={(e) => setQ(e.target.value)}
-                        className="form-input search-input-wide" // Dùng className thay cho style inline
+                        className="form-input search-input-narrow"
                         placeholder="Tìm tên / mã SP"
                     />
                     <button className="action-btn" type="submit">
-                        <i className="fa-solid fa-search" /> Tìm
+                        <i className="fa-solid fa-search" />
                     </button>
                 </form>
 
-                <div className="table-wrapper"> {/* Dùng className thay cho style inline */}
+                <div className="table-wrapper">
                     <table className="product-table">
                         <thead>
-                            <tr className="table-header-row"> {/* Dùng className thay cho style inline */}
+                            <tr className="table-header-row">
                                 <th className="table-header-cell text-left">Mã</th>
-                                <th className="table-header-cell text-left product-image-header">Ảnh</th> {/* Thêm className */}
-                                <th className="table-header-cell text-left">Tên</th>
-                                <th className="table-header-cell text-right">Giá</th>
-                                <th className="table-header-cell text-right">Tồn kho</th>
+                                <th className="table-header-cell text-left product-image-header">Ảnh</th>
+                                <th className="table-header-cell text-center">Tên</th>
+                                <th className="table-header-cell text-center">Giá</th>
+                                <th className="table-header-cell text-center">Tồn kho</th>
                                 <th className="table-header-cell text-center">Thao tác</th>
                             </tr>
                         </thead>
@@ -153,7 +209,7 @@ export default function AdminProductsPage() {
                                         <td className="table-cell">
                                             {p.product_code || `#${p.id}`}
                                         </td>
-                                        <td className="table-cell product-image-cell"> {/* Thêm className */}
+                                        <td className="table-cell product-image-cell">
                                             {p.image_url ? (
                                                 <img
                                                     src={p.image_url}
@@ -161,19 +217,19 @@ export default function AdminProductsPage() {
                                                     className="product-thumb"
                                                 />
                                             ) : (
-                                                <span className="no-image-text"> {/* Thêm className */}
+                                                <span className="no-image-text">
                                                     Không có
                                                 </span>
                                             )}
                                         </td>
-                                        <td className="table-cell">{p.name}</td>
-                                        <td className="table-cell text-right">
+                                        <td className="table-cell text-center">{p.name}</td>
+                                        <td className="table-cell text-center">
                                             {Number(p.price || 0).toLocaleString()}₫
                                         </td>
-                                        <td className="table-cell text-right">
+                                        <td className="table-cell text-center">
                                             {p.stock ?? 0}
                                         </td>
-                                        <td className="table-cell table-actions-cell"> {/* Dùng className thay cho style inline */}
+                                        <td className="table-cell table-actions-cell">
                                             <button
                                                 className="action-btn"
                                                 onClick={() => openEdit(p)}
@@ -181,7 +237,7 @@ export default function AdminProductsPage() {
                                                 <i className="fa-solid fa-pen" /> Sửa
                                             </button>
                                             <button
-                                                className="action-btn btn-danger" // Dùng btn-danger cho nút xoá
+                                                className="action-btn btn-danger"
                                                 onClick={() => remove(p)}
                                             >
                                                 <i className="fa-solid fa-trash" /> Xoá
@@ -280,17 +336,90 @@ export default function AdminProductsPage() {
                                 <label>ID danh mục (tuỳ chọn)</label>
                             </div>
 
-                            <div className="modal-actions"> {/* Dùng className thay cho style inline */}
-                                <button
-                                    type="button"
-                                    className="action-btn btn-secondary" // Thêm className để định kiểu nút Huỷ
-                                    onClick={() => setModalOpen(false)}
+                            <div className="image-input-group">
+                                <label className="image-label">Hình ảnh sản phẩm</label>
+
+                                {/* Ô nhập URL */}
+                                <div className="image-input-row">
+                                    <input
+                                        type="text"
+                                        className="form-input"
+                                        placeholder="https://image.jpg"
+                                        value={form.image_url || ""}
+                                        onChange={(e) =>
+                                            setForm({ ...form, image_url: e.target.value })
+                                        }
+                                    />
+
+                                    <button
+                                        type="button"
+                                        className="action-btn btn-preview"
+                                        disabled={!form.image_url}
+                                        onClick={() => form.image_url && window.open(form.image_url, "_blank")}
+                                    >
+                                        Xem
+                                    </button>
+
+                                    {form.image_url && (
+                                        <button
+                                            type="button"
+                                            className="action-btn btn-danger"
+                                            onClick={() => setForm({ ...form, image_url: "" })}
+                                        >
+                                            Xóa
+                                        </button>
+                                    )}
+                                </div>
+                                <div
+                                    className={`image-dropzone ${dragActive ? "drag-active" : ""}`}
+                                    onDragOver={handleDragOver}
+                                    onDragLeave={handleDragLeave}
+                                    onDrop={handleDrop}
                                 >
-                                    Huỷ
-                                </button>
-                                <button type="submit" className="action-btn">
-                                    <i className="fa-solid fa-save" /> Lưu
-                                </button>
+                                    <input
+                                        id="product-image-input"
+                                        type="file"
+                                        accept="image/*"
+                                        style={{ display: "none" }}
+                                        onChange={handleFileChange}
+                                    />
+
+                                    <p>
+                                        Kéo & thả ảnh vào đây, hoặc{" "}
+                                        <button
+                                            type="button"
+                                            className="link-button"
+                                            onClick={() => document.getElementById("product-image-input").click()}
+                                        >
+                                            chọn từ máy
+                                        </button>
+                                    </p>
+
+                                    {uploading && <p className="uploading-text">Đang upload...</p>}
+                                </div>
+
+                                {/* Preview ảnh */}
+                                {form.image_url ? (
+                                    <div className="image-preview">
+                                        <img src={form.image_url} alt="Preview" />
+                                    </div>
+                                ) : (
+                                    <p className="image-placeholder">Chưa có ảnh nào được chọn</p>
+                                )}
+
+
+                                <div className="modal-actions">
+                                    <button
+                                        type="button"
+                                        className="action-btn btn-secondary"
+                                        onClick={() => setModalOpen(false)}
+                                    >
+                                        Huỷ
+                                    </button>
+                                    <button type="submit" className="action-btn">
+                                        <i className="fa-solid fa-save" /> Lưu
+                                    </button>
+                                </div>
                             </div>
                         </form>
                     </div>

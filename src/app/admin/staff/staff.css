@@ -9,12 +9,21 @@
 }
 
 .search-input-narrow {
-    max-width: 360px; /* Định nghĩa kích thước input tìm kiếm */
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    outline: none;
+    width: 100%;
+    padding: 12px 16px;
+    font-size: .95rem;
+    transition: all .3s;
 }
 
 /* --- Bảng chung --- */
 .table-responsive-wrapper {
     overflow-x: auto;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
 }
 
 .staff-table {

@@ -57,14 +57,16 @@ function AdminContent() {
     return (
         <>
             <div className="admin-header">
-
-                {/* SEARCH BAR */}
-                <div className="search-bar-wrapper">
-                    <input type="text" placeholder="Search" className="search-input" />
-                    <i className="fa-solid fa-magnifying-glass search-icon"></i>
+                <div className="header1" style={{ display: "flex" }}>
+                    <h1>Trang chủ</h1>
+                    {/* SEARCH BAR */}
+                    <div className="search-bar-wrapper">
+                        <input type="text" placeholder="Search" className="search-input" />
+                        <i className="fa-solid fa-magnifying-glass search-icon"
+                            style={{ top: "25px" }}
+                        ></i>
+                    </div>
                 </div>
-
-                <h1>Trang chủ</h1>
 
                 {/* STATS */}
                 <div className="admin-stats-row">

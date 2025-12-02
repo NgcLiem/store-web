@@ -7,7 +7,7 @@ import { formatPrice } from "@/lib/format";
 export default function Products() {
     const [products, setProducts] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
-    const pageSize = 8; // max products per page
+    const pageSize = 16; // max products per page
 
     useEffect(() => {
         fetch("/api/products")
@@ -63,9 +63,9 @@ export default function Products() {
                         <div className="containProduct">
                             <img
                                 src={
-                                  p.image_url
-                                    ? p.image_url
-                                    : (p.image && !p.image.startsWith('http') ? `/images/${p.image}` : p.image)
+                                    p.image_url
+                                        ? p.image_url
+                                        : (p.image && !p.image.startsWith('http') ? `/images/${p.image}` : p.image)
                                 }
                                 alt={p.name}
                                 className="product-image"
@@ -78,20 +78,20 @@ export default function Products() {
                         </div>
                     </Link>
                 )) : (
-                    <div style={{gridColumn: '1/-1', textAlign: 'center', color: '#666'}}>Không có sản phẩm hiển thị</div>
+                    <div style={{ gridColumn: '1/-1', textAlign: 'center', color: '#666' }}>Không có sản phẩm hiển thị</div>
                 )}
             </div>
 
             {/* Pagination controls */}
-            <div className="pagination" style={{display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', marginTop: '20px'}}>
+            <div className="pagination" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', marginTop: '20px' }}>
                 <button onClick={() => goToPage(Math.max(1, currentPage - 1))} disabled={currentPage === 1} aria-label="Previous page">Prev</button>
 
-                {Array.from({length: totalPages}, (_, i) => i + 1).map(n => (
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(n => (
                     <button
                         key={n}
                         onClick={() => goToPage(n)}
                         aria-current={n === currentPage ? 'page' : undefined}
-                        style={n === currentPage ? {fontWeight: '700'} : {}}
+                        style={n === currentPage ? { fontWeight: '700' } : {}}
                     >
                         {n}
                     </button>
@@ -100,7 +100,7 @@ export default function Products() {
                 <button onClick={() => goToPage(Math.min(totalPages, currentPage + 1))} disabled={currentPage === totalPages} aria-label="Next page">Next</button>
             </div>
 
-            <div className="pagination-summary" style={{textAlign: 'center', marginTop: '8px', color: '#666'}}>
+            <div className="pagination-summary" style={{ textAlign: 'center', marginTop: '8px', color: '#666' }}>
                 Hiển thị {totalItems === 0 ? 0 : startIndex + 1} - {Math.min(startIndex + pageSize, totalItems)} trên {totalItems} sản phẩm
             </div>
         </section>
