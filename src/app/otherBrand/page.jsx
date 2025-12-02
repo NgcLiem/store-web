@@ -23,7 +23,7 @@ export default function OtherBrand() {
 
     useEffect(() => {
         // Fetch products from categories 5-9 (Other brands)
-        const categories = [5, 6, 7, 8, 9];
+        const categories = [3, 5, 6, 7, 8, 9];
         Promise.all(
             categories.map(categoryId =>
                 fetch(`/api/products?category_id=${categoryId}`)

@@ -8,7 +8,7 @@ import { formatPrice } from "@/lib/format";
  * - Mặc định gọi /api/products với tham số category_id=3 (bạn chỉnh lại ID cho đúng DB).
  * - Nếu API không hỗ trợ category_id, sẽ lọc client-side theo tên/brand.
  */
-export default function AccessoriesSection({ categoryId = 3, pageSize = 16, title = "Phụ kiện" }) {
+export default function AccessoriesSection({ categoryId = 4, pageSize = 16, title = "Phụ kiện" }) {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
