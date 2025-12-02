@@ -14,6 +14,12 @@ export default function Signup() {
     const [birthLimit, setBirthLimit] = useState("");
     const [invalidFields, setInvalidFields] = useState([]);
     const { login } = useAuth();
+    const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+
+    const [showLoginPassword, setShowLoginPassword] = useState(false);
+    const [showRegisterPassword, setShowRegisterPassword] = useState(false);
+    const [showRegisterConfirmPassword, setShowRegisterConfirmPassword] = useState(false);
+
 
     const router = useRouter();
 
@@ -83,7 +89,6 @@ export default function Signup() {
 
     const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
-    // Đăng nhập
     const handleLogin = async (e) => {
         e.preventDefault();
         const email = e.target.loginEmail.value.trim();
@@ -103,26 +108,19 @@ export default function Signup() {
         }
 
         try {
-            const res = await fetch("/api/login", {
+            const res = await fetch(`${API_BASE}/auth/login`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email, password }),
             });
 
-            const text = await res.text();
-            let data = null;
-            try { data = JSON.parse(text); }
-            catch { throw new Error("API trả về không phải JSON: " + text); }
-
             if (!res.ok) {
-                throw new Error(data?.error || data?.message || `HTTP ${res.status}`);
+                showMessage("error", "Đăng nhập thất bại");
+                return;
             }
 
-            try {
-                login?.(data.user, data.token);
-            } catch (err) {
-                throw new Error("Lỗi khi gọi login(): " + err.message);
-            }
+            const { user, token } = await res.json();
+            login(user, token);
 
             showMessage("success", "Đăng nhập thành công!");
 
@@ -130,10 +128,9 @@ export default function Signup() {
                 const redirectPath = localStorage.getItem("redirectAfterLogin") || "/";
                 localStorage.removeItem("redirectAfterLogin");
 
-                // Điều hướng theo role
-                if (data.user.role === "admin") {
+                if (user.role === "admin") {
                     router.push("/admin");
-                } else if (data.user.role === "staff") {
+                } else if (user.role === "staff") {
                     router.push("/staff");
                 } else {
                     router.push(redirectPath);
@@ -145,7 +142,6 @@ export default function Signup() {
         }
     };
 
-    // Đăng ký
     const handleRegister = async (e) => {
         e.preventDefault();
         const lastName = e.target.lastName.value.trim();
@@ -191,46 +187,79 @@ export default function Signup() {
         }
 
         try {
-            const res = await fetch("/api/register", {
+            const res = await fetch(`${API_BASE}/auth/register`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email, password, fullName, phone, address, sex }),
+                body: JSON.stringify({
+                    email,
+                    password,
+                    fullName,
+                    phone,
+                    address,
+                    sex,
+                }),
             });
-            console.log(9)
-            const data = await res.json();
-            console.log(data)
+
+            const data = await res.json().catch(() => null);
+
             if (!res.ok) {
-                showMessage("error", data.error || "Đăng ký thất bại!");
+                showMessage("error", data?.message || "Đăng ký thất bại!");
                 return;
             }
 
-            showMessage("success", "Tạo tài khoản thành công! Vui lòng đăng nhập.");
-            setTimeout(() => switchToLogin(), 2000);
+            showMessage(
+                "success",
+                data?.message || "Tạo tài khoản thành công! Vui lòng đăng nhập."
+            );
 
+            setTimeout(() => switchToLogin(), 2000);
         } catch (err) {
+            console.error("REGISTER ERROR:", err);
             showMessage("error", "Lỗi kết nối server!");
         }
     };
 
-    const handleForgotPassword = (e) => {
+    const handleForgotPassword = async (e) => {
         e.preventDefault();
         const email = e.target.forgotEmail.value.trim();
-        const emptyFields = [];
-        if (!email) emptyFields.push("forgotEmail");
 
-        if (emptyFields.length > 0) {
-            setInvalidFields(emptyFields);
+        if (!email) {
             showMessage("error", "Vui lòng nhập email");
             return;
         }
+        if (!validateEmail(email)) {
+            showMessage("error", "Email không hợp lệ");
+            return;
+        }
 
-        if (!validateEmail(email)) return showMessage("error", "Email không hợp lệ");
+        try {
+            setLoading(true);
 
-        setLoading(true);
-        setTimeout(() => {
+            const res = await fetch(`${API_BASE}/auth/forgot-password`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email }),
+            });
+
+            const data = await res.json().catch(() => null);
+
+            if (!res.ok) {
+                showMessage("error", data?.message || "Gửi email khôi phục thất bại!");
+                return;
+            }
+
+            showMessage(
+                "success",
+                data?.message ||
+                "Nếu email tồn tại, link khôi phục đã được gửi. Hãy kiểm tra Gmail.",
+            );
+
+        } catch (err) {
+            console.error("FORGOT PASSWORD ERROR:", err);
+            showMessage("error", "Lỗi kết nối server!");
+        } finally {
             setLoading(false);
-            showMessage("success", `Đã gửi link khôi phục đến ${email}`);
-        }, 1500);
+        }
     };
 
     const switchToRegister = () => {
@@ -264,7 +293,6 @@ export default function Signup() {
 
     return (
         <div className="auth-container">
-            {/* --- Đăng nhập --- */}
             {!isRegister && !isForgotPassword && (
                 <div className={`form-container-login ${animating ? "fade-out" : "fade-in"}`}>
                     <div className="breadcrumb">
@@ -290,8 +318,9 @@ export default function Signup() {
                             />
                         </div>
 
-                        <div className="form-group">
-                            <input type="password"
+                        <div className="form-group password-wrapper">
+                            <input
+                                type={showLoginPassword ? "text" : "password"}
                                 className={`form-input ${invalidFields.includes("loginPassword") ? "input-error" : ""}`}
                                 placeholder="Mật Khẩu"
                                 name="loginPassword"
@@ -299,7 +328,14 @@ export default function Signup() {
                                     setInvalidFields((prev) => prev.filter(f => f !== e.target.name));
                                 }}
                             />
-
+                            <button
+                                type="button"
+                                className="toggle-password-btn"
+                                onClick={() => setShowLoginPassword(prev => !prev)}
+                                aria-label="Hiện / ẩn mật khẩu"
+                            >
+                                <i className={`fa-regular ${showLoginPassword ? "fa-eye-slash" : "fa-eye"}`} />
+                            </button>
                         </div>
                         <button type="submit" className={`btn-primary ${loading ? "btn-loading" : ""}`}>
                             Đăng nhập
@@ -317,7 +353,6 @@ export default function Signup() {
                 </div>
             )}
 
-            {/* --- Đăng ký --- */}
             {isRegister && (
                 <div className={`form-container-register ${animating ? "fade-out" : "fade-in"}`}>
                     <div className="breadcrumb">
@@ -383,22 +418,47 @@ export default function Signup() {
                                 setInvalidFields((prev) => prev.filter(f => f !== e.target.name));
                             }}
                         />
-                        <input type="password"
-                            className={`form-input ${invalidFields.includes("registerPassword") ? "input-error" : ""}`}
-                            placeholder="Mật khẩu"
-                            name="registerPassword"
-                            onChange={(e) => {
-                                setInvalidFields((prev) => prev.filter(f => f !== e.target.name));
-                            }}
-                        />
-                        <input type="password"
-                            className={`form-input ${invalidFields.includes("registerConfirmPassword") ? "input-error" : ""}`}
-                            placeholder="Nhập lại mật khẩu"
-                            name="registerConfirmPassword"
-                            onChange={(e) => {
-                                setInvalidFields((prev) => prev.filter(f => f !== e.target.name));
-                            }}
-                        />
+
+                        <div className="password-wrapper">
+                            <input
+                                type={showRegisterPassword ? "text" : "password"}
+                                className={`form-input ${invalidFields.includes("registerPassword") ? "input-error" : ""}`}
+                                placeholder="Mật khẩu"
+                                name="registerPassword"
+                                onChange={(e) => {
+                                    setInvalidFields((prev) => prev.filter(f => f !== e.target.name));
+                                }}
+                            />
+                            <button
+                                type="button"
+                                className="toggle-password-btn"
+                                onClick={() => setShowRegisterPassword(prev => !prev)}
+                                aria-label="Hiện / ẩn mật khẩu"
+                            >
+                                <i className={`fa-regular ${showRegisterPassword ? "fa-eye-slash" : "fa-eye"}`} />
+                            </button>
+                        </div>
+
+                        <div className="password-wrapper">
+                            <input
+                                type={showRegisterPassword ? "text" : "password"}
+                                className={`form-input ${invalidFields.includes("registerConfirmPassword") ? "input-error" : ""}`}
+                                placeholder="Nhập lại mật khẩu"
+                                name="registerConfirmPassword"
+                                onChange={(e) => {
+                                    setInvalidFields((prev) => prev.filter(f => f !== e.target.name));
+                                }}
+                            />
+                            <button
+                                type="button"
+                                className="toggle-password-btn"
+                                onClick={() => setShowRegisterConfirmPassword(prev => !prev)}
+                                aria-label="Hiện / ẩn mật khẩu"
+                            >
+                                <i className={`fa-regular ${showRegisterConfirmPassword ? "fa-eye-slash" : "fa-eye"}`} />
+                            </button>
+                        </div>
+
                         <button type="submit" className={`btn-primary-register ${loading ? "btn-loading" : ""}`}>
                             Đăng ký
                         </button>
@@ -409,7 +469,6 @@ export default function Signup() {
                 </div>
             )}
 
-            {/* --- Quên mật khẩu --- */}
             {isForgotPassword && (
                 <div className={`form-container-forgot ${animating ? "fade-out" : "fade-in"}`}>
                     <div className="breadcrumb">

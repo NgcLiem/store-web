@@ -2,7 +2,8 @@ import pool from "@/lib/db";
 import ProductDetailClient from "./ProductDetailClient";
 
 export default async function ProductDetail({ params }) {
-    const { id } = await params;  // ✅ FIX: await params
+    const { id } = await params;
+    const { id } = await params;
 
     const productId = Number(id);
     if (!productId) return <div>Thiếu id</div>;

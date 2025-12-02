@@ -36,7 +36,6 @@ export default function AdminUsersPage() {
             </div>
 
             <div className="admin-content">
-                {/* Thay thế style inline bằng className="search-form-row" và "search-input-narrow" */}
                 <form onSubmit={submitSearch} className="search-form-row">
                     <input
                         value={q}
@@ -44,17 +43,13 @@ export default function AdminUsersPage() {
                         className="form-input search-input-narrow"
                         placeholder="Tìm theo email / tên / SĐT"
                     />
-                    <button className="action-btn" type="submit"><i className="fa-solid fa-search" /> Tìm</button>
+                    <button className="action-btn" type="submit"><i className="fa-solid fa-search" /> </button>
                 </form>
 
-                {/* Thay thế style inline bằng className="table-responsive-wrapper" */}
                 <div className="table-responsive-wrapper">
-                    {/* Thay thế style inline bằng className="data-table" */}
                     <table className="data-table">
                         <thead>
-                            {/* Thay thế style inline bằng className="table-header-row" */}
                             <tr className="table-header-row">
-                                {/* Thay thế style inline bằng className="table-header-cell text-left" / "text-center" */}
                                 <th className="table-header-cell text-left">Email</th>
                                 <th className="table-header-cell text-left">Họ tên</th>
                                 <th className="table-header-cell text-left">SĐT</th>

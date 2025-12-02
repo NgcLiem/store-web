@@ -9,21 +9,19 @@ export function AuthProvider({ children }) {
     const [token, setToken] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    // 🔹 Khi app load lại: kiểm tra token có hợp lệ không
     useEffect(() => {
+        if (typeof window === "undefined") return;
         const savedToken = localStorage.getItem("token");
         const savedUser = localStorage.getItem("user");
 
-        // Nếu không có token → coi là khách
         if (!savedToken) {
             setLoading(false);
             return;
         }
 
-        // Xác minh token bằng API /api/me
         (async () => {
             try {
-                const res = await fetch("/api/me", {
+                const res = await fetch("http://localhost:3001/auth/me", {
                     headers: { Authorization: `Bearer ${savedToken}` },
                 });
                 if (res.ok) {
@@ -75,6 +73,17 @@ export function AuthProvider({ children }) {
             console.warn('Error merging local cart after login', e);
         }
     };
+
+    try {
+        const local = getLocalCart();
+        if (local && local.length) {
+            mergeLocalCart(userData.id, jwtToken)
+                .then((res) => console.log('Merged local cart:', res))
+                .catch((err) => console.warn('Merge local cart failed', err));
+        }
+    } catch (e) {
+        console.warn('Error merging local cart after login', e);
+    }
 
     // 🔹 Đăng xuất: xóa tất cả key
     const logout = () => {
