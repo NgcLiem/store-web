@@ -3,6 +3,14 @@ import { useEffect, useMemo, useState } from "react";
 import "../assets/css/productSection.css"; // tái dùng style của ProductSection
 import { formatPrice } from "@/lib/format";
 
+<<<<<<< HEAD
+=======
+/**
+ * AccessoriesSection
+ * - Mặc định gọi /api/products với tham số category_id=3 (bạn chỉnh lại ID cho đúng DB).
+ * - Nếu API không hỗ trợ category_id, sẽ lọc client-side theo tên/brand.
+ */
+>>>>>>> 92794f5fb65a302750cd6c333116af60c1c6d7c0
 export default function AccessoriesSection({ categoryId = 4, pageSize = 16, title = "Phụ kiện" }) {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);

@@ -64,4 +64,8 @@ export async function mergeLocalCart(userId, token) {
 
     clearLocalCart();
     return { ok: true, merged };
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 92794f5fb65a302750cd6c333116af60c1c6d7c0

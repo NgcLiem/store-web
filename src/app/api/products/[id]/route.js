@@ -4,6 +4,7 @@ import pool from "@/lib/db";
 // Lấy chi tiết 1 sản phẩm
 export async function GET(req, { params }) {
     try {
+<<<<<<< HEAD
         const { id } = await params;
         const numericId = Number(id);
 
@@ -17,6 +18,10 @@ export async function GET(req, { params }) {
 
         if (rows.length === 0)
             return Response.json({ message: "Không tìm thấy sản phẩm" }, { status: 404 });
+=======
+        const id = Number((await params).id);
+        if (!id) return Response.json({ message: "Thiếu id" }, { status: 400 });
+>>>>>>> 92794f5fb65a302750cd6c333116af60c1c6d7c0
 
         return Response.json(rows[0], { status: 200 });
     } catch (err) {
@@ -28,12 +33,17 @@ export async function GET(req, { params }) {
 // Cập nhật sản phẩm
 export async function PUT(req, { params }) {
     try {
+<<<<<<< HEAD
         const { id } = await params;
         const numericId = Number(id);
 
         if (!numericId)
             return Response.json({ message: "Thiếu id" }, { status: 400 });
 
+=======
+        const id = Number((await params).id);
+        if (!id) return Response.json({ message: "Thiếu id" }, { status: 400 });
+>>>>>>> 92794f5fb65a302750cd6c333116af60c1c6d7c0
         const body = await req.json();
 
         const fields = ["name", "price", "description", "image", "category_id", "stock"];
@@ -65,8 +75,13 @@ export async function PUT(req, { params }) {
 // Xóa sản phẩm
 export async function DELETE(req, { params }) {
     try {
+<<<<<<< HEAD
         const { id } = await params;
         const numericId = Number(id);
+=======
+        const id = Number((await params).id);
+        if (!id) return Response.json({ message: "Thiếu id" }, { status: 400 });
+>>>>>>> 92794f5fb65a302750cd6c333116af60c1c6d7c0
 
         if (!numericId)
             return Response.json({ message: "Thiếu id" }, { status: 400 });

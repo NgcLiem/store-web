@@ -3,6 +3,10 @@ import Hero from "@/components/Hero";
 import { useState, useEffect, useMemo } from "react";
 import "./accessories.css";
 import { formatPrice } from "@/lib/format";
+<<<<<<< HEAD
+=======
+
+>>>>>>> 92794f5fb65a302750cd6c333116af60c1c6d7c0
 export default function AccessoriesPage() {
     const [products, setProducts] = useState([]);
     const [sort, setSort] = useState("default");
@@ -12,7 +16,11 @@ export default function AccessoriesPage() {
         // Make sure products is an array
         const items = Array.isArray(products) ? products : [];
         let result = [...items];
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> 92794f5fb65a302750cd6c333116af60c1c6d7c0
         if (sort === "price-asc") result.sort((a, b) => a.price - b.price);
         if (sort === "price-desc") result.sort((a, b) => b.price - a.price);
         if (sort === "newest") result.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
@@ -36,6 +44,10 @@ export default function AccessoriesPage() {
                 setLoading(false);
             });
     }, []);
+<<<<<<< HEAD
+=======
+
+>>>>>>> 92794f5fb65a302750cd6c333116af60c1c6d7c0
     return (
         <main>
             <Hero />
