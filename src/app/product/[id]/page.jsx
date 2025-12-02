@@ -2,11 +2,8 @@ import pool from "@/lib/db";
 import ProductDetailClient from "./ProductDetailClient";
 
 export default async function ProductDetail({ params }) {
-<<<<<<< HEAD
     const { id } = await params;
-=======
-    const { id } = await params;  // ✅ FIX: await params
->>>>>>> 92794f5fb65a302750cd6c333116af60c1c6d7c0
+    const { id } = await params;
 
     const productId = Number(id);
     if (!productId) return <div>Thiếu id</div>;
@@ -22,8 +19,4 @@ export default async function ProductDetail({ params }) {
         console.error('Error loading product:', err);
         return <div>Lỗi khi tải sản phẩm</div>;
     }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> 92794f5fb65a302750cd6c333116af60c1c6d7c0

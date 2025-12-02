@@ -15,11 +15,7 @@ export async function GET(req) {
              FROM carts c
              JOIN cart_items ci ON c.id = ci.cart_id
              JOIN products p ON ci.product_id = p.id
-<<<<<<< HEAD
              WHERE c.user_id = ? `,
-=======
-             WHERE c.user_id = ?`,
->>>>>>> 92794f5fb65a302750cd6c333116af60c1c6d7c0
             [userId]
         );
 
@@ -27,7 +23,6 @@ export async function GET(req) {
             return new Response(JSON.stringify(cartRows), { status: 200 });
         }
 
-        // Nếu không có theo schema preferred, thử fallback sang bảng `cart` nếu project dùng bảng đơn giản
         try {
             const [simpleRows] = await pool.query(
                 `SELECT c.id AS cart_id, c.product_id, p.name, p.price, p.image_url, c.quantity
@@ -62,11 +57,6 @@ export async function POST(req) {
         if (!user_id || !product_id) {
             return new Response(JSON.stringify({ message: "Thiếu thông tin" }), { status: 400 });
         }
-<<<<<<< HEAD
-=======
-
-        // Use a transaction to ensure cart + cart_items are consistent
->>>>>>> 92794f5fb65a302750cd6c333116af60c1c6d7c0
         const conn = await pool.getConnection();
         try {
             await conn.beginTransaction();
@@ -84,17 +74,11 @@ export async function POST(req) {
                     "INSERT INTO carts (user_id) VALUES (?)",
                     [user_id]
                 );
-<<<<<<< HEAD
                 // mysql2 returns an OkPacket in newCart
                 cartId = res.insertId;
             }
 
-=======
-                cartId = res.insertId;
-            }
-
             // check existing cart_items row
->>>>>>> 92794f5fb65a302750cd6c333116af60c1c6d7c0
             const [existing] = await conn.query(
                 "SELECT id, quantity FROM cart_items WHERE cart_id = ? AND product_id = ? FOR UPDATE",
                 [cartId, product_id]

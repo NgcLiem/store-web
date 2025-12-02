@@ -85,8 +85,4 @@ export default function ProductDetailClient({ product }) {
             </div>
         </div>
     );
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> 92794f5fb65a302750cd6c333116af60c1c6d7c0
