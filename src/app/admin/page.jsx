@@ -3,7 +3,7 @@
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { useAuth } from "../../contexts/AuthContexts";
 import { useRouter } from "next/navigation";
-import "./admin.css";          // CSS gốc của bạn
+import "./admin.css";
 
 const RevenueChart = () => (
     <div className="chart-container revenue-chart">

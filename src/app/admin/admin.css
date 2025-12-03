@@ -292,9 +292,20 @@
   transition: border-color 0.2s ease;
 }
 
-/* Khi focus → viền xanh lá theo màu admin */
 .floating-group input:focus {
   border-color: rgba(21, 150, 35, 0.9);
+}
+
+.floating-group label {
+  position: absolute;
+  left: 12px;
+  top: 14px;
+  font-size: 15px;
+  color: #666;
+  background: white;
+  padding: 0 4px;
+  pointer-events: none;
+  transition: all 0.15s ease;
 }
 
 /* Label bay lên khi gõ hoặc khi focus */

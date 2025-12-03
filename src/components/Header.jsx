@@ -18,6 +18,7 @@ export default function Header() {
     const userMenuRef = useRef(null);
     const debounceTimer = useRef(null);
     const { user, logout, isAuthenticated } = useAuth();
+    const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 
     // Load lịch sử tìm kiếm khi component mount
     useEffect(() => {
@@ -55,7 +56,13 @@ export default function Header() {
         debounceTimer.current = setTimeout(async () => {
             setIsLoading(true);
             try {
-                const res = await fetch(`/api/products/autocomplete?query=${encodeURIComponent(query)}`);
+                const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+
+                const res = await fetch(
+                    `${API_BASE}/products/autocomplete?query=${encodeURIComponent(query)}`,
+                    { cache: "no-store" }
+                );
+
                 const data = await res.json();
                 setSuggestions(data);
                 setShowDropdown(true);
@@ -64,7 +71,7 @@ export default function Header() {
             } finally {
                 setIsLoading(false);
             }
-        }, 300); // Đợi 300ms sau khi user ngừng gõ
+        }, 300);
 
         return () => {
             if (debounceTimer.current) {
@@ -116,7 +123,7 @@ export default function Header() {
         if (term) {
             saveToHistory(term);
             setShowDropdown(false);
-            setQuery("");
+            setQuery(term);
             router.push(`/search?query=${encodeURIComponent(term)}`);
         }
     };

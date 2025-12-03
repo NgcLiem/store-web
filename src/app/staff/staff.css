@@ -285,7 +285,6 @@
   transition: border-color 0.2s ease;
 }
 
-/* Khi focus → viền xanh lá theo màu admin */
 .floating-group input:focus {
   border-color: rgba(21, 150, 35, 0.9);
 }

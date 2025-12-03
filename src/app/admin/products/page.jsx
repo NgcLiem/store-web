@@ -1,10 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import "../admin.css";
 import "./products.css";
+import { useAuth } from "../../../contexts/AuthContexts";
+
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+
 
 export default function AdminProductsPage() {
+    const { token, user } = useAuth();
     const [items, setItems] = useState([]);
     const [q, setQ] = useState("");
     const [modalOpen, setModalOpen] = useState(false);
@@ -23,15 +27,38 @@ export default function AdminProductsPage() {
 
     const load = async () => {
         setLoading(true);
-        const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
-        const res = await fetch(`${API_BASE}/products?q=${encodeURIComponent(q)}`);
-        const text = await res.text();
-        let data = null;
+
         try {
-            data = JSON.parse(text);
-        } catch { }
-        setItems(Array.isArray(data) ? data : data?.items || []);
-        setLoading(false);
+            const path = user?.role === "admin" ? "/admin/products"
+                : user?.role === "staff" ? "/staff/products"
+                    : "/products";
+            const url = `${API_BASE}${path}?q=${encodeURIComponent(q)}`;
+            const res = await fetch(url, {
+                headers: token
+                    ? { Authorization: `Bearer ${token}` }
+                    : {},
+            });
+
+            const text = await res.text();
+            let data = null;
+            try {
+                data = JSON.parse(text);
+            } catch {
+                console.error("Không parse được JSON:", text);
+            }
+
+            if (!res.ok) {
+                console.error("Lỗi tải sản phẩm:", data || text);
+                setItems([]);
+            } else {
+                setItems(Array.isArray(data) ? data : data?.items || []);
+            }
+        } catch (e) {
+            console.error("Lỗi load sản phẩm:", e);
+            setItems([]);
+        } finally {
+            setLoading(false);
+        }
     };
 
     useEffect(() => { load(); }, []);
@@ -104,18 +131,17 @@ export default function AdminProductsPage() {
             const formData = new FormData();
             formData.append("file", file);
 
-            // TODO: đổi endpoint này cho khớp backend của bạn
             const res = await fetch(`${API_BASE}/upload`, {
                 method: "POST",
                 body: formData,
             });
+
 
             const data = await res.json().catch(() => null);
             if (!res.ok) {
                 throw new Error(data?.message || "Upload ảnh thất bại");
             }
 
-            // backend nên trả về { url: "..."} hoặc { image_url: "..." }
             const url = data?.url || data?.image_url;
             if (url) {
                 setForm((prev) => ({ ...prev, image_url: url }));
@@ -251,7 +277,6 @@ export default function AdminProductsPage() {
                 </div>
             </div>
 
-            {/* Modal */}
             {modalOpen && (
                 <div className="modal-overlay">
                     <div className="modal-content-wrapper">
@@ -398,7 +423,6 @@ export default function AdminProductsPage() {
                                     {uploading && <p className="uploading-text">Đang upload...</p>}
                                 </div>
 
-                                {/* Preview ảnh */}
                                 {form.image_url ? (
                                     <div className="image-preview">
                                         <img src={form.image_url} alt="Preview" />

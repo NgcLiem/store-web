@@ -265,9 +265,7 @@ export default function AdminStaffPage() {
                                     required={!editing}
                                 />
                                 <label>
-                                    {editing
-                                        ? "Mật khẩu (để trống nếu không đổi)"
-                                        : "Mật khẩu"}
+                                    Mật khẩu
                                 </label>
                             </div>
 
