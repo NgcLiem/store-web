@@ -5,21 +5,12 @@
   margin: 0 auto;
 }
 
-/* .accessories-section {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: relative;
-  margin-bottom: 2rem;
-  padding: 0 1rem;
-} */
-
 .accessories-title {
   text-align: center;
   font-size: 1.5rem;
   font-weight: 600;
   color: #333;
-  margin-bottom: rem;
+  margin-bottom: 1rem;
   text-transform: uppercase;
   letter-spacing: 1px;
 }
@@ -28,10 +19,9 @@
   position: absolute;
   right: 0;
   top: 8px;
-  /* dính về bên phải */
   font-size: 0.95rem;
   font-weight: 500;
-  color: #4CAF50;
+  color: #4caf50;
   text-decoration: none;
   transition: color 0.3s;
 }
@@ -40,6 +30,7 @@
   color: #388e3c;
 }
 
+/* Nếu bạn muốn grid riêng thì có thể dùng kèm với .products-grid */
 .accessories-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -47,4 +38,23 @@
   margin-top: 20px;
   min-height: 300px;
   position: relative;
+}
+
+/* ====== STATUS (loading / error / empty) ====== */
+.accessories-status {
+  grid-column: 1 / -1;
+  text-align: center;
+  font-size: 14px;
+}
+
+.accessories-status-loading {
+  color: #444;
+}
+
+.accessories-status-error {
+  color: #d33;
+}
+
+.accessories-status-empty {
+  color: #666;
 }

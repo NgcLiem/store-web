@@ -1,29 +1,39 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
-import "../assets/css/productSection.css"; // tái dùng style của ProductSection
+import "../assets/css/productSection.css";
+import "../assets/css/accessories.css";
 import { formatPrice } from "@/lib/format";
 
-export default function AccessoriesSection({ categoryId = 4, pageSize = 16, title = "Phụ kiện" }) {
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+
+export default function AccessoriesSection({
+    categoryId = 4,
+    pageSize = 16,
+    title = "Phụ kiện",
+}) {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
 
+    // Lấy dữ liệu từ backend Nest
     useEffect(() => {
         (async () => {
             try {
                 setLoading(true);
                 setError("");
 
-                let res = await fetch(`/api/products?category_id=${encodeURIComponent(categoryId)}`, { cache: "no-store" });
-                let data = await res.json().catch(() => null);
+                const url = new URL(`${API_BASE}/products`);
+                url.searchParams.set("category", String(categoryId));
 
-                if (!Array.isArray(data)) {
-                    res = await fetch("/api/products", { cache: "no-store" });
-                    data = await res.json().catch(() => []);
-                }
+                const res = await fetch(url.toString(), { cache: "no-store" });
+                const data = await res.json().catch(() => null);
 
-                const arr = Array.isArray(data) ? data : (data?.rows || []);
+                let arr = [];
+                if (Array.isArray(data)) arr = data;
+                else if (data?.items && Array.isArray(data.items)) arr = data.items;
+                else if (data?.rows && Array.isArray(data.rows)) arr = data.rows;
+
                 setProducts(Array.isArray(arr) ? arr : []);
                 setCurrentPage(1);
             } catch (e) {
@@ -39,15 +49,31 @@ export default function AccessoriesSection({ categoryId = 4, pageSize = 16, titl
 
     const normalized = useMemo(() => {
         if (!Array.isArray(products)) return [];
-        const inCat = products.filter(p => String(p.category_id) === String(categoryId));
+        const inCat = products.filter(
+            (p) => String(p.category_id) === String(categoryId)
+        );
         if (inCat.length > 0) return inCat;
 
-        const keys = ["phu kien", "phụ kiện", "sock", "vớ", "lot", "lót", "day", "dây", "de", "đế", "shoelace", "clean", "vệ sinh"];
+        const keys = [
+            "phu kien",
+            "phụ kiện",
+            "sock",
+            "vớ",
+            "lot",
+            "lót",
+            "day",
+            "dây",
+            "de",
+            "đế",
+            "shoelace",
+            "clean",
+            "vệ sinh",
+        ];
         const hasKey = (s = "") => {
             const t = String(s).toLowerCase();
-            return keys.some(k => t.includes(k));
+            return keys.some((k) => t.includes(k));
         };
-        return products.filter(p => hasKey(p.name) || hasKey(p.brand));
+        return products.filter((p) => hasKey(p.name) || hasKey(p.brand));
     }, [products, categoryId]);
 
     const totalItems = normalized.length;
@@ -61,7 +87,7 @@ export default function AccessoriesSection({ categoryId = 4, pageSize = 16, titl
     }, [currentPage, totalPages]);
 
     return (
-        <section className="products" id="accessories">
+        <section className="products accessories" id="accessories">
             <div className="container">
                 <div className="section-header">
                     <h2 className="section-title">{title}</h2>
@@ -70,9 +96,13 @@ export default function AccessoriesSection({ categoryId = 4, pageSize = 16, titl
 
             <div className="products-grid">
                 {loading ? (
-                    <div style={{ gridColumn: "1/-1", textAlign: "center" }}>Đang tải…</div>
+                    <div className="accessories-status accessories-status-loading">
+                        Đang tải…
+                    </div>
                 ) : error ? (
-                    <div style={{ gridColumn: "1/-1", textAlign: "center", color: "#d33" }}>{error}</div>
+                    <div className="accessories-status accessories-status-error">
+                        {error}
+                    </div>
                 ) : paginated.length ? (
                     paginated.map((p) => (
                         <div key={p.id} className="product-card">
@@ -82,11 +112,16 @@ export default function AccessoriesSection({ categoryId = 4, pageSize = 16, titl
                                     src={
                                         p.image_url
                                             ? p.image_url
-                                            : (p.image && !String(p.image).startsWith("http") ? `/images/${p.image}` : p.image)
+                                            : p.image && !String(p.image).startsWith("http")
+                                                ? `/images/${p.image}`
+                                                : p.image
                                     }
                                     alt={p.name}
                                     className="product-image"
-                                    onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = "/images/no-image.png"; }}
+                                    onError={(e) => {
+                                        e.currentTarget.onerror = null;
+                                        e.currentTarget.src = "/images/no-image.png";
+                                    }}
                                 />
                             </div>
                             <div className="product-info">
@@ -96,28 +131,50 @@ export default function AccessoriesSection({ categoryId = 4, pageSize = 16, titl
                         </div>
                     ))
                 ) : (
-                    <div style={{ gridColumn: "1/-1", textAlign: "center", color: "#666" }}>Chưa có phụ kiện hiển thị</div>
+                    <div className="accessories-status accessories-status-empty">
+                        Chưa có phụ kiện hiển thị
+                    </div>
                 )}
             </div>
 
-            {/* Pagination */}
             {totalItems > 0 && (
                 <>
-                    <div className="pagination" style={{ display: "flex", justifyContent: "center", gap: 8, marginTop: 20 }}>
-                        <button onClick={() => setCurrentPage(Math.max(1, currentPage - 1))} disabled={currentPage === 1}>Prev</button>
+                    <div className="pagination">
+                        <button
+                            onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                            disabled={currentPage === 1}
+                        >
+                            Prev
+                        </button>
+
                         {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
-                            <button key={n} onClick={() => setCurrentPage(n)} aria-current={n === currentPage ? "page" : undefined}
-                                style={n === currentPage ? { fontWeight: 700 } : {}}>
+                            <button
+                                key={n}
+                                onClick={() => setCurrentPage(n)}
+                                aria-current={n === currentPage ? "page" : undefined}
+                            >
                                 {n}
                             </button>
                         ))}
-                        <button onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))} disabled={currentPage === totalPages}>Next</button>
+
+                        <button
+                            onClick={() =>
+                                setCurrentPage(Math.min(totalPages, currentPage + 1))
+                            }
+                            disabled={currentPage === totalPages}
+                        >
+                            Next
+                        </button>
                     </div>
-                    <div className="pagination-summary" style={{ textAlign: "center", marginTop: 8, color: "#666" }}>
-                        Hiển thị {totalItems === 0 ? 0 : startIndex + 1} - {Math.min(startIndex + pageSize, totalItems)} trên {totalItems} phụ kiện
+
+                    <div className="pagination-summary">
+                        Hiển thị {totalItems === 0 ? 0 : startIndex + 1} -{" "}
+                        {Math.min(startIndex + pageSize, totalItems)} trên {totalItems} phụ
+                        kiện
                     </div>
                 </>
             )}
+
         </section>
     );
 }

@@ -10,7 +10,6 @@ export default function AccessoriesPage() {
     const [loading, setLoading] = useState(true);
 
     const sortedProducts = useMemo(() => {
-        // Make sure products is an array
         const items = Array.isArray(products) ? products : [];
         let result = [...items];
         if (sort === "price-asc") result.sort((a, b) => a.price - b.price);
@@ -21,11 +20,9 @@ export default function AccessoriesPage() {
     }, [products, sort]);
 
     useEffect(() => {
-        // Fetch sản phẩm có product_code bắt đầu bằng 'A'
         fetch("/api/products?category_id=4")
             .then((res) => res.json())
             .then((data) => {
-                // Make sure we handle both array and object responses
                 const productList = Array.isArray(data) ? data : data.rows || [];
                 setProducts(productList);
                 setLoading(false);
