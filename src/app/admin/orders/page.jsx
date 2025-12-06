@@ -18,20 +18,37 @@ function AdminOrdersPage() {
         setLoading(true);
 
         const params = new URLSearchParams();
-        if (q) params.set("q", q);
         if (status !== "all") params.set("status", status);
 
         try {
-            const data = await apiGet(`/orders?${params.toString()}`);
-            setOrders(Array.isArray(data) ? data : []);
+            const res = await fetch(`/api/orders?${params.toString()}`);
+            const data = await res.json();
+            
+            if (data.success && Array.isArray(data.orders)) {
+                // Filter by search query on client side
+                let filtered = data.orders;
+                if (q) {
+                    const lowerQ = q.toLowerCase();
+                    filtered = filtered.filter(o => 
+                        o.id.toString().includes(lowerQ) ||
+                        o.customer_email?.toLowerCase().includes(lowerQ) ||
+                        o.customer_phone?.includes(lowerQ) ||
+                        o.customer_name?.toLowerCase().includes(lowerQ)
+                    );
+                }
+                setOrders(filtered);
+            } else {
+                setOrders([]);
+            }
         } catch (err) {
             console.error(err);
             alert("Không thể tải danh sách đơn hàng");
+            setOrders([]);
         }
         setLoading(false);
     };
 
-    useEffect(() => { load(); }, [status]);
+    useEffect(() => { load(); }, [status, q]);
 
     const submitSearch = (e) => { e.preventDefault(); load(); };
 
@@ -44,13 +61,25 @@ function AdminOrdersPage() {
 
     const updateStatus = async (order, newStatus) => {
         try {
-            await apiSend(`/orders/${order.id}`, "PUT", { status: newStatus });
-            setOrders((prev) =>
-                prev.map((o) =>
-                    o.id === order.id ? { ...o, status: newStatus } : o
-                )
-            );
+            const res = await fetch('/api/orders', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ order_id: order.id, status: newStatus })
+            });
+            
+            const data = await res.json();
+            
+            if (data.success) {
+                setOrders((prev) =>
+                    prev.map((o) =>
+                        o.id === order.id ? { ...o, status: newStatus } : o
+                    )
+                );
+            } else {
+                alert("Cập nhật trạng thái thất bại: " + data.message);
+            }
         } catch (e) {
+            console.error(e);
             alert("Cập nhật trạng thái thất bại");
         }
     };
@@ -105,10 +134,14 @@ function AdminOrdersPage() {
                                     <tr className="table-row-loading"><td colSpan={5} className="table-cell-center">Không có dữ liệu</td></tr> :
                                     paged.map(o => (
                                         <tr key={o.id} className="table-body-row">
-                                            <td className="table-cell">{o.id}</td>
-                                            <td className="table-cell">{o.user_id}</td>
-                                            <td>{o.order_date
-                                                ? new Date(o.order_date).toLocaleString("vi-VN")
+                                            <td className="table-cell">#{o.id}</td>
+                                            <td className="table-cell">
+                                                <div><strong>{o.customer_name}</strong></div>
+                                                <div style={{fontSize: '12px', color: '#666'}}>{o.customer_email}</div>
+                                                <div style={{fontSize: '12px', color: '#666'}}>{o.customer_phone}</div>
+                                            </td>
+                                            <td>{o.created_at
+                                                ? new Date(o.created_at).toLocaleString("vi-VN")
                                                 : "-"}
                                             </td>
                                             <td className="table-cell text-right">{(Number(o.total_amount || 0)).toLocaleString()}₫</td>
@@ -121,11 +154,11 @@ function AdminOrdersPage() {
                                                     className="form-input"
                                                     style={{ maxWidth: 140, marginRight: 8 }}
                                                 >
-                                                    <option value="pending">pending</option>
-                                                    <option value="confirmed">confirmed</option>
-                                                    <option value="shipped">shipped</option>
-                                                    <option value="delivered">delivered</option>
-                                                    <option value="cancelled">cancelled</option>
+                                                    <option value="pending">Chờ xử lý</option>
+                                                    <option value="processing">Đang xử lý</option>
+                                                    <option value="shipped">Đã giao</option>
+                                                    <option value="delivered">Hoàn thành</option>
+                                                    <option value="cancelled">Đã hủy</option>
                                                 </select>
                                                 <button
                                                     className="action-btn"

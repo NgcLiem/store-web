@@ -22,20 +22,12 @@ export default function OtherBrand() {
     }, [products, sort]);
 
     useEffect(() => {
-        // Fetch products from categories 5-9 (Other brands)
-        const categories = [3, 5, 6, 7, 8, 9];
-        Promise.all(
-            categories.map(categoryId =>
-                fetch(`/api/products?category_id=${categoryId}`)
-                    .then(res => res.json())
-            )
-        )
-            .then((results) => {
-                // Combine all products from different categories
-                const allProducts = results.flatMap(data =>
-                    Array.isArray(data) ? data : data.rows || []
-                );
-                setProducts(allProducts);
+        fetch("http://localhost:3001/products")
+            .then((res) => res.json())
+            .then((data) => {
+                // Filter other brands (categories 3,5,6,7,8,9)
+                const otherBrands = Array.isArray(data) ? data.filter(p => [3,5,6,7,8,9].includes(p.category_id)) : [];
+                setProducts(otherBrands);
                 setLoading(false);
             })
             .catch((err) => {

@@ -27,8 +27,11 @@ export default function Products() {
 
                 const data = await res.json();
 
+                // Handle API response from Nest.js backend
                 if (Array.isArray(data)) {
                     setProducts(data);
+                } else if (data && Array.isArray(data.products)) {
+                    setProducts(data.products);
                 } else if (data && Array.isArray(data.rows)) {
                     setProducts(data.rows);
                 } else if (data && Array.isArray(data.items)) {

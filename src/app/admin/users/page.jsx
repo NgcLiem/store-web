@@ -12,9 +12,14 @@ export default function AdminUsersPage() {
 
     const load = async () => {
         setLoading(true);
-        const res = await fetch(`/api/users?q=${encodeURIComponent(q)}`);
-        const text = await res.text(); let data = null; try { data = JSON.parse(text); } catch { }
-        setItems(Array.isArray(data) ? data : data?.items || []);
+        try {
+            const res = await fetch(`http://localhost:3001/users?q=${encodeURIComponent(q)}`);
+            const data = await res.json();
+            setItems(Array.isArray(data) ? data : []);
+        } catch (error) {
+            console.error('Load users error:', error);
+            setItems([]);
+        }
         setLoading(false);
     };
     useEffect(() => { load(); }, []);
@@ -24,9 +29,21 @@ export default function AdminUsersPage() {
     const toggleActive = async (u) => {
         const next = !u.active;
         if (!confirm(`${next ? "Mở" : "Khoá"} tài khoản ${u.email}?`)) return;
-        const res = await fetch(`/api/users/${u.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ active: next }) });
-        if (!res.ok) { alert("Cập nhật thất bại"); return; }
-        setItems(prev => prev.map(it => it.id === u.id ? { ...it, active: next } : it));
+        try {
+            const res = await fetch(`http://localhost:3001/users/${u.id}`, { 
+                method: "PATCH", 
+                headers: { "Content-Type": "application/json" }, 
+                body: JSON.stringify({ active: next }) 
+            });
+            if (!res.ok) { 
+                alert("Cập nhật thất bại"); 
+                return; 
+            }
+            setItems(prev => prev.map(it => it.id === u.id ? { ...it, active: next } : it));
+        } catch (error) {
+            console.error('Update user error:', error);
+            alert("Cập nhật thất bại");
+        }
     };
 
     return (

@@ -27,19 +27,19 @@ export default function CartPage() {
 
                     const fetched = await Promise.all(local.map(async (it) => {
                         try {
-                            const res = await fetch(`/api/products/${it.product_id}`);
-                            if (!res.ok) return { cart_id: null, product_id: it.product_id, name: '(Không tìm thấy)', price: 0, image_url: '/images/no-image.png', quantity: it.quantity };
+                            const res = await fetch(`http://localhost:3001/products/${it.product_id}`);
+                            if (!res.ok) return { cart_id: null, product_id: it.product_id, name: '(Không tìm thấy)', price: 0, image_url: '/no-image.png', quantity: it.quantity };
                             const prod = await res.json();
                             return {
                                 cart_id: null,
                                 product_id: it.product_id,
                                 name: prod.name,
                                 price: prod.price,
-                                image_url: prod.image_url || (prod.image ? `/images/${prod.image}` : '/images/no-image.png'),
+                                image_url: prod.image_url || (prod.image ? `/images/${prod.image}` : '/no-image.png'),
                                 quantity: it.quantity,
                             };
                         } catch (e) {
-                            return { cart_id: null, product_id: it.product_id, name: '(Lỗi)', price: 0, image_url: '/images/no-image.png', quantity: it.quantity };
+                            return { cart_id: null, product_id: it.product_id, name: '(Lỗi)', price: 0, image_url: '/no-image.png', quantity: it.quantity };
                         }
                     }));
 
@@ -157,11 +157,11 @@ export default function CartPage() {
                             <div className="cart-total-value">{formatPrice(totalPrice)} VND</div>
                         </div>
                         <div className="cart-total-btns">
-                            <button className="cart-btn cart-btn-cod">
+                            <button className="cart-btn cart-btn-cod" onClick={() => router.push('/checkout')}>
                                 Nhận Hàng Thanh Toán
                                 <div className="cart-btn-desc">(Phí Giao Hàng: 30.000đ)</div>
                             </button>
-                            <button className="cart-btn cart-btn-pay">
+                            <button className="cart-btn cart-btn-pay" onClick={() => router.push('/checkout')}>
                                 Thanh Toán Trước
                                 <div className="cart-btn-desc">(Miễn Phí Giao Hàng)</div>
                             </button>

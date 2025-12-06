@@ -62,28 +62,19 @@ export function AuthProvider({ children }) {
         localStorage.setItem("userRole", userData.role);
 
         // Nếu có giỏ hàng local (guest), merge lên server trong nền
-        try {
-            const local = getLocalCart();
-            if (local && local.length) {
-                mergeLocalCart(userData.id, jwtToken)
-                    .then((res) => console.log('Merged local cart:', res))
-                    .catch((err) => console.warn('Merge local cart failed', err));
+        if (typeof window !== 'undefined') {
+            try {
+                const local = getLocalCart();
+                if (local && local.length) {
+                    mergeLocalCart(userData.id, jwtToken)
+                        .then((res) => console.log('Merged local cart:', res))
+                        .catch((err) => console.warn('Merge local cart failed', err));
+                }
+            } catch (e) {
+                console.warn('Error merging local cart after login', e);
             }
-        } catch (e) {
-            console.warn('Error merging local cart after login', e);
         }
     };
-
-    try {
-        const local = getLocalCart();
-        if (local && local.length) {
-            mergeLocalCart(userData.id, jwtToken)
-                .then((res) => console.log('Merged local cart:', res))
-                .catch((err) => console.warn('Merge local cart failed', err));
-        }
-    } catch (e) {
-        console.warn('Error merging local cart after login', e);
-    }
 
     // 🔹 Đăng xuất: xóa tất cả key
     const logout = () => {

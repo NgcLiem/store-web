@@ -1,6 +1,7 @@
 "use client";
 
 export function getLocalCart() {
+    if (typeof window === 'undefined') return [];
     try {
         const raw = localStorage.getItem("localCart");
         return raw ? JSON.parse(raw) : [];
@@ -11,6 +12,7 @@ export function getLocalCart() {
 }
 
 export function saveLocalCart(items) {
+    if (typeof window === 'undefined') return;
     try {
         localStorage.setItem("localCart", JSON.stringify(items));
     } catch (e) {
@@ -19,6 +21,7 @@ export function saveLocalCart(items) {
 }
 
 export function clearLocalCart() {
+    if (typeof window === 'undefined') return;
     try {
         localStorage.removeItem("localCart");
     } catch (e) {
