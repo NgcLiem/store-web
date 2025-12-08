@@ -47,7 +47,7 @@ export function AuthProvider({ children }) {
         })();
     }, []);
 
-    // 🔹 Hàm đăng nhập: lưu user + token
+    // Hàm đăng nhập: lưu user + token
     const login = (userData, jwtToken) => {
         setUser(userData);
         setToken(jwtToken);
@@ -85,7 +85,7 @@ export function AuthProvider({ children }) {
         console.warn('Error merging local cart after login', e);
     }
 
-    // 🔹 Đăng xuất: xóa tất cả key
+    //  Đăng xuất: xóa tất cả key
     const logout = () => {
         setUser(null);
         setToken(null);

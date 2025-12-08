@@ -1,7 +1,13 @@
 "use client";
 
+function isBrowser() {
+    return typeof window !== "undefined" && typeof localStorage !== "undefined";
+}
+
 export function getLocalCart() {
     try {
+        if (!isBrowser()) return [];
+
         const raw = localStorage.getItem("localCart");
         return raw ? JSON.parse(raw) : [];
     } catch (e) {
@@ -12,6 +18,7 @@ export function getLocalCart() {
 
 export function saveLocalCart(items) {
     try {
+        if (!isBrowser()) return;
         localStorage.setItem("localCart", JSON.stringify(items));
     } catch (e) {
         console.warn('saveLocalCart error', e);
@@ -20,6 +27,7 @@ export function saveLocalCart(items) {
 
 export function clearLocalCart() {
     try {
+        if (!isBrowser()) return;
         localStorage.removeItem("localCart");
     } catch (e) {
         console.warn('clearLocalCart error', e);
@@ -27,6 +35,7 @@ export function clearLocalCart() {
 }
 
 export function addItemToLocalCart({ product_id, quantity = 1, size = null }) {
+    if (!isBrowser()) return;
     const items = getLocalCart();
 
     // merge by product_id + size
@@ -41,6 +50,8 @@ export function addItemToLocalCart({ product_id, quantity = 1, size = null }) {
 }
 
 export async function mergeLocalCart(userId, token) {
+    if (!isBrowser()) return { ok: true, merged: 0 };
+
     const items = getLocalCart();
     if (!items || !items.length) return { ok: true, merged: 0 };
 
