@@ -1,11 +1,11 @@
 .customer-container { display: flex; gap: 16px; }
-.customer-sidebar { width: 260px; background: #22313f; color: #fff; border-radius: 12px; padding: 16px; height: fit-content; }
+.customer-sidebar { width: 260px; background: #fff; color: #fff; border-radius: 12px; padding: 16px; height: 100vh; }
 .customer-main { flex: 1; }
 
 .sidebar-header h2 { margin: 0 0 6px; }
 .sidebar-header p { margin: 0; opacity: .8; font-size: 14px; }
 .sidebar-menu { display: grid; gap: 8px; margin: 16px 0; }
-.menu-item:hover, .menu-item.active { background: #2c3e50; opacity: 1; }
+.menu-item:hover, .menu-item.active { background: #fff; opacity: 1; }
 .logout-btn { width: 100%; background: #e74c3c; color: #fff; border: 0; border-radius: 10px; padding: 10px 12px; }
 
 .customer-header { margin-bottom: 16px; }
