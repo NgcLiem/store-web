@@ -31,7 +31,6 @@ export default function StaffLayout({ children }) {
                         <Link href="/staff" className={isActive("/staff")}>
                             <i className="fa-solid fa-gauge"></i> <span>Trang chủ</span>
                         </Link>
-                        {/* <Link href="/admin" className={isActive("/admin")}><i className="fa-solid fa-clock"></i> <span>Trang chủ</span></Link> */}
                         <Link href="/staff/orders" className={isActive("/staff/orders")}>
                             <i className="fa-solid fa-cart-shopping"></i> <span>Quản lý đơn hàng</span>
                         </Link>
