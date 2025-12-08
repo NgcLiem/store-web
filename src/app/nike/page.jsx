@@ -19,13 +19,19 @@ export default function NikePage() {
     }, [products, sort]);
 
     useEffect(() => {
-        fetch("/api/products?category_id=1")
+        fetch("http://localhost:3001/products")
             .then((res) => res.json())
             .then((data) => {
-                setProducts(data);
+                // Filter Nike products (category_id = 1)
+                const nikeProducts = Array.isArray(data) ? data.filter(p => p.category_id === 1) : [];
+                setProducts(nikeProducts);
                 setLoading(false);
             })
-            .catch((err) => console.error("Fetch error:", err));
+            .catch((err) => {
+                console.error("Fetch error:", err);
+                setProducts([]);
+                setLoading(false);
+            });
     }, []);
 
     return (

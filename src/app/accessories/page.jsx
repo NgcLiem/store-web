@@ -20,11 +20,12 @@ export default function AccessoriesPage() {
     }, [products, sort]);
 
     useEffect(() => {
-        fetch("/api/products?category_id=4")
+        fetch("http://localhost:3001/products")
             .then((res) => res.json())
             .then((data) => {
-                const productList = Array.isArray(data) ? data : data.rows || [];
-                setProducts(productList);
+                // Filter accessories (category_id = 4)
+                const accessoryProducts = Array.isArray(data) ? data.filter(p => p.category_id === 4) : [];
+                setProducts(accessoryProducts);
                 setLoading(false);
             })
             .catch((err) => {

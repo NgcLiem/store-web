@@ -22,13 +22,12 @@ export default function AdidasPage() {
     }, [products, sort]);
 
     useEffect(() => {
-        // Fetch sản phẩm có product_code bắt đầu bằng 'A'
-        fetch("/api/products?category_id=2")
+        fetch("http://localhost:3001/products")
             .then((res) => res.json())
             .then((data) => {
-                // Make sure we handle both array and object responses
-                const productList = Array.isArray(data) ? data : data.rows || [];
-                setProducts(productList);
+                // Filter Adidas products (category_id = 2)
+                const adidasProducts = Array.isArray(data) ? data.filter(p => p.category_id === 2) : [];
+                setProducts(adidasProducts);
                 setLoading(false);
             })
             .catch((err) => {

@@ -5,6 +5,7 @@ function isBrowser() {
 }
 
 export function getLocalCart() {
+    if (typeof window === 'undefined') return [];
     try {
         if (!isBrowser()) return [];
 
@@ -17,6 +18,7 @@ export function getLocalCart() {
 }
 
 export function saveLocalCart(items) {
+    if (typeof window === 'undefined') return;
     try {
         if (!isBrowser()) return;
         localStorage.setItem("localCart", JSON.stringify(items));
@@ -26,6 +28,7 @@ export function saveLocalCart(items) {
 }
 
 export function clearLocalCart() {
+    if (typeof window === 'undefined') return;
     try {
         if (!isBrowser()) return;
         localStorage.removeItem("localCart");

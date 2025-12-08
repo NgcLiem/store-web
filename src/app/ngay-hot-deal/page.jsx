@@ -37,14 +37,17 @@ export default function HotDeal() {
     const [products, setProducts] = useState([]);
 
     useEffect(() => {
-        fetch("/api/products")
+        fetch("http://localhost:3001/products")
             .then((res) => res.json())
             .then((data) => {
-                if (Array.isArray(data)) setProducts(data);
-                else if (data && Array.isArray(data.rows)) setProducts(data.rows);
-                else setProducts([]);
+                // Filter only hot deal products (is_hot = 1)
+                const hotProducts = Array.isArray(data) ? data.filter(p => p.is_hot === 1) : [];
+                setProducts(hotProducts);
             })
-            .catch((err) => console.error("Fetch error:", err));
+            .catch((err) => {
+                console.error("Fetch error:", err);
+                setProducts([]);
+            });
     }, []);
 
     return (

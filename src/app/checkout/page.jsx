@@ -22,7 +22,7 @@ export default function CheckoutPage() {
         phone: "",
         email: "",
         notes: "",
-        paymentMethod: "COD"
+        paymentMethod: "COD" // COD hoặc PREPAY
     });
 
     // Load cart items
@@ -194,7 +194,7 @@ export default function CheckoutPage() {
         <div className="checkout-container">
             <div className="checkout-left">
                 <h2>THANH TOÁN VÀ GIAO HÀNG</h2>
-
+                
                 {!user && (
                     <div className="checkout-login-hint">
                         Bạn đã có tài khoản? <a href="/login">Bấm vào đây để đăng nhập</a>
@@ -252,7 +252,7 @@ export default function CheckoutPage() {
 
             <div className="checkout-right">
                 <h3>ĐƠN HÀNG CỦA BẠN</h3>
-
+                
                 <div className="order-summary">
                     <div className="summary-header">
                         <span>SẢN PHẨM</span>
@@ -299,7 +299,7 @@ export default function CheckoutPage() {
                 </div>
 
                 <div className="terms">
-                    <p style={{ fontSize: '12px', color: '#666' }}>
+                    <p style={{fontSize: '12px', color: '#666'}}>
                         For security, use of Google's reCAPTCHA service is required which is subject to the Google Privacy Policy and Terms of Use.
                     </p>
                 </div>
