@@ -5,11 +5,11 @@ import Image from "next/image";
 import "../assets/css/hero.css";
 
 const slides = [
-    { src: "/images/DONIDG.jpg", alt: "Slide 1" },
-    { src: "/images/giay3.jpg", alt: "Slide 2" },
-    { src: "/images/DONIDG STUDIO.jpg", alt: "Slide 3" },
-    { src: "/images/giay.jpg", alt: "Slide 4" },
-    { src: "/images/giay2.jpg", alt: "Slide 5" },
+    { src: "/images/DONIDG.jpg", alt: "DONIDG Studio" },
+    { src: "/images/giay3.jpg", alt: "Sneaker collection" },
+    { src: "/images/DONIDG STUDIO.jpg", alt: "Showroom DONIDG" },
+    { src: "/images/giay.jpg", alt: "Hot sneaker" },
+    { src: "/images/giay2.jpg", alt: "New arrivals" },
 ];
 
 export default function Hero() {
@@ -33,30 +33,44 @@ export default function Hero() {
                         <Image
                             src={slide.src}
                             alt={slide.alt}
-                            width={1200}
-                            height={600}
+                            width={1600}
+                            height={700}
                             priority={index === 0}
-                            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                            className="hero-image"
                         />
                     </div>
                 ))}
             </div>
 
             <div className="hero-content">
-                <h1>DONIDG</h1>
-                <p>Chuyên cung cấp giày sneaker chính hãng với chất lượng tốt nhất</p>
-                <button className="btn">
-                    Khám Phá Ngay
-                </button>
+                <div className="hero-inner">
+                    <span className="hero-badge">NEW SEASON • 2025</span>
+                    <h1 className="hero-title">DONIDG STUDIO</h1>
+                    <p className="hero-subtitle">
+                        Nâng tầm phong cách của bạn với những đôi sneaker chính hãng, được
+                        tuyển chọn kỹ lưỡng từ các thương hiệu hàng đầu.
+                    </p>
+                    <button
+                        className="hero-btn"
+                        onClick={() => {
+                            const section = document.getElementById("products");
+                            if (section) section.scrollIntoView({ behavior: "smooth" });
+                        }}
+                    >
+                        Khám phá bộ sưu tập
+                    </button>
+
+                </div>
             </div>
 
             <div className="slider-dots">
                 {slides.map((_, index) => (
-                    <span
+                    <button
                         key={index}
                         className={`dot ${index === current ? "active" : ""}`}
                         onClick={() => setCurrent(index)}
-                    ></span>
+                        aria-label={`Chuyển đến slide ${index + 1}`}
+                    />
                 ))}
             </div>
         </section>
