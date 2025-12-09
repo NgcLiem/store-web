@@ -4,6 +4,7 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import Providers from "../components/Providers";
 import AppShell from "../components/AppShell";
+import { ToastProvider } from "@/components/Toast";
 
 export const metadata = {
   title: "DONIDG",
@@ -21,11 +22,13 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body>
-        <Providers>
-          <AppShell>
-            <main>{children}</main>
-          </AppShell>
-        </Providers>
+        <ToastProvider>
+          <Providers>
+            <AppShell>
+              <main>{children}</main>
+            </AppShell>
+          </Providers>
+        </ToastProvider>
       </body>
     </html>
   );

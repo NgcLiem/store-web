@@ -202,26 +202,44 @@
 }
 
 .action-btn {
-  padding: 0.75rem 1.5rem;
-  background: #06c508;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  font-size: 1rem;
-  transition: background 0.3s ease, transform 0.2s ease;
-}
-
-.action-btn:hover {
-  background: rgba(28, 180, 70, 0.8);
-  transform: translateY(-2px);
+  gap: 6px;
+  border-radius: 999px;
+  border: 1px solid #d1d5db;
+  background: #f9fafb;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease,
+  transform 0.08s ease, box-shadow 0.12s ease;
 }
 
 .action-btn i {
-  font-size: 1.1rem;
+    font-size: 13px;
+}
+
+.action-btn:hover {
+    background: #f3f4f6;
+    border-color: #9ca3af;
+}
+
+.action-btn:active {
+    transform: translateY(1px);
+    box-shadow: none;
+}
+
+/* Nút chính (Lưu) – bạn có thể thêm class riêng nếu muốn */
+.action-btn:not(.btn-secondary):not(.btn-danger) {
+    background: linear-gradient(135deg, #10b981, #22c55e);
+    color: #fff;
+    border-color: transparent;
+    box-shadow: 0 12px 25px rgba(16, 185, 129, 0.45);
+}
+
+.action-btn:not(.btn-secondary):not(.btn-danger):hover {
+    filter: brightness(1.03);
 }
 
 /* Responsive */
@@ -499,28 +517,37 @@
 .modal-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(15, 23, 42, 0.55);
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 1000;
+    backdrop-filter: blur(4px);
 }
 
 .modal-content-wrapper {
-    background: #fff;
-    padding: 25px;
-    border-radius: 12px;
-    width: 450px;
-    max-width: 90%;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    background: #ffffff;
+    padding: 20px 22px 16px;
+    border-radius: 18px;
+    width: 540px;
+    max-width: 95%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.28);
+    border: 1px solid rgba(148, 163, 184, 0.35);
+    animation: fadeIn 0.2s ease-out;
 }
 
 .modal-content-wrapper h3 {
     margin-top: 0;
-    margin-bottom: 20px;
-    color: #333;
+    margin-bottom: 6px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #111827;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
     border-bottom: 1px solid #eee;
-    padding-bottom: 10px;
+    padding-bottom: 8px;
 }
 
 .modal-form {
@@ -534,4 +561,22 @@
     gap: 10px;
     justify-content: flex-end;
     margin-top: 20px;
+}
+
+.form-input {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 999px;
+    font-size: 0.9rem;
+    background: #ffffff;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease,
+    background-color 0.15s ease;
+    outline: none;
+}
+
+.form-input:focus {
+    border-color: #10b981;
+    background-color: #f9fffb;
+    box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.25);
 }
