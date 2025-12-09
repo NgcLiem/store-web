@@ -14,11 +14,13 @@ export default function MyOrdersPage() {
             if (!token) return;
             setLoading(true);
             try {
-                // gợi ý: backend nên đọc userId từ token; tạm thời gửi userId qua query
-                const res = await fetch(`/api/orders?userId=${user?.id}&q=${encodeURIComponent(q)}`, {
-                    headers: { Authorization: `Bearer ${token}` },
-                    cache: "no-store",
-                });
+                const res = await fetch(
+                    `/api/orders?userId=${user?.id}&q=${encodeURIComponent(q)}`,
+                    {
+                        headers: { Authorization: `Bearer ${token}` },
+                        cache: "no-store",
+                    }
+                );
                 const data = await res.json().catch(() => []);
                 setItems(Array.isArray(data) ? data : data?.items || []);
             } finally {
@@ -27,16 +29,32 @@ export default function MyOrdersPage() {
         })();
     }, [token, user?.id, q]);
 
+    const getStatusClass = (status) => {
+        if (!status) return "order-status-badge";
+        const s = String(status).toLowerCase();
+        if (["pending", "confirmed", "processing"].includes(s))
+            return "order-status-badge status-pending";
+        if (["delivered", "completed"].includes(s))
+            return "order-status-badge status-success";
+        if (["cancelled", "canceled", "failed"].includes(s))
+            return "order-status-badge status-cancel";
+        return "order-status-badge";
+    };
+
     return (
         <>
             <div className="customer-header">
                 <h1>Đơn hàng của tôi</h1>
+                <p>Theo dõi lịch sử đặt hàng và trạng thái giao hàng</p>
             </div>
 
             <div className="customer-content">
-                <form onSubmit={(e) => e.preventDefault()} style={{ display: "flex", gap: 12, marginBottom: 16 }}>
+                <form
+                    onSubmit={(e) => e.preventDefault()}
+                    style={{ display: "flex", gap: 12, marginBottom: 16 }}
+                >
                     <input
-                        className="form-input"
+                        className="form-input-customer"
                         placeholder="Tìm theo mã đơn / ngày"
                         value={q}
                         onChange={(e) => setQ(e.target.value)}
@@ -44,29 +62,45 @@ export default function MyOrdersPage() {
                     />
                 </form>
 
-                <div style={{ overflowX: "auto" }}>
-                    <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                <div className="orders-table-wrapper">
+                    <table className="orders-table">
                         <thead>
-                            <tr style={{ background: "#f1f2f6" }}>
-                                <th style={{ padding: 12, textAlign: "left" }}>Mã đơn</th>
-                                <th style={{ padding: 12, textAlign: "left" }}>Ngày đặt</th>
-                                <th style={{ padding: 12, textAlign: "right" }}>Tổng tiền</th>
-                                <th style={{ padding: 12, textAlign: "center" }}>Trạng thái</th>
+                            <tr>
+                                <th>Mã đơn</th>
+                                <th>Ngày đặt</th>
+                                <th style={{ textAlign: "right" }}>Tổng tiền</th>
+                                <th style={{ textAlign: "center" }}>Trạng thái</th>
                             </tr>
                         </thead>
                         <tbody>
                             {loading ? (
-                                <tr><td colSpan={4} style={{ padding: 20, textAlign: "center" }}>Đang tải…</td></tr>
+                                <tr>
+                                    <td colSpan={4} style={{ padding: 20, textAlign: "center" }}>
+                                        Đang tải…
+                                    </td>
+                                </tr>
                             ) : items.length === 0 ? (
-                                <tr><td colSpan={4} style={{ padding: 20, textAlign: "center" }}>Chưa có đơn hàng</td></tr>
+                                <tr>
+                                    <td colSpan={4} style={{ padding: 20, textAlign: "center" }}>
+                                        Chưa có đơn hàng
+                                    </td>
+                                </tr>
                             ) : (
                                 items.map((o) => (
-                                    <tr key={o.id} style={{ borderBottom: "1px solid #eee" }}>
-                                        <td style={{ padding: 12 }}>{o.code || `#${o.id}`}</td>
-                                        <td style={{ padding: 12 }}>{new Date(o.order_date || o.created_at).toLocaleString()}</td>
-                                        <td style={{ padding: 12, textAlign: "right" }}>{Number(o.total || o.total_amount || 0).toLocaleString()}₫</td>
-                                        <td style={{ padding: 12, textAlign: "center", textTransform: "capitalize" }}>
-                                            {o.status}
+                                    <tr key={o.id}>
+                                        <td>{o.code || `#${o.id}`}</td>
+                                        <td>
+                                            {new Date(
+                                                o.order_date || o.created_at
+                                            ).toLocaleString()}
+                                        </td>
+                                        <td style={{ textAlign: "right" }}>
+                                            {Number(o.total || o.total_amount || 0).toLocaleString()}₫
+                                        </td>
+                                        <td style={{ textAlign: "center" }}>
+                                            <span className={getStatusClass(o.status)}>
+                                                {o.status}
+                                            </span>
                                         </td>
                                     </tr>
                                 ))

@@ -1,4 +1,3 @@
-// src/app/admin/users/page.jsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -7,13 +6,15 @@ import "./users.css";
 
 export default function AdminUsersPage() {
     const [items, setItems] = useState([]);
-    const [q, setQ] = useState("");
-    const [loading, setLoading] = useState(true);
+    const [u, setU] = useState([]);
+    const [loading, setLoading] = useState([]);
+    const [confirmUser, setConfirmUser] = useState(null);
+    const [statusModal, setStatusModal] = useState(null);
 
     const load = async () => {
         setLoading(true);
         try {
-            const res = await fetch(`http://localhost:3001/users?q=${encodeURIComponent(q)}`);
+            const res = await fetch(`http://localhost:3001/users?q=${encodeURIComponent(u)}`);
             const data = await res.json();
             setItems(Array.isArray(data) ? data : []);
         } catch (error) {
@@ -24,25 +25,64 @@ export default function AdminUsersPage() {
     };
     useEffect(() => { load(); }, []);
 
+    useEffect(() => {
+        if (!statusModal) return;
+
+        const timer = setTimeout(() => {
+            setStatusModal(null);
+        }, 3000);
+
+        return () => clearTimeout(timer);
+    }, [statusModal]);
+
+
     const submitSearch = (e) => { e.preventDefault(); load(); };
 
-    const toggleActive = async (u) => {
-        const next = !u.active;
-        if (!confirm(`${next ? "Mở" : "Khoá"} tài khoản ${u.email}?`)) return;
+    const toggleActive = async () => {
+        if (!confirmUser) return;
+
+        const u = confirmUser;
+        const isActive = u.status === "active";
+        const nextStatus = isActive ? "inactive" : "active";
+
         try {
-            const res = await fetch(`http://localhost:3001/users/${u.id}`, { 
-                method: "PATCH", 
-                headers: { "Content-Type": "application/json" }, 
-                body: JSON.stringify({ active: next }) 
+            const res = await fetch(`http://localhost:3001/users/${u.id}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ status: nextStatus }),
             });
-            if (!res.ok) { 
-                alert("Cập nhật thất bại"); 
-                return; 
+
+            const data = await res.json().catch(() => null);
+
+            if (!res.ok) {
+                setStatusModal({
+                    type: "error",
+                    message: data?.message || "Cập nhật thất bại. Vui lòng thử lại.",
+                });
+                return;
             }
-            setItems(prev => prev.map(it => it.id === u.id ? { ...it, active: next } : it));
+
+            setItems((prev) =>
+                prev.map((it) =>
+                    it.id === u.id ? { ...it, status: nextStatus } : it
+                )
+            );
+
+            setStatusModal({
+                type: "success",
+                message:
+                    nextStatus === "active"
+                        ? "Mở khoá tài khoản thành công."
+                        : "Khoá tài khoản thành công.",
+            });
         } catch (error) {
-            console.error('Update user error:', error);
-            alert("Cập nhật thất bại");
+            console.error("Update user error:", error);
+            setStatusModal({
+                type: "error",
+                message: "Có lỗi xảy ra khi cập nhật tài khoản.",
+            });
+        } finally {
+            setConfirmUser(null);
         }
     };
 
@@ -55,8 +95,8 @@ export default function AdminUsersPage() {
             <div className="admin-content">
                 <form onSubmit={submitSearch} className="search-form-row">
                     <input
-                        value={q}
-                        onChange={(e) => setQ(e.target.value)}
+                        value={u}
+                        onChange={(e) => setU(e.target.value)}
                         className="form-input search-input-narrow"
                         placeholder="Tìm theo email / tên / SĐT"
                     />
@@ -67,6 +107,7 @@ export default function AdminUsersPage() {
                     <table className="data-table">
                         <thead>
                             <tr className="table-header-row">
+                                <th className="table-header-cell text-left">STT</th>
                                 <th className="table-header-cell text-left">Email</th>
                                 <th className="table-header-cell text-left">Họ tên</th>
                                 <th className="table-header-cell text-left">SĐT</th>
@@ -76,29 +117,102 @@ export default function AdminUsersPage() {
                             </tr>
                         </thead>
                         <tbody>
-                            {loading ?
-                                <tr><td colSpan={6} className="table-cell table-cell-center">Đang tải...</td></tr> :
-                                items.length === 0 ?
-                                    <tr><td colSpan={6} className="table-cell table-cell-center">Không có dữ liệu</td></tr> :
-                                    items.map(u => (
-                                        <tr key={u.id} className="table-body-row">
-                                            <td className="table-cell">{u.email}</td>
-                                            <td className="table-cell">{u.full_name || "-"}</td>
-                                            <td className="table-cell">{u.phone || "-"}</td>
-                                            <td className="table-cell">{u.address || "-"}</td>
-                                            <td className="table-cell text-center">
-                                                <span className={`status-badge ${u.active ? 'status-active' : 'status-inactive'}`}>
-                                                    {u.active ? "Đang hoạt động" : "Đã khoá"}
-                                                </span>
-                                            </td>
-                                            <td className="table-cell table-actions-cell">
-                                                <button className="action-btn" onClick={() => toggleActive(u)}>
-                                                    <i className="fa-solid fa-user-lock" /> {u.active ? "Khoá" : "Mở"}
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    ))
-                            }
+                            {items.map((u) => {
+                                const isActive = u.status === "active";
+
+                                return (
+                                    <tr key={u.id} className="table-body-row">
+                                        <td className="table-cell">{u.id}</td>
+                                        <td className="table-cell">{u.email}</td>
+                                        <td className="table-cell">{u.full_name}</td>
+                                        <td className="table-cell">{u.phone}</td>
+                                        <td className="table-cell">{u.address}</td>
+
+                                        <td className="table-cell text-center">
+                                            <span
+                                                className={`status-badge ${isActive ? "status-active" : "status-inactive"
+                                                    }`}
+                                            >
+                                                {isActive ? "Đang hoạt động" : "Đã khoá"}
+                                            </span>
+                                        </td>
+
+                                        <td className="table-cell table-actions-cell">
+                                            <button
+                                                className={`action-btn ${isActive ? "status-open" : "status-close"
+                                                    }`}
+                                                onClick={() => setConfirmUser(u)}
+                                            >
+                                                <i className="fa-solid fa-user-lock" />{" "}
+                                                {isActive ? "Khoá" : "Mở"}
+                                            </button>
+                                        </td>
+                                    </tr>
+                                );
+                            })}
+                            {confirmUser && (
+                                <div className="modal-overlay">
+                                    <div className="modal-content-wrapper confirm-modal">
+                                        <h3 className="confirm-title">
+                                            {confirmUser.active ? "Khoá tài khoản" : "Mở khoá tài khoản"}
+                                        </h3>
+
+                                        <p className="confirm-text">
+                                            Bạn có chắc muốn {confirmUser.active ? "khoá" : "mở khoá"} tài khoản
+                                            <span className="confirm-highlight"> {confirmUser.email} </span>?
+                                        </p>
+
+                                        <div className="confirm-actions">
+                                            <button
+                                                type="button"
+                                                className="action-btn btn-secondary"
+                                                onClick={() => setConfirmUser(null)}
+                                            >
+                                                Huỷ
+                                            </button>
+
+                                            <button
+                                                type="button"
+                                                className="action-btn"
+                                                onClick={toggleActive}
+                                            >
+                                                <i className="fa-solid fa-user-lock" /> Xác nhận
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {statusModal && (
+                                <div className="modal-overlay">
+                                    <div
+                                        className={
+                                            "modal-content-wrapper status-modal " +
+                                            (statusModal.type === "success"
+                                                ? "status-modal--success"
+                                                : "status-modal--error")
+                                        }
+                                    >
+                                        <h3 className="status-title">
+                                            {statusModal.type === "success" ? "Thành công" : "Có lỗi xảy ra"}
+                                        </h3>
+
+                                        <p className="status-text">{statusModal.message}</p>
+
+                                        <div className="confirm-actions">
+                                            <button
+                                                type="button"
+                                                className="action-btn btn-secondary"
+                                                onClick={() => setStatusModal(null)}
+                                            >
+                                                Đóng
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+
                         </tbody>
                     </table>
                 </div>

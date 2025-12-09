@@ -6,37 +6,47 @@ import { useAuth } from "../../../contexts/AuthContexts";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 
-
 export default function AdminProductsPage() {
     const { token, user } = useAuth();
+
     const [items, setItems] = useState([]);
     const [q, setQ] = useState("");
     const [modalOpen, setModalOpen] = useState(false);
     const [editing, setEditing] = useState(null);
+    const [confirmProduct, setConfirmProduct] = useState(null);
+
     const [form, setForm] = useState({
         product_code: "",
         name: "",
         price: "",
         stock: "",
         category_id: "",
-        image_url: ""
+        image_url: "",
     });
     const [loading, setLoading] = useState(true);
     const [uploading, setUploading] = useState(false);
     const [dragActive, setDragActive] = useState(false);
 
+    const withAuthHeaders = (headers = {}) => {
+        return token
+            ? { ...headers, Authorization: `Bearer ${token}` }
+            : headers;
+    };
+
     const load = async () => {
         setLoading(true);
-
         try {
-            const path = user?.role === "admin" ? "/admin/products"
-                : user?.role === "staff" ? "/staff/products"
-                    : "/products";
+            const path =
+                user?.role === "admin"
+                    ? "/admin/products"
+                    : user?.role === "staff"
+                        ? "/staff/products"
+                        : "/products";
+
             const url = `${API_BASE}${path}?q=${encodeURIComponent(q)}`;
+
             const res = await fetch(url, {
-                headers: token
-                    ? { Authorization: `Bearer ${token}` }
-                    : {},
+                headers: withAuthHeaders(),
             });
 
             const text = await res.text();
@@ -61,10 +71,16 @@ export default function AdminProductsPage() {
         }
     };
 
-    useEffect(() => { load(); }, []);
+    useEffect(() => {
+        load();
+    }, []);
 
-    const submitSearch = (e) => { e.preventDefault(); load(); };
+    const submitSearch = (e) => {
+        e.preventDefault();
+        load();
+    };
 
+    // ====== MODAL ======
     const openCreate = () => {
         setEditing(null);
         setForm({
@@ -73,7 +89,7 @@ export default function AdminProductsPage() {
             price: "",
             stock: "",
             category_id: "",
-            image_url: ""
+            image_url: "",
         });
         setModalOpen(true);
     };
@@ -86,70 +102,112 @@ export default function AdminProductsPage() {
             price: p.price || "",
             stock: p.stock || "",
             category_id: p.category_id || "",
-            image_url: p.image_url || ""
+            image_url: p.image_url || "",
         });
         setModalOpen(true);
     };
 
+    // ====== SAVE (CREATE / UPDATE) ======
     const save = async (e) => {
         e.preventDefault();
+
         const payload = {
             product_code: form.product_code?.trim() || null,
             name: form.name?.trim(),
             price: Number(form.price || 0),
             stock: Number(form.stock || 0),
             category_id: form.category_id ? Number(form.category_id) : null,
-            image_url: form.image_url?.trim() || null
+            image_url: form.image_url?.trim() || null,
         };
-        const url = editing ? `/api/products/${editing.id}` : `/api/products`;
+
+        const basePath =
+            user?.role === "staff" ? "/staff/products" : "/admin/products";
         const method = editing ? "PUT" : "POST";
-        const res = await fetch(url, {
-            method,
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload)
-        });
-        const data = await res.json().catch(() => null);
-        if (!res.ok) { alert(data?.message || "Lưu thất bại"); return; }
-        if (editing)
-            setItems(prev => prev.map(it => it.id === editing.id ? { ...it, ...payload } : it));
-        else
-            setItems(prev => [data?.item || { id: Date.now(), ...payload }, ...prev]);
-        setModalOpen(false);
+        const url = `${API_BASE}${basePath}${editing ? `/${editing.id}` : ""}`;
+
+        try {
+            const res = await fetch(url, {
+                method,
+                headers: withAuthHeaders({
+                    "Content-Type": "application/json",
+                }),
+                body: JSON.stringify(payload),
+            });
+
+            const data = await res.json().catch(() => null);
+            if (!res.ok) {
+                alert(data?.message || "Lưu thất bại");
+                return;
+            }
+
+            await load();
+            setModalOpen(false);
+        } catch (err) {
+            console.error("Lỗi lưu sản phẩm:", err);
+            alert("Lưu thất bại, thử lại sau.");
+        }
     };
 
-    const remove = async (p) => {
-        if (!confirm(`Xoá sản phẩm "${p.name}"?`)) return;
-        const res = await fetch(`/api/products/${p.id}`, { method: "DELETE" });
-        if (!res.ok) { alert("Xoá thất bại"); return; }
-        setItems(prev => prev.filter(it => it.id !== p.id));
+    const remove = async () => {
+        if (!confirmProduct) return;
+        const p = confirmProduct;
+
+        const basePath =
+            user?.role === "staff" ? "/staff/products" : "/admin/products";
+        const url = `${API_BASE}${basePath}/${p.id}`;
+
+        try {
+            const res = await fetch(url, {
+                method: "DELETE",
+                headers: withAuthHeaders(),
+            });
+
+            if (!res.ok) {
+                const data = await res.json().catch(() => null);
+                alert(data?.message || "Xoá thất bại");
+                return;
+            }
+
+            setItems((prev) => prev.filter((it) => it.id !== p.id));
+        } catch (err) {
+            console.error("Lỗi xoá sản phẩm:", err);
+            alert("Xoá thất bại, thử lại sau.");
+        } finally {
+            setConfirmProduct(null);
+        }
     };
+
 
     const uploadImage = async (file) => {
         if (!file) return;
         setUploading(true);
+
         try {
             const formData = new FormData();
             formData.append("file", file);
 
-            const res = await fetch(`${API_BASE}/upload`, {
-                method: "POST",
-                body: formData,
-            });
-
+            const res = await fetch(
+                `${API_BASE}/admin/products/upload-image`,
+                {
+                    method: "POST",
+                    headers: withAuthHeaders(),
+                    body: formData,
+                }
+            );
 
             const data = await res.json().catch(() => null);
+
             if (!res.ok) {
                 throw new Error(data?.message || "Upload ảnh thất bại");
             }
 
             const url = data?.url || data?.image_url;
-            if (url) {
-                setForm((prev) => ({ ...prev, image_url: url }));
-            } else {
-                throw new Error("Không nhận được URL ảnh từ server");
-            }
+            if (!url) throw new Error("Không nhận được URL ảnh từ server");
+
+            setForm((prev) => ({ ...prev, image_url: url }));
         } catch (e) {
-            alert(e.message);
+            console.error("Upload image error:", e);
+            alert(e.message || "Upload ảnh thất bại");
         } finally {
             setUploading(false);
         }
@@ -189,10 +247,7 @@ export default function AdminProductsPage() {
             </div>
 
             <div className="admin-content">
-                <form
-                    onSubmit={submitSearch}
-                    className="product-search-form"
-                >
+                <form onSubmit={submitSearch} className="product-search-form">
                     <input
                         value={q}
                         onChange={(e) => setQ(e.target.value)}
@@ -209,7 +264,9 @@ export default function AdminProductsPage() {
                         <thead>
                             <tr className="table-header-row">
                                 <th className="table-header-cell text-left">Mã</th>
-                                <th className="table-header-cell text-left product-image-header">Ảnh</th>
+                                <th className="table-header-cell text-left product-image-header">
+                                    Ảnh
+                                </th>
                                 <th className="table-header-cell text-center">Tên</th>
                                 <th className="table-header-cell text-center">Giá</th>
                                 <th className="table-header-cell text-center">Tồn kho</th>
@@ -230,7 +287,7 @@ export default function AdminProductsPage() {
                                     </td>
                                 </tr>
                             ) : (
-                                items.map(p => (
+                                items.map((p) => (
                                     <tr key={p.id} className="table-body-row">
                                         <td className="table-cell">
                                             {p.product_code || `#${p.id}`}
@@ -243,9 +300,7 @@ export default function AdminProductsPage() {
                                                     className="product-thumb"
                                                 />
                                             ) : (
-                                                <span className="no-image-text">
-                                                    Không có
-                                                </span>
+                                                <span className="no-image-text">Không có</span>
                                             )}
                                         </td>
                                         <td className="table-cell text-center">{p.name}</td>
@@ -264,7 +319,7 @@ export default function AdminProductsPage() {
                                             </button>
                                             <button
                                                 className="action-btn btn-danger"
-                                                onClick={() => remove(p)}
+                                                onClick={() => setConfirmProduct(p)}
                                             >
                                                 <i className="fa-solid fa-trash" /> Xoá
                                             </button>
@@ -281,10 +336,8 @@ export default function AdminProductsPage() {
                 <div className="modal-overlay">
                     <div className="modal-content-wrapper">
                         <h3>{editing ? "Sửa sản phẩm" : "Thêm sản phẩm"}</h3>
-                        <form
-                            onSubmit={save}
-                            className="modal-form"
-                        >
+
+                        <form onSubmit={save} className="modal-form">
                             <div className="floating-group">
                                 <input
                                     type="text"
@@ -380,7 +433,10 @@ export default function AdminProductsPage() {
                                         type="button"
                                         className="action-btn btn-preview"
                                         disabled={!form.image_url}
-                                        onClick={() => form.image_url && window.open(form.image_url, "_blank")}
+                                        onClick={() =>
+                                            form.image_url &&
+                                            window.open(form.image_url, "_blank")
+                                        }
                                     >
                                         Xem
                                     </button>
@@ -389,14 +445,19 @@ export default function AdminProductsPage() {
                                         <button
                                             type="button"
                                             className="action-btn btn-danger"
-                                            onClick={() => setForm({ ...form, image_url: "" })}
+                                            onClick={() =>
+                                                setForm({ ...form, image_url: "" })
+                                            }
                                         >
                                             Xóa
                                         </button>
                                     )}
                                 </div>
+
+                                {/* Drag & drop upload */}
                                 <div
-                                    className={`image-dropzone ${dragActive ? "drag-active" : ""}`}
+                                    className={`image-dropzone ${dragActive ? "drag-active" : ""
+                                        }`}
                                     onDragOver={handleDragOver}
                                     onDragLeave={handleDragLeave}
                                     onDrop={handleDrop}
@@ -414,13 +475,19 @@ export default function AdminProductsPage() {
                                         <button
                                             type="button"
                                             className="link-button"
-                                            onClick={() => document.getElementById("product-image-input").click()}
+                                            onClick={() =>
+                                                document
+                                                    .getElementById("product-image-input")
+                                                    .click()
+                                            }
                                         >
                                             chọn từ máy
                                         </button>
                                     </p>
 
-                                    {uploading && <p className="uploading-text">Đang upload...</p>}
+                                    {uploading && (
+                                        <p className="uploading-text">Đang upload...</p>
+                                    )}
                                 </div>
 
                                 {form.image_url ? (
@@ -428,27 +495,63 @@ export default function AdminProductsPage() {
                                         <img src={form.image_url} alt="Preview" />
                                     </div>
                                 ) : (
-                                    <p className="image-placeholder">Chưa có ảnh nào được chọn</p>
+                                    <p className="image-placeholder">
+                                        Chưa có ảnh nào được chọn
+                                    </p>
                                 )}
+                            </div>
 
+                            <span></span>
 
-                                <div className="modal-actions">
-                                    <button
-                                        type="button"
-                                        className="action-btn btn-secondary"
-                                        onClick={() => setModalOpen(false)}
-                                    >
-                                        Huỷ
-                                    </button>
-                                    <button type="submit" className="action-btn">
-                                        <i className="fa-solid fa-save" /> Lưu
-                                    </button>
-                                </div>
+                            <div className="modal-actions">
+                                <button
+                                    type="button"
+                                    className="action-btn btn-secondary"
+                                    onClick={() => setModalOpen(false)}
+                                >
+                                    Huỷ
+                                </button>
+                                <button type="submit" className="action-btn">
+                                    <i className="fa-solid fa-save" /> Lưu
+                                </button>
                             </div>
                         </form>
                     </div>
                 </div>
             )}
+
+            {confirmProduct && (
+                <div className="modal-overlay">
+                    <div className="modal-content-wrapper confirm-modal">
+                        <h3 className="confirm-title">Xoá sản phẩm</h3>
+                        <p className="confirm-text">
+                            Bạn có chắc muốn xoá sản phẩm{" "}
+                            <span className="confirm-product-name">
+                                "{confirmProduct.name}"
+                            </span>{" "}
+                            khỏi hệ thống?
+                        </p>
+
+                        <div className="confirm-actions">
+                            <button
+                                type="button"
+                                className="action-btn btn-secondary"
+                                onClick={() => setConfirmProduct(null)}
+                            >
+                                Huỷ
+                            </button>
+                            <button
+                                type="button"
+                                className="action-btn btn-danger"
+                                onClick={remove}
+                            >
+                                <i className="fa-solid fa-trash" /> Xoá
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
         </>
     );
 }
