@@ -1,9 +1,11 @@
 "use client";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import "./hotdeal.css";
 import { formatPrice } from "@/lib/format";
 
 export default function HotDeal() {
+    const router = useRouter();
     // Countdown Timer
     const [timeLeft, setTimeLeft] = useState({
         hours: 0,
@@ -64,7 +66,7 @@ export default function HotDeal() {
                     <div className="container">
                         <div className="products-grid">
                             {products.map((p) => (
-                                <div key={p.id} className="product-card">
+                                <div key={p.id} className="product-card" onClick={() => router.push(`/product/${p.id}`)} style={{ cursor: 'pointer' }}>
                                     <div className="containProduct">
                                         <img src={p.image_url} alt={p.name} className="product-image" />
                                     </div>

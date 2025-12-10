@@ -135,7 +135,7 @@ export default function CartPage() {
                 <>
                     <div className="cart-list">
                         {cartItems.map((item) => (
-                            <div key={`${item.cart_id}-${item.product_id}`}
+                            <div key={item.product_id}
                                 className="cart-item">
                                 <img src={item.image_url} alt={item.name} className="cart-item-img" />
                                 <div className="cart-item-info">

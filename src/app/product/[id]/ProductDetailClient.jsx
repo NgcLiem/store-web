@@ -46,6 +46,38 @@ export default function ProductDetailClient({ product }) {
         }
     };
 
+    const handleBuyNow = async () => {
+        if (!selectedSize) {
+            alert('Vui lòng chọn size');
+            return;
+        }
+
+        if (loading) {
+            alert('Đang kiểm tra đăng nhập...');
+            return;
+        }
+
+        if (!user) {
+            // Nếu chưa đăng nhập: lưu vào localStorage (guest cart)
+            addItemToLocalCart({ product_id: product.id, quantity, size: selectedSize });
+            router.push('/checkout');
+            return;
+        }
+
+        try {
+            const res = await fetch('/api/cart', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ product_id: product.id, quantity, size: selectedSize, user_id: user.id })
+            });
+            const json = await res.json();
+            if (!res.ok) throw new Error(json.message || json.detail || 'Lỗi');
+            router.push('/checkout');
+        } catch (err) {
+            alert('Lỗi: ' + err.message);
+        }
+    };
+
     return (
         <div className="product-detail-container">
             <div className="pd-left">
@@ -75,7 +107,7 @@ export default function ProductDetailClient({ product }) {
 
                 <div className="pd-actions">
                     <button className="pd-add" onClick={handleAddToCart}>THÊM VÀO GIỎ HÀNG</button>
-                    <button className="pd-buy">MUA NGAY</button>
+                    <button className="pd-buy" onClick={handleBuyNow}>MUA NGAY</button>
                 </div>
 
                 <div className="pd-desc">

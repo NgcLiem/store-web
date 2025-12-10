@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import "../assets/css/productSection.css";
 import "../assets/css/accessories.css";
 import { formatPrice } from "@/lib/format";
@@ -11,6 +12,7 @@ export default function AccessoriesSection({
     pageSize = 16,
     title = "Phụ kiện",
 }) {
+    const router = useRouter();
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
@@ -105,7 +107,7 @@ export default function AccessoriesSection({
                     </div>
                 ) : paginated.length ? (
                     paginated.map((p) => (
-                        <div key={p.id} className="product-card">
+                        <div key={p.id} className="product-card" onClick={() => router.push(`/product/${p.id}`)} style={{ cursor: 'pointer' }}>
                             {p.is_hot ? <div className="product-badge">Hot</div> : null}
                             <div className="containProduct">
                                 <img

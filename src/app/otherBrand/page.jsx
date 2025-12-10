@@ -1,10 +1,12 @@
 "use client";
 import Hero from "@/components/Hero";
 import { useState, useEffect, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import "./otherBrand.css";
 import { formatPrice } from "@/lib/format";
 
 export default function OtherBrand() {
+    const router = useRouter();
     const [products, setProducts] = useState([]);
     const [sort, setSort] = useState("default");
     const [loading, setLoading] = useState(true);
@@ -81,7 +83,7 @@ export default function OtherBrand() {
                                 <div className="products-grid">
                                     {sortedProducts.length > 0 ? (
                                         sortedProducts.map((p) => (
-                                            <div key={p.id} className="product-card">
+                                            <div key={p.id} className="product-card" onClick={() => router.push(`/product/${p.id}`)} style={{ cursor: 'pointer' }}>
                                                 {p.is_hot === 1 && (
                                                     <div className="product-badge">Hot</div>)}
                                                 <div className="containProduct">

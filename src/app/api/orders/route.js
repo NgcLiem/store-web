@@ -126,6 +126,12 @@ export async function GET(request) {
             items: order.items ? JSON.parse(`[${order.items}]`) : []
         }));
 
+        // If only one order requested by ID, return single object
+        if (orderId && orders.length === 1) {
+            return Response.json(orders[0], { status: 200 });
+        }
+
+        // Otherwise return array wrapped in object
         return Response.json({ success: true, orders }, { status: 200 });
 
     } catch (error) {
