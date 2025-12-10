@@ -47,7 +47,7 @@ export function AuthProvider({ children }) {
         })();
     }, []);
 
-    // 🔹 Hàm đăng nhập: lưu user + token
+    // Hàm đăng nhập: lưu user + token
     const login = (userData, jwtToken) => {
         setUser(userData);
         setToken(jwtToken);

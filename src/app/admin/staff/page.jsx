@@ -79,7 +79,7 @@ export default function AdminStaffPage() {
             return;
         }
         if (editing && !body.password) {
-            delete body.password; // không đổi pass
+            delete body.password;
         }
 
         try {
