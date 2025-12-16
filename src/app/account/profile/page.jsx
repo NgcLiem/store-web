@@ -1,11 +1,17 @@
 "use client";
 
+import "./profile.css"; // 🆕 file CSS riêng
 import { useAuth } from "@/contexts/AuthContexts";
+import { useToast } from "@/components/Toast"; // 🆕 dùng toast
 import { useState } from "react";
 import Link from "next/link";
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+
 export default function ProfilePage() {
     const { user, token } = useAuth();
+    const { showToast } = useToast(); // 🆕
+
     const [form, setForm] = useState({
         full_name: user?.full_name || "",
         email: user?.email || "",
@@ -13,14 +19,13 @@ export default function ProfilePage() {
         address: user?.address || "",
     });
     const [saving, setSaving] = useState(false);
-    const [successMessage, setSuccessMessage] = useState("");
 
     const save = async (e) => {
         e.preventDefault();
         setSaving(true);
-        setSuccessMessage("");
+
         try {
-            const res = await fetch(`http://localhost:3001/users/${user?.id}`, {
+            const res = await fetch(`${API_BASE}/users/${user?.id}`, {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",
@@ -28,16 +33,16 @@ export default function ProfilePage() {
                 },
                 body: JSON.stringify(form),
             });
-            
-            if (res.ok) {
-                setSuccessMessage("Cập nhật thông tin thành công!");
-                setTimeout(() => setSuccessMessage(""), 3000);
-            } else {
-                alert("Cập nhật thất bại!");
+
+            if (!res.ok) {
+                showToast("Cập nhật thất bại!", "error");
+                return;
             }
-        } catch (error) {
-            console.error('Update profile error:', error);
-            alert("Lỗi khi cập nhật!");
+
+            showToast("Cập nhật thông tin thành công!", "success");
+        } catch (err) {
+            console.error(err);
+            showToast("Có lỗi xảy ra khi cập nhật", "error");
         } finally {
             setSaving(false);
         }
@@ -51,163 +56,94 @@ export default function ProfilePage() {
             </div>
 
             <div className="customer-content">
-                <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "24px" }}>
-                    {/* Profile Form */}
-                    <div>
-                        <form onSubmit={save} className="profile-form" style={{ background: "#f8f9fa", padding: "24px", borderRadius: "8px" }}>
-                            <h3 style={{ marginTop: 0, marginBottom: "20px" }}>Thông tin cá nhân</h3>
+                <div className="profile-grid">
+                    {/* Form */}
+                    <form onSubmit={save} className="profile-card">
+                        <h3>Thông tin cá nhân</h3>
 
-                            {successMessage && (
-                                <div style={{
-                                    padding: "12px",
-                                    marginBottom: "16px",
-                                    backgroundColor: "#d4edda",
-                                    color: "#155724",
-                                    borderRadius: "4px",
-                                    border: "1px solid #c3e6cb"
-                                }}>
-                                    ✓ {successMessage}
-                                </div>
-                            )}
+                        <label>
+                            <span>Email <span className="required">*</span></span>
+                            <input
+                                className="form-input-customer"
+                                type="email"
+                                value={form.email}
+                                disabled
+                            />
+                            <small className="muted">Email không thể thay đổi</small>
+                        </label>
 
-                            <label style={{ display: "block", marginBottom: "16px" }}>
-                                <span style={{ display: "block", marginBottom: "8px", fontWeight: "bold" }}>Email <span style={{ color: "red" }}>*</span></span>
-                                <input
-                                    className="form-input"
-                                    type="email"
-                                    value={form.email}
-                                    disabled
-                                    style={{ backgroundColor: "#e9ecef", cursor: "not-allowed" }}
-                                />
-                                <small style={{ color: "#666" }}>Email không thể thay đổi</small>
-                            </label>
+                        <label>
+                            <span>Họ tên <span className="required">*</span></span>
+                            <input
+                                className="form-input-customer"
+                                value={form.full_name}
+                                onChange={(e) => setForm({ ...form, full_name: e.target.value })}
+                                required
+                            />
+                        </label>
 
-                            <label style={{ display: "block", marginBottom: "16px" }}>
-                                <span style={{ display: "block", marginBottom: "8px", fontWeight: "bold" }}>Họ tên <span style={{ color: "red" }}>*</span></span>
-                                <input
-                                    className="form-input"
-                                    value={form.full_name}
-                                    onChange={(e) => setForm({ ...form, full_name: e.target.value })}
-                                    placeholder="Nhập họ tên đầy đủ"
-                                    required
-                                />
-                            </label>
+                        <label>
+                            <span>Số điện thoại</span>
+                            <input
+                                className="form-input-customer"
+                                type="tel"
+                                value={form.phone}
+                                onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                            />
+                        </label>
 
-                            <label style={{ display: "block", marginBottom: "16px" }}>
-                                <span style={{ display: "block", marginBottom: "8px", fontWeight: "bold" }}>Số điện thoại</span>
-                                <input
-                                    className="form-input"
-                                    type="tel"
-                                    value={form.phone}
-                                    onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                                    placeholder="VD: 0912345678"
-                                />
-                            </label>
+                        <label>
+                            <span>Địa chỉ</span>
+                            <textarea
+                                className="form-input-customer"
+                                rows={3}
+                                value={form.address}
+                                onChange={(e) => setForm({ ...form, address: e.target.value })}
+                            />
+                        </label>
 
-                            <label style={{ display: "block", marginBottom: "24px" }}>
-                                <span style={{ display: "block", marginBottom: "8px", fontWeight: "bold" }}>Địa chỉ</span>
-                                <textarea
-                                    className="form-input"
-                                    value={form.address}
-                                    onChange={(e) => setForm({ ...form, address: e.target.value })}
-                                    placeholder="Nhập địa chỉ đầy đủ"
-                                    rows={3}
-                                    style={{ resize: "vertical" }}
-                                />
-                            </label>
+                        <div className="profile-actions">
+                            <button className="btn-primary" type="submit" disabled={saving}>
+                                {saving ? "Đang lưu…" : "Lưu thay đổi"}
+                            </button>
 
-                            <div style={{ display: "flex", gap: 12 }}>
-                                <button
-                                    className="action-btn"
-                                    type="submit"
-                                    disabled={saving}
-                                    style={{
-                                        backgroundColor: "#0066cc",
-                                        color: "white",
-                                        padding: "12px 24px",
-                                        border: "none",
-                                        borderRadius: "4px",
-                                        cursor: saving ? "not-allowed" : "pointer",
-                                        opacity: saving ? 0.7 : 1,
-                                    }}
-                                >
-                                    {saving ? "Đang lưu…" : "Lưu thay đổi"}
-                                </button>
-                                <Link
-                                    href="/reset-password"
-                                    className="action-btn"
-                                    style={{
-                                        display: "inline-block",
-                                        backgroundColor: "#6C757D",
-                                        color: "white",
-                                        padding: "12px 24px",
-                                        borderRadius: "4px",
-                                        textDecoration: "none",
-                                        textAlign: "center",
-                                    }}
-                                >
-                                    Đổi mật khẩu
-                                </Link>
-                            </div>
-                        </form>
-                    </div>
-
-                    {/* Sidebar */}
-                    <div>
-                        <div style={{ background: "#f8f9fa", padding: "20px", borderRadius: "8px", position: "sticky", top: "20px" }}>
-                            <h3 style={{ marginTop: 0, marginBottom: "16px" }}>Tài khoản của tôi</h3>
-                            
-                            <div style={{ marginBottom: "16px", paddingBottom: "16px", borderBottom: "1px solid #ddd" }}>
-                                <p style={{ margin: "0 0 4px 0", color: "#666", fontSize: "14px" }}>Trạng thái:</p>
-                                <p style={{ margin: "0", fontWeight: "bold", color: "#28a745" }}>✓ Đang hoạt động</p>
-                            </div>
-
-                            <div style={{ marginBottom: "16px", paddingBottom: "16px", borderBottom: "1px solid #ddd" }}>
-                                <p style={{ margin: "0 0 4px 0", color: "#666", fontSize: "14px" }}>Loại thành viên:</p>
-                                <p style={{ margin: "0", fontWeight: "bold" }}>Khách hàng thường xuyên</p>
-                            </div>
-
-                            <div style={{ marginBottom: "24px" }}>
-                                <p style={{ margin: "0 0 4px 0", color: "#666", fontSize: "14px" }}>Tham gia từ:</p>
-                                <p style={{ margin: "0", fontWeight: "bold" }}>
-                                    {user?.created_at ? new Date(user.created_at).toLocaleDateString('vi-VN') : "N/A"}
-                                </p>
-                            </div>
-
-                            <Link
-                                href="/account/orders"
-                                style={{
-                                    display: "block",
-                                    padding: "12px",
-                                    textAlign: "center",
-                                    backgroundColor: "#0066cc",
-                                    color: "white",
-                                    borderRadius: "4px",
-                                    textDecoration: "none",
-                                    fontWeight: "bold",
-                                    marginBottom: "8px",
-                                }}
-                            >
-                                Xem lịch sử đơn hàng
-                            </Link>
-
-                            <Link
-                                href="/account"
-                                style={{
-                                    display: "block",
-                                    padding: "12px",
-                                    textAlign: "center",
-                                    backgroundColor: "#6C757D",
-                                    color: "white",
-                                    borderRadius: "4px",
-                                    textDecoration: "none",
-                                    fontWeight: "bold",
-                                }}
-                            >
-                                Quay lại dashboard
+                            <Link href="/reset-password" className="btn-secondary">
+                                Đổi mật khẩu
                             </Link>
                         </div>
-                    </div>
+                    </form>
+
+                    {/* Sidebar Info */}
+                    <aside className="profile-side-card">
+                        <h3>Tài khoản của tôi</h3>
+
+                        <div className="profile-side-block">
+                            <p className="label">Trạng thái:</p>
+                            <p className="value-active">✓ Đang hoạt động</p>
+                        </div>
+
+                        <div className="profile-side-block">
+                            <p className="label">Loại thành viên:</p>
+                            <p className="value">Khách hàng thường xuyên</p>
+                        </div>
+
+                        <div className="profile-side-block">
+                            <p className="label">Tham gia từ:</p>
+                            <p className="value">
+                                {user?.created_at
+                                    ? new Date(user.created_at).toLocaleDateString("vi-VN")
+                                    : "N/A"}
+                            </p>
+                        </div>
+
+                        <Link href="/account/orders" className="btn-primary-history full">
+                            Xem lịch sử đơn hàng
+                        </Link>
+
+                        <Link href="/account" className="btn-secondary full">
+                            Quay lại dashboard
+                        </Link>
+                    </aside>
                 </div>
             </div>
         </>

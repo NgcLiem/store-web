@@ -24,7 +24,6 @@ export default function NikePage() {
         fetch("http://localhost:3001/products")
             .then((res) => res.json())
             .then((data) => {
-                // Filter Nike products (category_id = 1)
                 const nikeProducts = Array.isArray(data) ? data.filter(p => p.category_id === 1) : [];
                 setProducts(nikeProducts);
                 setLoading(false);

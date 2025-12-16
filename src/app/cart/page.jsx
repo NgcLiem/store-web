@@ -1,116 +1,135 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContexts";
-import { getLocalCart, saveLocalCart, clearLocalCart } from "@/lib/localCart";
+import { getLocalCart, saveLocalCart } from "@/lib/localCart";
 import "./cart.css";
+
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 
 export default function CartPage() {
     const router = useRouter();
-    const { user, loading } = useAuth();
+    const { user, token, loading } = useAuth();
     const [cartItems, setCartItems] = useState([]);
     const [loadingCart, setLoadingCart] = useState(true);
 
-    useEffect(() => {
-        if (loading) return; // wait until auth is resolved
+    const makeKey = (item, idx) => {
+        if (item.cart_item_id) return `ci-${item.cart_item_id}`;
+        const pid = item.product_id ?? "noid";
+        const sz = item.size ?? "nosize";
+        return `g-${pid}-${sz}-${idx}`;
+    };
 
-        // Guest: load from localStorage and fetch product details
-        if (!user) {
+    useEffect(() => {
+        if (loading) return;
+
+        if (!user || !token) {
             (async () => {
                 try {
                     const local = getLocalCart();
                     if (!local.length) {
                         setCartItems([]);
-                        setLoadingCart(false);
                         return;
                     }
 
-                    const fetched = await Promise.all(local.map(async (it) => {
-                        try {
-                            const res = await fetch(`http://localhost:3001/products/${it.product_id}`);
-                            if (!res.ok) return { cart_id: null, product_id: it.product_id, name: '(Không tìm thấy)', price: 0, image_url: '/no-image.png', quantity: it.quantity };
-                            const prod = await res.json();
+                    const fetched = await Promise.all(
+                        local.map(async (it) => {
+                            const res = await fetch(`${API_BASE}/products/${it.product_id}`);
+                            const prod = await res.json().catch(() => null);
                             return {
-                                cart_id: null,
+                                cart_item_id: null,
                                 product_id: it.product_id,
-                                name: prod.name,
-                                price: prod.price,
-                                image_url: prod.image_url || (prod.image ? `/images/${prod.image}` : '/no-image.png'),
+                                size: it.size ?? null,
                                 quantity: it.quantity,
+                                name: prod?.name ?? "(Không tìm thấy)",
+                                price: prod?.price ?? 0,
+                                image_url: prod?.image_url ?? "/no-image.png",
                             };
-                        } catch (e) {
-                            return { cart_id: null, product_id: it.product_id, name: '(Lỗi)', price: 0, image_url: '/no-image.png', quantity: it.quantity };
-                        }
-                    }));
+                        })
+                    );
 
                     setCartItems(fetched);
                 } catch (e) {
-                    console.error('Load local cart error', e);
+                    console.error(e);
                     setCartItems([]);
                 } finally {
                     setLoadingCart(false);
                 }
             })();
-
             return;
         }
 
-        fetch(`/api/cart?user_id=${user.id}`)
-            .then((res) => res.json())
-            .then((data) => {
-                if (Array.isArray(data)) {
-                    setCartItems(data);
-                } else if (data && Array.isArray(data.rows)) {
-                    setCartItems(data.rows);
-                } else {
-                    setCartItems([]);
-                }
-                setLoadingCart(false);
-            })
-            .catch((err) => {
-                console.error("Fetch cart error:", err);
+        (async () => {
+            try {
+                const res = await fetch(`${API_BASE}/cart`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                const data = await res.json();
+                const items = data?.items ?? [];
+                setCartItems(items);
+            } catch (e) {
+                console.error(e);
                 setCartItems([]);
+            } finally {
                 setLoadingCart(false);
-            });
-    }, [loading, user]);
+            }
+        })();
+    }, [loading, user, token]);
 
-    // Xoá sản phẩm khỏi giỏ
-    const handleRemove = async (productId) => {
-        if (!user) {
-            // remove from local cart
-            const local = getLocalCart().filter(it => it.product_id !== productId);
-            saveLocalCart(local);
-            setCartItems(cartItems.filter((item) => item.product_id !== productId));
-            return;
-        }
-        await fetch("/api/cart", {
-            method: "DELETE",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ user_id: user.id, product_id: productId }),
-        });
-        setCartItems(cartItems.filter((item) => item.product_id !== productId));
+    const sameGuestLine = (a, product_id, size) =>
+        Number(a.product_id) === Number(product_id) && (a.size ?? null) === (size ?? null);
+
+    const removeGuest = (product_id, size) => {
+        const local = getLocalCart().filter((it) => !sameGuestLine(it, product_id, size));
+        saveLocalCart(local);
+        setCartItems((prev) => prev.filter((it) => !sameGuestLine(it, product_id, size)));
     };
 
-    // Cập nhật số lượng
-    const updateQuantity = async (productId, newQty) => {
-        if (newQty < 1) return;
-        if (!user) {
-            const local = getLocalCart().map(it => it.product_id === productId ? { ...it, quantity: newQty } : it);
-            saveLocalCart(local);
-            setCartItems(cartItems.map((item) =>
-                item.product_id === productId ? { ...item, quantity: newQty } : item
-            ));
+    const updateGuestQty = (product_id, size, newQty) => {
+        const qty = Math.max(1, Number(newQty || 1));
+        const local = getLocalCart().map((it) =>
+            sameGuestLine(it, product_id, size) ? { ...it, quantity: qty } : it
+        );
+        saveLocalCart(local);
+        setCartItems((prev) =>
+            prev.map((it) => (sameGuestLine(it, product_id, size) ? { ...it, quantity: qty } : it))
+        );
+    };
+
+    const handleRemove = async (item) => {
+        if (!user || !token || !item.cart_item_id) {
+            removeGuest(item.product_id, item.size);
             return;
         }
-        await fetch("/api/cart", {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ user_id: user.id, product_id: productId, quantity: newQty }),
-        });
-        setCartItems(cartItems.map((item) =>
 
-            item.product_id === productId ? { ...item, quantity: newQty } : item
-        ));
+        await fetch(`${API_BASE}/cart/items/${item.cart_item_id}`, {
+            method: "DELETE",
+            headers: { Authorization: `Bearer ${token}` },
+        });
+
+        setCartItems((prev) => prev.filter((x) => x.cart_item_id !== item.cart_item_id));
+    };
+
+    const updateQuantity = async (item, newQty) => {
+        const qty = Math.max(1, Number(newQty || 1));
+
+        if (!user || !token || !item.cart_item_id) {
+            updateGuestQty(item.product_id, item.size, qty);
+            return;
+        }
+
+        await fetch(`${API_BASE}/cart/items/${item.cart_item_id}`, {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ quantity: qty }),
+        });
+
+        setCartItems((prev) =>
+            prev.map((x) => (x.cart_item_id === item.cart_item_id ? { ...x, quantity: qty } : x))
+        );
     };
 
     const formatPrice = (price) => new Intl.NumberFormat("vi-VN").format(price) + "đ";
@@ -134,9 +153,8 @@ export default function CartPage() {
             ) : (
                 <>
                     <div className="cart-list">
-                        {cartItems.map((item) => (
-                            <div key={item.product_id}
-                                className="cart-item">
+                        {cartItems.map((item, idx) => (
+                            <div key={makeKey(item, idx)} className="cart-item">
                                 <img src={item.image_url} alt={item.name} className="cart-item-img" />
                                 <div className="cart-item-info">
                                     <div className="cart-item-name">{item.name}</div>
@@ -178,8 +196,6 @@ export default function CartPage() {
 
     );
 
-
-    // Function to handle continue shopping
     function handleContinueShopping() {
         router.push("/");
     }

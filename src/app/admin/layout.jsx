@@ -6,9 +6,10 @@ import { usePathname, useRouter } from "next/navigation";
 import "./admin.css";
 import Link from "next/link";
 import { useState } from "react";
-const EditAdminInfoModal = ({ isOpen, onClose, currentEmail, onSave }) => {
-    const [email, setEmail] = useState(currentEmail);
 
+const EditAdminInfoModal = ({ isOpen, onClose, currentEmail, onSave }) => {
+
+    const [email, setEmail] = useState(currentEmail);
     const handleSubmit = (e) => {
         e.preventDefault();
         onSave(email);

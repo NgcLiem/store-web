@@ -175,7 +175,7 @@
   color: #7f8c8d;
 }
 
-.form-input:focus {
+.form-input-admin:focus {
     border-color: rgba(21, 150, 35, .9);
 }
 /* Content */
@@ -563,7 +563,7 @@
     margin-top: 20px;
 }
 
-.form-input {
+.form-input-admin {
     width: 100%;
     padding: 9px 12px;
     border: 1px solid #d1d5db;
@@ -575,7 +575,7 @@
     outline: none;
 }
 
-.form-input:focus {
+.form-input-admin:focus {
     border-color: #10b981;
     background-color: #f9fffb;
     box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.25);

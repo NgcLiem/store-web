@@ -1,8 +1,12 @@
 "use client";
 
+import "./orders.css";
+
 import { useAuth } from "@/contexts/AuthContexts";
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 
 export default function MyOrdersPage() {
     const { user, token } = useAuth();
@@ -14,27 +18,32 @@ export default function MyOrdersPage() {
     const [statusFilter, setStatusFilter] = useState(searchParams.get("status") || "");
 
     useEffect(() => {
+        if (!token) {
+            router.push("/login?callback=/account/orders");
+        }
+    }, [token, router]);
+
+    useEffect(() => {
         (async () => {
-            if (!token) return;
+            if (!token || !user?.id) return;
             setLoading(true);
             try {
-                // gợi ý: backend nên đọc user_id từ token; tạm thời gửi user_id qua query
-                let url = `/api/orders?user_id=${user?.id}`;
+                let url = `${API_BASE}/orders?user_id=${user.id}`;
                 if (q) url += `&q=${encodeURIComponent(q)}`;
                 if (statusFilter) url += `&status=${encodeURIComponent(statusFilter)}`;
-                
+
                 const res = await fetch(url, {
                     headers: { Authorization: `Bearer ${token}` },
                     cache: "no-store",
                 });
+
                 const data = await res.json().catch(() => []);
                 let ordersList = Array.isArray(data) ? data : data?.items || data?.orders || [];
-                
-                // Nếu backend không hỗ trợ lọc trạng thái, tự lọc ở frontend
+
                 if (statusFilter && !Array.isArray(data)) {
-                    ordersList = ordersList.filter(o => o.status === statusFilter);
+                    ordersList = ordersList.filter((o) => o.status === statusFilter);
                 }
-                
+
                 setItems(ordersList);
             } finally {
                 setLoading(false);
@@ -43,7 +52,7 @@ export default function MyOrdersPage() {
     }, [token, user?.id, q, statusFilter]);
 
     const formatPrice = (price) => new Intl.NumberFormat("vi-VN").format(price) + "₫";
-    
+
     const getStatusBadge = (status) => {
         const colors = {
             pending: "#FFC107",
@@ -63,15 +72,8 @@ export default function MyOrdersPage() {
         };
         return (
             <span
-                style={{
-                    display: "inline-block",
-                    padding: "6px 12px",
-                    borderRadius: "4px",
-                    backgroundColor: colors[status] || "#6C757D",
-                    color: "white",
-                    fontSize: "12px",
-                    fontWeight: "bold",
-                }}
+                className="order-status-badge"
+                style={{ backgroundColor: colors[status] || "#6C757D" }}
             >
                 {labels[status] || status}
             </span>
@@ -96,63 +98,65 @@ export default function MyOrdersPage() {
             </div>
 
             <div className="customer-content">
-                <div style={{ display: "flex", gap: 12, marginBottom: 16, flexWrap: "wrap", alignItems: "center" }}>
+                <div className="orders-filters">
                     <input
-                        className="form-input"
+                        className="orders-search-input"
                         placeholder="Tìm theo mã đơn / ngày"
                         value={q}
                         onChange={(e) => setQ(e.target.value)}
-                        style={{ flex: 1, minWidth: 200 }}
                     />
                     <select
-                        className="form-input"
+                        className="orders-status-select"
                         value={statusFilter}
                         onChange={(e) => setStatusFilter(e.target.value)}
-                        style={{ minWidth: 150 }}
                     >
-                        {statuses.map(s => (
-                            <option key={s.value} value={s.value}>{s.label}</option>
+                        {statuses.map((s) => (
+                            <option key={s.value} value={s.value}>
+                                {s.label}
+                            </option>
                         ))}
                     </select>
                 </div>
 
-                <div style={{ overflowX: "auto" }}>
-                    <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                <div className="orders-table-wrapper">
+                    <table className="orders-table">
                         <thead>
-                            <tr style={{ background: "#f1f2f6" }}>
-                                <th style={{ padding: 12, textAlign: "left" }}>Mã đơn</th>
-                                <th style={{ padding: 12, textAlign: "left" }}>Ngày đặt</th>
-                                <th style={{ padding: 12, textAlign: "right" }}>Tổng tiền</th>
-                                <th style={{ padding: 12, textAlign: "center" }}>Trạng thái</th>
-                                <th style={{ padding: 12, textAlign: "center" }}>Hành động</th>
+                            <tr>
+                                <th>Mã đơn</th>
+                                <th>Ngày đặt</th>
+                                <th className="text-right">Tổng tiền</th>
+                                <th className="text-center">Trạng thái</th>
+                                <th className="text-center">Hành động</th>
                             </tr>
                         </thead>
                         <tbody>
                             {loading ? (
-                                <tr><td colSpan={5} style={{ padding: 20, textAlign: "center" }}>Đang tải…</td></tr>
+                                <tr>
+                                    <td colSpan={5} className="orders-empty">
+                                        Đang tải…
+                                    </td>
+                                </tr>
                             ) : items.length === 0 ? (
-                                <tr><td colSpan={5} style={{ padding: 20, textAlign: "center" }}>Chưa có đơn hàng</td></tr>
+                                <tr>
+                                    <td colSpan={5} className="orders-empty">
+                                        Chưa có đơn hàng
+                                    </td>
+                                </tr>
                             ) : (
                                 items.map((o) => (
-                                    <tr key={o.id} style={{ borderBottom: "1px solid #eee" }}>
-                                        <td style={{ padding: 12 }}><strong>{o.code || `#${o.id}`}</strong></td>
-                                        <td style={{ padding: 12 }}>{new Date(o.order_date || o.created_at).toLocaleString()}</td>
-                                        <td style={{ padding: 12, textAlign: "right", fontWeight: "bold" }}>{formatPrice(Number(o.total || o.total_amount || 0))}</td>
-                                        <td style={{ padding: 12, textAlign: "center" }}>
-                                            {getStatusBadge(o.status)}
+                                    <tr key={o.id}>
+                                        <td>
+                                            <strong>{o.code || `#${o.id}`}</strong>
                                         </td>
-                                        <td style={{ padding: 12, textAlign: "center" }}>
+                                        <td>{new Date(o.order_date || o.created_at).toLocaleString()}</td>
+                                        <td className="text-right orders-amount">
+                                            {formatPrice(Number(o.total || o.total_amount || 0))}
+                                        </td>
+                                        <td className="text-center">{getStatusBadge(o.status)}</td>
+                                        <td className="text-center">
                                             <button
+                                                className="orders-detail-btn"
                                                 onClick={() => router.push(`/account/orders/${o.id}`)}
-                                                style={{
-                                                    padding: "6px 12px",
-                                                    backgroundColor: "#0066cc",
-                                                    color: "white",
-                                                    border: "none",
-                                                    borderRadius: "4px",
-                                                    cursor: "pointer",
-                                                    fontSize: "12px",
-                                                }}
                                             >
                                                 Chi tiết
                                             </button>

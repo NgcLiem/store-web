@@ -1,78 +1,86 @@
 "use client";
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+
 function isBrowser() {
     return typeof window !== "undefined" && typeof localStorage !== "undefined";
 }
 
 export function getLocalCart() {
-    if (typeof window === 'undefined') return [];
+    if (!isBrowser()) return [];
     try {
-        if (!isBrowser()) return [];
-
         const raw = localStorage.getItem("localCart");
         return raw ? JSON.parse(raw) : [];
     } catch (e) {
-        console.warn('getLocalCart parse error', e);
+        console.warn("getLocalCart parse error", e);
         return [];
     }
 }
 
 export function saveLocalCart(items) {
-    if (typeof window === 'undefined') return;
+    if (!isBrowser()) return;
     try {
-        if (!isBrowser()) return;
         localStorage.setItem("localCart", JSON.stringify(items));
     } catch (e) {
-        console.warn('saveLocalCart error', e);
+        console.warn("saveLocalCart error", e);
     }
 }
 
 export function clearLocalCart() {
-    if (typeof window === 'undefined') return;
+    if (!isBrowser()) return;
     try {
-        if (!isBrowser()) return;
         localStorage.removeItem("localCart");
     } catch (e) {
-        console.warn('clearLocalCart error', e);
+        console.warn("clearLocalCart error", e);
     }
 }
 
 export function addItemToLocalCart({ product_id, quantity = 1, size = null }) {
-    if (!isBrowser()) return;
-    const items = getLocalCart();
+    const pid = Number(product_id);
+    const qty = Math.max(1, Number(quantity || 1));
+    const sz = size ?? null;
 
-    // merge by product_id + size
-    const idx = items.findIndex(it => it.product_id === product_id && (it.size || null) === (size || null));
+    const cart = getLocalCart();
+
+    const idx = cart.findIndex(
+        (it) => Number(it.product_id) === pid && (it.size ?? null) === sz
+    );
+
     if (idx >= 0) {
-        items[idx].quantity = (items[idx].quantity || 0) + quantity;
+        cart[idx] = { ...cart[idx], quantity: Number(cart[idx].quantity || 0) + qty };
     } else {
-        items.push({ product_id, quantity, size });
+        cart.push({ product_id: pid, quantity: qty, size: sz });
     }
 
-    saveLocalCart(items);
+    saveLocalCart(cart);
 }
 
-export async function mergeLocalCart(userId, token) {
+
+export async function mergeLocalCart(token) {
     if (!isBrowser()) return { ok: true, merged: 0 };
 
     const items = getLocalCart();
-    if (!items || !items.length) return { ok: true, merged: 0 };
+    if (!items?.length) return { ok: true, merged: 0 };
 
     let merged = 0;
+
     for (const it of items) {
         try {
-            await fetch('/api/cart', {
-                method: 'POST',
+            await fetch(`${API_BASE}/cart/items`, {
+                method: "POST",
                 headers: {
-                    'Content-Type': 'application/json',
+                    "Content-Type": "application/json",
                     ...(token ? { Authorization: `Bearer ${token}` } : {}),
                 },
-                body: JSON.stringify({ user_id: userId, product_id: it.product_id, quantity: it.quantity, size: it.size }),
+                body: JSON.stringify({
+                    product_id: it.product_id,
+                    quantity: it.quantity,
+                    size: it.size ?? null,
+                }),
             });
             merged++;
         } catch (e) {
-            // continue merging others
-            console.warn('mergeLocalCart item error', e);
+            console.warn("mergeLocalCart item error", e);
         }
     }
 
