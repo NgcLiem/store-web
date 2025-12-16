@@ -18,7 +18,6 @@ export default function AccessoriesSection({
     const [error, setError] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
 
-    // Lấy dữ liệu từ backend Nest
     useEffect(() => {
         (async () => {
             try {

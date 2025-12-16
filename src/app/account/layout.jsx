@@ -1,13 +1,15 @@
 "use client";
 
-import "./customer.css";
+import ProtectedRoute from "@/components/ProtectedRoute";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContexts";
+import "./customer.css";
 
 export default function AccountLayout({ children }) {
     const pathname = usePathname();
     const { user, logout } = useAuth();
+    const router = useRouter();
 
     const menu = [
         { href: "/account", icon: "fa-house", label: "Tổng quan" },
@@ -23,51 +25,56 @@ export default function AccountLayout({ children }) {
         .charAt(0)
         .toUpperCase();
 
+    const handleLogout = () => {
+        logout();
+        router.push("/login");
+    };
+
     return (
-        <div className="customer-container">
-            {/* SIDEBAR */}
-            <aside className="customer-sidebar">
-                <div className="sidebar-header">
-                    <div className="sidebar-avatar">{firstChar}</div>
-                    <div>
-                        <h2>Tài khoản</h2>
-                        <p>{user?.full_name || user?.email || "Khách"}</p>
+        <ProtectedRoute allowedRoles={["customer"]}>
+            <div className="customer-container">
+                <aside className="customer-sidebar">
+                    <div className="sidebar-header-customer">
+                        <div className="sidebar-avatar">{firstChar}</div>
+                        <div>
+                            <h2>Tài khoản</h2>
+                            <p>{user?.full_name || user?.email || "Khách"}</p>
+                        </div>
                     </div>
-                </div>
 
-                <nav className="sidebar-menu-customer">
-                    {menu.map((item) => {
-                        const active =
-                            pathname === item.href ||
-                            (item.href !== "/account" &&
-                                pathname?.startsWith(item.href));
-                        return (
-                            <Link
-                                key={item.href}
-                                href={item.href}
-                                className={`menu-item ${active ? "active" : ""}`}
-                            >
-                                <i className={`fa-solid ${item.icon}`} />
-                                <span>{item.label}</span>
-                            </Link>
-                        );
-                    })}
-                </nav>
+                    <nav className="sidebar-menu-customer">
+                        {menu.map((item) => {
+                            const active =
+                                pathname === item.href ||
+                                (item.href !== "/account" &&
+                                    pathname?.startsWith(item.href));
+                            return (
+                                <Link
+                                    key={item.href}
+                                    href={item.href}
+                                    className={`menu-item-customer ${active ? "active" : ""}`}
+                                >
+                                    <i className={`fa-solid ${item.icon}`} />
+                                    <span>{item.label}</span>
+                                </Link>
+                            );
+                        })}
+                    </nav>
 
-                <div className="sidebar-footer">
-                    <button
-                        className="logout-btn"
-                        type="button"
-                        onClick={logout}
-                    >
-                        <i className="fa-solid fa-arrow-right-from-bracket" />
-                        Đăng xuất
-                    </button>
-                </div>
-            </aside>
+                    <div className="sidebar-footer">
+                        <button
+                            className="logout-btn-customer"
+                            type="button"
+                            onClick={handleLogout}
+                        >
+                            <i className="fa-solid fa-arrow-right-from-bracket" />
+                            Đăng xuất
+                        </button>
+                    </div>
+                </aside>
 
-            {/* MAIN */}
-            <section className="customer-main">{children}</section>
-        </div>
+                <section className="customer-main">{children}</section>
+            </div>
+        </ProtectedRoute>
     );
 }

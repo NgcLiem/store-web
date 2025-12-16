@@ -251,7 +251,7 @@ export default function AdminProductsPage() {
                     <input
                         value={q}
                         onChange={(e) => setQ(e.target.value)}
-                        className="form-input search-input-narrow"
+                        className="form-input-admin search-input-narrow"
                         placeholder="Tìm tên / mã SP"
                     />
                     <button className="action-btn" type="submit">
@@ -421,7 +421,7 @@ export default function AdminProductsPage() {
                                 <div className="image-input-row">
                                     <input
                                         type="text"
-                                        className="form-input"
+                                        className="form-input-admin"
                                         placeholder="https://image.jpg"
                                         value={form.image_url || ""}
                                         onChange={(e) =>

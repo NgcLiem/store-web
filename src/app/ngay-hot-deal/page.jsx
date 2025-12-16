@@ -6,7 +6,6 @@ import { formatPrice } from "@/lib/format";
 
 export default function HotDeal() {
     const router = useRouter();
-    // Countdown Timer
     const [timeLeft, setTimeLeft] = useState({
         hours: 0,
         minutes: 0,
@@ -15,7 +14,7 @@ export default function HotDeal() {
 
     useEffect(() => {
         const targetTime = new Date();
-        targetTime.setHours(23, 59, 59, 999); // hết ngày hôm nay
+        targetTime.setHours(23, 59, 59, 999);
 
         const interval = setInterval(() => {
             const now = new Date();

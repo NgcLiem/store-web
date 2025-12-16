@@ -2,96 +2,124 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContexts";
+import { useToast } from "@/components/Toast";
 import { addItemToLocalCart } from "@/lib/localCart";
 import { formatPrice } from "@/lib/format";
 import "./productDetail.css";
+import "../../../assets/css/toast.css"
+
+
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 
 export default function ProductDetailClient({ product }) {
     const [selectedSize, setSelectedSize] = useState(null);
     const [quantity, setQuantity] = useState(1);
     const router = useRouter();
-    const { user, loading } = useAuth();
+    const { user, token, loading } = useAuth();
+    const { showToast } = useToast();
 
     const sizes = ["39", "40", "40.5", "42.5", "43"];
 
+    const addToCartBackend = async () => {
+        const res = await fetch(`${API_BASE}/cart/items`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+                product_id: product.id,
+                quantity,
+                size: selectedSize,
+            }),
+        });
+
+        const json = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(json.message || "Không thể thêm vào giỏ hàng");
+        return json;
+    };
+
     const handleAddToCart = async () => {
         if (!selectedSize) {
-            alert('Vui lòng chọn size');
+            showToast("Vui lòng chọn size", "warning");
             return;
         }
 
         if (loading) {
-            alert('Đang kiểm tra đăng nhập...');
+            showToast("Đang kiểm tra đăng nhập…", "info");
             return;
         }
 
-        if (!user) {
-            // Nếu chưa đăng nhập: lưu vào localStorage (guest cart)
+        // guest -> local cart
+        if (!user || !token) {
             addItemToLocalCart({ product_id: product.id, quantity, size: selectedSize });
-            alert('Đã thêm vào giỏ hàng (khách)');
+            showToast("Đã thêm vào giỏ hàng", "success");
             return;
         }
 
         try {
-            const res = await fetch('/api/cart', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ product_id: product.id, quantity, size: selectedSize, user_id: user.id })
-            });
-            const json = await res.json();
-            if (!res.ok) throw new Error(json.message || json.detail || 'Lỗi');
-            alert('Đã thêm vào giỏ hàng');
+            await addToCartBackend();
+            showToast("Đã thêm vào giỏ hàng", "success");
         } catch (err) {
-            alert('Lỗi: ' + err.message);
+            showToast(err.message || "Có lỗi xảy ra", "error");
         }
     };
 
     const handleBuyNow = async () => {
         if (!selectedSize) {
-            alert('Vui lòng chọn size');
+            showToast("Vui lòng chọn size", "warning");
             return;
         }
 
         if (loading) {
-            alert('Đang kiểm tra đăng nhập...');
+            showToast("Đang kiểm tra đăng nhập…", "info");
             return;
         }
 
-        if (!user) {
-            // Nếu chưa đăng nhập: lưu vào localStorage (guest cart)
+        if (!user || !token) {
             addItemToLocalCart({ product_id: product.id, quantity, size: selectedSize });
-            router.push('/checkout');
+            router.push("/checkout");
             return;
         }
 
         try {
-            const res = await fetch('/api/cart', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ product_id: product.id, quantity, size: selectedSize, user_id: user.id })
-            });
-            const json = await res.json();
-            if (!res.ok) throw new Error(json.message || json.detail || 'Lỗi');
-            router.push('/checkout');
+            await addToCartBackend();
+            router.push("/checkout");
         } catch (err) {
-            alert('Lỗi: ' + err.message);
+            showToast(err.message || "Có lỗi xảy ra", "error");
         }
     };
 
     return (
         <div className="product-detail-container">
             <div className="pd-left">
-                <img src={product.image_url || (product.image ? `/images/${product.image}` : '/images/no-image.png')} alt={product.name} />
+                <img
+                    src={product.image_url || (product.image ? `/images/${product.image}` : "/images/no-image.png")}
+                    alt={product.name}
+                />
             </div>
+
             <div className="pd-right">
                 <h1>{product.name}</h1>
-                <div className="pd-price">{formatPrice(product.price)} {product.original_price && <span className="pd-original">{formatPrice(product.original_price)}</span>}</div>
+
+                <div className="pd-price">
+                    {formatPrice(product.price)}{" "}
+                    {product.original_price && (
+                        <span className="pd-original">{formatPrice(product.original_price)}</span>
+                    )}
+                </div>
 
                 <div className="pd-sizes">
                     <h4>Chọn size</h4>
                     <div className="pd-sizes-list">
-                        {sizes.map(s => (
-                            <button key={s} className={`pd-size-btn ${selectedSize === s ? 'selected' : ''}`} onClick={() => setSelectedSize(s)}>{s}</button>
+                        {sizes.map((s) => (
+                            <button
+                                key={`size-${s}`}
+                                className={`pd-size-btn ${selectedSize === s ? "selected" : ""}`}
+                                onClick={() => setSelectedSize(s)}
+                            >
+                                {s}
+                            </button>
                         ))}
                     </div>
                 </div>
@@ -112,7 +140,7 @@ export default function ProductDetailClient({ product }) {
 
                 <div className="pd-desc">
                     <h4>Mô tả</h4>
-                    <p>{product.description || 'Chưa có mô tả'}</p>
+                    <p>{product.description || "Chưa có mô tả"}</p>
                 </div>
             </div>
         </div>

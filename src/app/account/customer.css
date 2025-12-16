@@ -1,14 +1,10 @@
-/* ===== WRAPPER TÀI KHOẢN ===== */
 
 .customer-container {
-  max-width: 1120px;
-  margin: 24px auto 40px;
+  margin: 24px 40px 40px 0;
   padding: 40px 16px;
   display: flex;
-  gap: 18px;
+  gap: 50px;
 }
-
-/* ===== SIDEBAR ===== */
 
 .customer-sidebar {
   width: 260px;
@@ -22,7 +18,7 @@
   top: 90px;
 }
 
-.sidebar-header {
+.sidebar-header-customer {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -42,7 +38,7 @@
   font-size: 18px;
 }
 
-.sidebar-header h2 {
+.sidebar-header-customer h2 {
   margin: 0 0 2px;
   font-size: 14px;
   letter-spacing: 0.08em;
@@ -50,7 +46,7 @@
   color: #9ca3af;
 }
 
-.sidebar-header p {
+.sidebar-header-customer p {
   margin: 0;
   font-size: 13px;
   color: #e5e7eb;
@@ -64,7 +60,7 @@
   margin: 12px 0 16px;
 }
 
-.menu-item {
+.menu-item-customer {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -78,12 +74,12 @@
     transform 0.06s ease;
 }
 
-.menu-item i {
+.menu-item-customer i {
   font-size: 14px;
 }
 
-.menu-item:hover,
-.menu-item.active {
+.menu-item-customer:hover,
+.menu-item-customer.active {
   background: rgba(34, 197, 94, 0.12);
   color: #bbf7d0;
   opacity: 1;
@@ -98,7 +94,7 @@
   margin-top: 2px;
 }
 
-.logout-btn {
+.logout-btn-customer {
   width: 100%;
   background: #ef4444;
   color: #fff;
@@ -116,11 +112,11 @@
     box-shadow 0.12s ease;
 }
 
-.logout-btn i {
+.logout-btn-customer i {
   font-size: 13px;
 }
 
-.logout-btn:hover {
+.logout-btn-customer:hover {
   background: #b91c1c;
   box-shadow: 0 8px 20px rgba(248, 113, 113, 0.6);
   transform: translateY(-1px);
@@ -269,7 +265,7 @@
 
 /* ===== BUTTON HÀNH ĐỘNG CHUNG TRONG ACCOUNT ===== */
 
-.action-btn {
+.action-btn-customer {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -287,13 +283,13 @@
     box-shadow 0.12s ease, transform 0.06s ease;
 }
 
-.action-btn:hover:not([disabled]) {
+.action-btn-customer:hover:not([disabled]) {
   background: #111827;
   box-shadow: 0 10px 24px rgba(15, 23, 42, 0.35);
   transform: translateY(-1px);
 }
 
-.action-btn[disabled] {
+.action-btn-customer[disabled] {
   opacity: 0.6;
   cursor: default;
   box-shadow: none;

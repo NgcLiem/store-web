@@ -123,7 +123,7 @@ export default function AdminStaffPage() {
                     <input
                         value={q}
                         onChange={(e) => setQ(e.target.value)}
-                        className="form-input search-input-narrow"
+                        className="form-input-admin search-input-narrow"
                         placeholder="Tìm theo email / tên"
                     />
                     <button className="action-btn" type="submit">

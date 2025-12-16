@@ -97,7 +97,7 @@ export default function AdminUsersPage() {
                     <input
                         value={u}
                         onChange={(e) => setU(e.target.value)}
-                        className="form-input search-input-narrow"
+                        className="form-input-admin search-input-narrow"
                         placeholder="Tìm theo email / tên / SĐT"
                     />
                     <button className="action-btn" type="submit"><i className="fa-solid fa-search" /> </button>

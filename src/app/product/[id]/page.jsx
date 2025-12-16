@@ -27,7 +27,8 @@ async function getProduct(productId) {
 }
 
 export default async function ProductDetail({ params }) {
-    const productId = Number(params?.id);
+    const { id } = await params;
+    const productId = Number(id);
 
     if (!productId) {
         return <div>Thiếu id sản phẩm</div>;

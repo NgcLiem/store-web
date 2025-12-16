@@ -23,13 +23,13 @@ function AdminOrdersPage() {
         try {
             const res = await fetch(`/api/orders?${params.toString()}`);
             const data = await res.json();
-            
+
             if (data.success && Array.isArray(data.orders)) {
                 // Filter by search query on client side
                 let filtered = data.orders;
                 if (q) {
                     const lowerQ = q.toLowerCase();
-                    filtered = filtered.filter(o => 
+                    filtered = filtered.filter(o =>
                         o.id.toString().includes(lowerQ) ||
                         o.customer_email?.toLowerCase().includes(lowerQ) ||
                         o.customer_phone?.includes(lowerQ) ||
@@ -66,9 +66,9 @@ function AdminOrdersPage() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ order_id: order.id, status: newStatus })
             });
-            
+
             const data = await res.json();
-            
+
             if (data.success) {
                 setOrders((prev) =>
                     prev.map((o) =>
@@ -102,9 +102,9 @@ function AdminOrdersPage() {
 
             <div className="admin-content">
                 <form onSubmit={submitSearch} className="order-search-form">
-                    <input value={q} onChange={(e) => setQ(e.target.value)} className="form-input  search-input-narrow" placeholder="Tìm mã đơn / email / SĐT" />
+                    <input value={q} onChange={(e) => setQ(e.target.value)} className="form-input-admin  search-input-narrow" placeholder="Tìm mã đơn / email / SĐT" />
 
-                    <select className="form-input  status-select" value={status} onChange={(e) => setStatus(e.target.value)}>
+                    <select className="form-input-admin  status-select" value={status} onChange={(e) => setStatus(e.target.value)}>
                         <option value="all">Tất cả</option>
                         <option value="pending">Chờ xử lý</option>
                         <option value="processing">Đang xử lý</option>
@@ -137,8 +137,8 @@ function AdminOrdersPage() {
                                             <td className="table-cell">#{o.id}</td>
                                             <td className="table-cell">
                                                 <div><strong>{o.customer_name}</strong></div>
-                                                <div style={{fontSize: '12px', color: '#666'}}>{o.customer_email}</div>
-                                                <div style={{fontSize: '12px', color: '#666'}}>{o.customer_phone}</div>
+                                                <div style={{ fontSize: '12px', color: '#666' }}>{o.customer_email}</div>
+                                                <div style={{ fontSize: '12px', color: '#666' }}>{o.customer_phone}</div>
                                             </td>
                                             <td>{o.created_at
                                                 ? new Date(o.created_at).toLocaleString("vi-VN")
@@ -151,7 +151,7 @@ function AdminOrdersPage() {
                                                 <select
                                                     value={o.status}
                                                     onChange={(e) => updateStatus(o, e.target.value)}
-                                                    className="form-input"
+                                                    className="form-input-admin"
                                                     style={{ maxWidth: 140, marginRight: 8 }}
                                                 >
                                                     <option value="pending">Chờ xử lý</option>
