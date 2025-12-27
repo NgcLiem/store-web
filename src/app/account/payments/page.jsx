@@ -1,38 +1,44 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useAuth } from "@/contexts/AuthContexts";
 import { useToast } from "@/components/Toast";
+import "./payments.css";
+
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 
 export default function PaymentsPage() {
     const { showToast } = useToast();
     const { token } = useAuth();
+
     const [methods, setMethods] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+    const loadMethods = useCallback(async () => {
+        if (!token) return;
 
+        setLoading(true);
+        try {
+            const res = await fetch(`${API_BASE}/payments`, {
+                headers: { Authorization: `Bearer ${token}` },
+                cache: "no-store",
+            });
+
+            if (!res.ok) throw new Error();
+            const data = await res.json();
+            setMethods(Array.isArray(data) ? data : []);
+        } catch (e) {
+            console.error(e);
+            showToast("Không tải được phương thức thanh toán", "error");
+            setMethods([]);
+        } finally {
+            setLoading(false);
+        }
+    }, [token, showToast]);
 
     useEffect(() => {
-        if (!token) return;
-        (async () => {
-            setLoading(true);
-            try {
-                const res = await fetch(`${API_BASE}/payments`, {
-                    headers: { Authorization: `Bearer ${token}` },
-                    cache: "no-store",
-                });
-                const data = await res.json();
-                setMethods(Array.isArray(data) ? data : []);
-            } catch (e) {
-                console.error(e);
-                showToast("Không tải được phương thức thanh toán", "error");
-            } finally {
-                setLoading(false);
-            }
-        })();
-    }, [token]);
-
+        loadMethods();
+    }, [loadMethods]);
 
     const setDefault = async (id) => {
         try {
@@ -41,16 +47,21 @@ export default function PaymentsPage() {
                 headers: { Authorization: `Bearer ${token}` },
             });
             if (!res.ok) throw new Error();
+
             const updated = await res.json();
+
             setMethods((prev) =>
-                prev.map((m) => ({ ...m, is_default: m.id === updated.id ? 1 : 0 })),
+                prev.map((m) => ({
+                    ...m,
+                    is_default: m.id === updated.id ? 1 : 0,
+                }))
             );
+
             showToast("Đã đặt phương thức mặc định", "success");
         } catch {
             showToast("Không đặt được mặc định", "error");
         }
     };
-
 
     const remove = async (id) => {
         try {
@@ -59,6 +70,7 @@ export default function PaymentsPage() {
                 headers: { Authorization: `Bearer ${token}` },
             });
             if (!res.ok) throw new Error();
+
             setMethods((prev) => prev.filter((m) => m.id !== id));
             showToast("Đã xoá phương thức thanh toán", "success");
         } catch {
@@ -66,6 +78,21 @@ export default function PaymentsPage() {
         }
     };
 
+    const addMomo = async () => {
+        try {
+            const res = await fetch(`${API_BASE}/momo`, {
+                method: "POST",
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            if (!res.ok) throw new Error();
+            const created = await res.json();
+
+            setMethods((prev) => [created, ...prev]);
+            showToast("Đã thêm phương thức MoMo", "success");
+        } catch (e) {
+            showToast("Thêm MoMo thất bại", "error");
+        }
+    };
 
     return (
         <>
@@ -74,81 +101,57 @@ export default function PaymentsPage() {
                 <p>Quản lý thẻ và tài khoản dùng để thanh toán đơn hàng.</p>
             </div>
 
-            <div className="customer-content" style={{ display: "grid", gap: 16 }}>
+            <div className="customer-content paymentsGrid">
                 <div className="panel">
-                    <h3>Danh sách phương thức</h3>
-                    {methods.length === 0 ? (
-                        <p style={{ fontSize: 14, color: "#6b7280" }}>
-                            Bạn chưa thêm phương thức thanh toán nào.
-                        </p>
+                    <div className="panelHead">
+                        <h3 className="panelTitle">Danh sách phương thức</h3>
+                        <button
+                            className="btnGhost"
+                            type="button"
+                            onClick={loadMethods}
+                            disabled={!token || loading}
+                            title="Tải lại"
+                        >
+                            ↻
+                        </button>
+                    </div>
+
+                    {loading ? (
+                        <p className="emptyHint">Đang tải...</p>
+                    ) : methods.length === 0 ? (
+                        <p className="emptyHint">Bạn chưa thêm phương thức thanh toán nào.</p>
                     ) : (
-                        <div style={{ display: "grid", gap: 10 }}>
+                        <div className="paymentList">
                             {methods.map((m) => (
-                                <div
-                                    key={m.id}
-                                    style={{
-                                        borderRadius: 12,
-                                        border: "1px solid #e5e7eb",
-                                        padding: 12,
-                                        display: "flex",
-                                        justifyContent: "space-between",
-                                        gap: 10,
-                                        alignItems: "center",
-                                    }}
-                                >
-                                    <div>
-                                        <div style={{ fontSize: 14, fontWeight: 600 }}>
-                                            {m.brand} •••• {m.last4}
+                                <div key={m.id} className="paymentCard">
+                                    <div className="paymentInfo">
+                                        <div className="paymentTitle">
+                                            {m.brand || "CARD"} <span className="dot">•</span> •••• {m.last4}
                                         </div>
-                                        <div
-                                            style={{ fontSize: 12, color: "#6b7280", marginTop: 2 }}
-                                        >
-                                            Chủ thẻ: {m.holder}
-                                        </div>
-                                        {m.is_default && (
-                                            <div
-                                                style={{
-                                                    fontSize: 11,
-                                                    marginTop: 4,
-                                                    padding: "2px 8px",
-                                                    borderRadius: 999,
-                                                    background: "#ecfdf5",
-                                                    color: "#047857",
-                                                    display: "inline-block",
-                                                    textTransform: "uppercase",
-                                                    letterSpacing: ".08em",
-                                                }}
-                                            >
-                                                Mặc định
-                                            </div>
+                                        <div className="paymentSub">Chủ thẻ: {m.holder || "—"}</div>
+
+                                        {(m.is_default === 1 || m.is_default === true) && (
+                                            <span className="badgeDefault">Mặc định</span>
                                         )}
                                     </div>
-                                    <div
-                                        style={{ display: "flex", flexDirection: "column", gap: 6 }}
-                                    >
-                                        {!m.is_default && (
+
+                                    <div className="paymentActions">
+                                        {!(m.is_default === 1 || m.is_default === true) && (
                                             <button
-                                                className="action-btn"
+                                                className="actionBtn actionBtnSoft"
                                                 type="button"
                                                 onClick={() => setDefault(m.id)}
-                                                style={{
-                                                    background: "#f9fafb",
-                                                    color: "#111827",
-                                                    borderColor: "#e5e7eb",
-                                                }}
+                                                disabled={!token}
                                             >
-                                                Đặt làm mặc định
+                                                Đặt mặc định
                                             </button>
                                         )}
+
                                         <button
-                                            className="action-btn"
+                                            className="actionBtn actionBtnDanger"
                                             type="button"
                                             onClick={() => remove(m.id)}
-                                            style={{
-                                                background: "#fee2e2",
-                                                color: "#b91c1c",
-                                                borderColor: "#fecaca",
-                                            }}
+                                            disabled={!token}
                                         >
                                             Xoá
                                         </button>
@@ -160,24 +163,22 @@ export default function PaymentsPage() {
                 </div>
 
                 <div className="panel">
-                    <h3>Thêm phương thức mới</h3>
-                    <p style={{ fontSize: 13, color: "#6b7280" }}>
-                        (Phần này bạn có thể tích hợp cổng thanh toán thật như VNPay, MoMo,
-                        ZaloPay… sau)
-                    </p>
+                    <h3 className="panelTitle">Thêm phương thức mới</h3>
+
                     <button
-                        className="action-btn"
+                        className="actionBtn actionBtnPrimary"
                         type="button"
-                        onClick={() =>
-                            showToast(
-                                "Demo UI: phần này sẽ mở form/thao tác với cổng thanh toán sau",
-                                "info"
-                            )
-                        }
+                        onClick={addMomo}
+                        disabled={!token}
                     >
-                        Thêm thẻ / tài khoản mới
+                        Thanh toán bằng MoMo
                     </button>
+
+                    {!token && (
+                        <p className="hintLogin">Bạn cần đăng nhập để quản lý phương thức thanh toán.</p>
+                    )}
                 </div>
+
             </div>
         </>
     );

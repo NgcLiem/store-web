@@ -177,7 +177,6 @@ export default function AdminProductsPage() {
         }
     };
 
-
     const uploadImage = async (file) => {
         if (!file) return;
         setUploading(true);
@@ -186,14 +185,23 @@ export default function AdminProductsPage() {
             const formData = new FormData();
             formData.append("file", file);
 
+            console.log('Uploading file:', file.name, file.size);
+
+            const headers = {};
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+
             const res = await fetch(
-                `${API_BASE}/admin/products/upload-image`,
+                `${API_BASE}/upload/cloudinary`,
                 {
                     method: "POST",
-                    headers: withAuthHeaders(),
+                    headers: headers,
                     body: formData,
                 }
             );
+
+            console.log('Response status:', res.status);
 
             const data = await res.json().catch(() => null);
 
@@ -205,6 +213,7 @@ export default function AdminProductsPage() {
             if (!url) throw new Error("Không nhận được URL ảnh từ server");
 
             setForm((prev) => ({ ...prev, image_url: url }));
+            alert('Upload ảnh thành công!');
         } catch (e) {
             console.error("Upload image error:", e);
             alert(e.message || "Upload ảnh thất bại");

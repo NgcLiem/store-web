@@ -1,6 +1,6 @@
 "use client";
 
-import "./orderDetail.css"; // 🆕 CSS riêng cho trang chi tiết
+import "./orderDetail.css";
 
 import { useAuth } from "@/contexts/AuthContexts";
 import { useEffect, useState } from "react";
@@ -27,9 +27,30 @@ export default function OrderDetailPage() {
     const handleCancelOrder = async () => {
         try {
             setCancelLoading(true);
-            showToast("Chức năng hủy đơn hàng sẽ được cập nhật sớm", "info");
+            setError("");
+
+            const res = await fetch(`${API_BASE}/orders/${orderId}/cancel`, {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                },
+            });
+
+            const data = await res.json().catch(() => ({}));
+
+            if (!res.ok) {
+                showToast(data?.message || "Hủy đơn thất bại", "error");
+                return;
+            }
+
+            showToast("Đã hủy đơn hàng", "success");
             setShowCancelConfirm(false);
+
+            // cập nhật UI luôn khỏi reload
+            setOrder((prev) => (prev ? { ...prev, status: "cancelled" } : prev));
         } catch (e) {
+            console.error(e);
             showToast("Hủy đơn thất bại", "error");
         } finally {
             setCancelLoading(false);
@@ -57,7 +78,6 @@ export default function OrderDetailPage() {
                     setError("Không tìm thấy đơn hàng");
                     return;
                 }
-
                 const data = await res.json();
                 setOrder(data);
             } catch (err) {
@@ -162,12 +182,7 @@ export default function OrderDetailPage() {
                             <h3>Trạng thái đơn hàng</h3>
                             <div className="order-status-row">
                                 {getStatusBadge(order.status)}
-                                <span className="order-status-updated">
-                                    Cập nhật:{" "}
-                                    {new Date(
-                                        order.updated_at || order.created_at,
-                                    ).toLocaleString()}
-                                </span>
+
                             </div>
                         </div>
 
@@ -195,17 +210,17 @@ export default function OrderDetailPage() {
                                                             item.name ||
                                                             "Sản phẩm"}
                                                     </td>
-                                                    <td className="text-center">
+                                                    <td className="">
                                                         {item.quantity}
                                                     </td>
-                                                    <td className="text-right">
+                                                    <td className="">
                                                         {formatPrice(
                                                             Number(
                                                                 item.price,
                                                             ),
                                                         )}
                                                     </td>
-                                                    <td className="text-right order-item-total">
+                                                    <td className=" order-item-total">
                                                         {formatPrice(
                                                             Number(
                                                                 item.price,
@@ -232,7 +247,6 @@ export default function OrderDetailPage() {
                             </div>
                         </div>
 
-                        {/* Delivery Info */}
                         <div className="order-shipping-card">
                             <h3>Thông tin giao hàng</h3>
                             <div className="order-shipping-info">
@@ -299,7 +313,7 @@ export default function OrderDetailPage() {
                                 </p>
                                 <p>
                                     {new Date(
-                                        order.created_at,
+                                        order.order_date,
                                     ).toLocaleString()}
                                 </p>
                             </div>

@@ -50,7 +50,6 @@ export default function ProductDetailClient({ product }) {
             return;
         }
 
-        // guest -> local cart
         if (!user || !token) {
             addItemToLocalCart({ product_id: product.id, quantity, size: selectedSize });
             showToast("Đã thêm vào giỏ hàng", "success");
@@ -94,9 +93,10 @@ export default function ProductDetailClient({ product }) {
         <div className="product-detail-container">
             <div className="pd-left">
                 <img
-                    src={product.image_url || (product.image ? `/images/${product.image}` : "/images/no-image.png")}
-                    alt={product.name}
+                    src={(product?.image_url && product.image_url.trim()) ? product.image_url : "/images/no-image.png"}
+                    alt={product?.name || "Product"}
                 />
+
             </div>
 
             <div className="pd-right">

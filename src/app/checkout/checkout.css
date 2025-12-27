@@ -301,3 +301,26 @@
         text-align: center;
     }
 }
+
+.actionBtn {
+    cursor: pointer;
+    text-align: center;
+    border: none;
+    border-radius: 12px;
+    padding: 10px 12px;
+    font-size: 13px;
+    font-weight: 400;
+    transition: transform 80ms, background-color .15s, box-shadow .15s;
+}
+
+.actionBtnPrimary {
+    color: #fff;
+    background: #111827;
+    border-color: #111827;
+    box-shadow: 0 8px 22px rgba(17, 24, 39, .12);
+}
+
+.actionBtnPrimary:hover:not([disabled]) {
+    background: #999;
+    transform: translateY(-1px);
+}

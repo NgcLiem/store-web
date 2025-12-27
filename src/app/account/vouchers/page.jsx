@@ -2,35 +2,46 @@
 
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContexts";
+import { useToast } from "@/components/Toast";
+import "./vouchers.css";
+
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 
 export default function VoucherPage() {
     const { token } = useAuth();
+    const { showToast } = useToast();
+
     const [vouchers, setVouchers] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [items, setItems] = useState([]);
-
-
-    const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 
     useEffect(() => {
         if (!token) return;
+
+        const ac = new AbortController();
+
         (async () => {
             setLoading(true);
             try {
                 const res = await fetch(`${API_BASE}/me/vouchers`, {
                     headers: { Authorization: `Bearer ${token}` },
                     cache: "no-store",
+                    signal: ac.signal,
                 });
-                const data = await res.json();
+
+                const data = await res.json().catch(() => []);
                 setVouchers(Array.isArray(data) ? data : []);
             } catch (e) {
-                console.error(e);
-                showToast("Không tải được voucher", "error");
+                if (e?.name !== "AbortError") {
+                    console.error(e);
+                    showToast("Không tải được voucher", "error");
+                }
             } finally {
                 setLoading(false);
             }
         })();
-    }, [token]);
+
+        return () => ac.abort();
+    }, [token, showToast]);
 
     return (
         <>
@@ -41,57 +52,28 @@ export default function VoucherPage() {
 
             <div className="customer-content">
                 <div className="panel">
-                    <h3>Danh sách voucher</h3>
-                    {items.length === 0 ? (
-                        <p style={{ fontSize: 14, color: "#6b7280" }}>
-                            Hiện bạn chưa có voucher nào.
-                        </p>
+                    <h3 className="panelTitle">Danh sách voucher</h3>
+
+                    {loading ? (
+                        <p className="mutedText">Đang tải…</p>
+                    ) : vouchers.length === 0 ? (
+                        <p className="mutedText">Hiện bạn chưa có voucher nào.</p>
                     ) : (
-                        <div style={{ display: "grid", gap: 10 }}>
-                            {items.map((v) => (
-                                <div
-                                    key={v.id}
-                                    style={{
-                                        borderRadius: 12,
-                                        border: "1px solid #e5e7eb",
-                                        padding: 12,
-                                        display: "flex",
-                                        justifyContent: "space-between",
-                                        gap: 10,
-                                    }}
-                                >
-                                    <div>
-                                        <div
-                                            style={{
-                                                fontSize: 16,
-                                                fontWeight: 700,
-                                                letterSpacing: ".08em",
-                                                textTransform: "uppercase",
-                                            }}
-                                        >
-                                            {v.code}
-                                        </div>
-                                        <div
-                                            style={{
-                                                fontSize: 13,
-                                                color: "#4b5563",
-                                                marginTop: 4,
-                                            }}
-                                        >
-                                            {v.desc}
-                                        </div>
-                                        <div
-                                            style={{
-                                                fontSize: 12,
-                                                color: "#6b7280",
-                                                marginTop: 4,
-                                            }}
-                                        >
+                        <div className="voucherList">
+                            {vouchers.map((v) => (
+                                <div key={v.id ?? v.code} className="voucherCard">
+                                    <div className="voucherMain">
+                                        <div className="voucherCode">{v.code}</div>
+                                        <div className="voucherDesc">{v.desc}</div>
+                                        <div className="voucherExpiry">
                                             Hạn sử dụng:{" "}
-                                            {new Date(v.expiry).toLocaleDateString("vi-VN")}
+                                            {v.expiry
+                                                ? new Date(v.expiry).toLocaleDateString("vi-VN")
+                                                : "N/A"}
                                         </div>
                                     </div>
-                                    <div style={{ textAlign: "right" }}>
+
+                                    <div className="voucherRight">
                                         <VoucherStatus status={v.status} />
                                     </div>
                                 </div>
@@ -105,38 +87,18 @@ export default function VoucherPage() {
 }
 
 function VoucherStatus({ status }) {
-    const s = String(status).toLowerCase();
+    const s = String(status || "").toLowerCase();
+
     let label = "Đang khả dụng";
-    let style = {
-        background: "#ecfdf5",
-        color: "#047857",
-    };
+    let cls = "badge badgeOk";
 
     if (s === "used") {
         label = "Đã sử dụng";
-        style = {
-            background: "#e5e7eb",
-            color: "#374151",
-        };
+        cls = "badge badgeMuted";
     } else if (s === "expired") {
         label = "Hết hạn";
-        style = {
-            background: "#fee2e2",
-            color: "#b91c1c",
-        };
+        cls = "badge badgeDanger";
     }
 
-    return (
-        <span
-            style={{
-                fontSize: 12,
-                padding: "4px 10px",
-                borderRadius: 999,
-                textTransform: "capitalize",
-                ...style,
-            }}
-        >
-            {label}
-        </span>
-    );
+    return <span className={cls}>{label}</span>;
 }

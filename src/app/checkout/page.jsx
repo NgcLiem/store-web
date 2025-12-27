@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContexts";
 import { useToast } from "@/components/Toast";
-import { getLocalCart, clearLocalCart } from "@/lib/localCart";
 import "./checkout.css";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
@@ -13,6 +12,7 @@ export default function CheckoutPage() {
     const router = useRouter();
     const { user, token } = useAuth();
     const { showToast } = useToast();
+    const warnedRef = useRef(false);
 
     const [cartItems, setCartItems] = useState([]);
     const [addresses, setAddresses] = useState([]);
@@ -28,19 +28,44 @@ export default function CheckoutPage() {
     const [submitting, setSubmitting] = useState(false);
 
     useEffect(() => {
-        if (!user || !token) {
+        if (!loading && (!user || !token)) {
             showToast("Vui lòng đăng nhập trước khi thanh toán", "info");
             router.push("/login?callback=/checkout");
         }
     }, [user, token, router, showToast]);
 
     useEffect(() => {
-        const cart = getLocalCart();
-        setCartItems(cart || []);
-    }, []);
+        if (!token) return;
+
+        const ac = new AbortController();
+
+        (async () => {
+            try {
+                const res = await fetch(`${API_BASE}/cart`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                    signal: ac.signal,
+                    cache: "no-store",
+                });
+
+                const data = await res.json().catch(() => ({}));
+                setCartItems(Array.isArray(data?.items) ? data.items : []);
+            } catch (e) {
+                if (e?.name !== "AbortError") {
+                    console.error(e);
+                    showToast("Không tải được giỏ hàng", "error");
+                    setCartItems([]);
+                }
+            }
+        })();
+
+        return () => ac.abort();
+    }, [token, showToast]);
+
 
     useEffect(() => {
         if (!token) return;
+
+        const ac = new AbortController();
 
         (async () => {
             try {
@@ -50,64 +75,68 @@ export default function CheckoutPage() {
                     fetch(`${API_BASE}/addresses`, {
                         headers: { Authorization: `Bearer ${token}` },
                         cache: "no-store",
+                        signal: ac.signal,
                     }),
                     fetch(`${API_BASE}/payments`, {
                         headers: { Authorization: `Bearer ${token}` },
                         cache: "no-store",
+                        signal: ac.signal,
                     }),
                 ]);
 
-                const addrData = await addrRes.json();
-                const payData = await payRes.json();
+                const addrData = await addrRes.json().catch(() => []);
+                const payData = await payRes.json().catch(() => []);
 
                 const addrList = Array.isArray(addrData) ? addrData : [];
                 const payList = Array.isArray(payData) ? payData : [];
 
                 setAddresses(addrList);
                 setPayments(payList);
-                h
-                const defaultAddr =
-                    addrList.find((a) => a.is_default === 1 || a.is_default === true) ||
-                    addrList[0];
-                const defaultPay =
-                    payList.find((p) => p.is_default === 1 || p.is_default === true) ||
-                    payList[0];
 
-                setSelectedAddressId(defaultAddr ? defaultAddr.id : null);
-                setSelectedPaymentId(defaultPay ? defaultPay.id : null);
+                const defaultAddr =
+                    addrList.find((a) => a.is_default === 1 || a.is_default === true) || addrList[0];
+                const defaultPay =
+                    payList.find((p) => p.is_default === 1 || p.is_default === true) || payList[0];
+
+                setSelectedAddressId(defaultAddr?.id ?? null);
+                setSelectedPaymentId(defaultPay?.id ?? null);
             } catch (err) {
-                console.error(err);
-                showToast("Không tải được dữ liệu thanh toán", "error");
+                if (err?.name !== "AbortError") {
+                    console.error(err);
+                    showToast("Không tải được dữ liệu thanh toán", "error");
+                }
             } finally {
                 setLoading(false);
             }
         })();
+
+        return () => ac.abort();
     }, [token, showToast]);
 
-    const subTotal = cartItems.reduce(
-        (sum, item) => sum + Number(item.price || 0) * Number(item.quantity || 1),
-        0
+    const subTotal = useMemo(
+        () =>
+            cartItems.reduce(
+                (sum, item) => sum + Number(item.price || 0) * Number(item.quantity || 1),
+                0
+            ),
+        [cartItems]
     );
+
     const shippingFee = 0;
     const total = subTotal - discount + shippingFee;
 
     const handleApplyVoucher = async () => {
+        if (!token) return;
         if (!voucherCode.trim()) return;
 
         try {
             const res = await fetch(`${API_BASE}/me/vouchers/apply`, {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify({
-                    code: voucherCode.trim(),
-                    total: subTotal,
-                }),
+                headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+                body: JSON.stringify({ code: voucherCode.trim(), total: subTotal }),
             });
 
-            const data = await res.json();
+            const data = await res.json().catch(() => ({}));
             if (!res.ok) {
                 showToast(data.message || "Voucher không hợp lệ", "error");
                 setAppliedVoucher(null);
@@ -116,7 +145,7 @@ export default function CheckoutPage() {
             }
 
             setAppliedVoucher({ code: voucherCode.trim(), ...data });
-            setDiscount(data.discount || 0);
+            setDiscount(Number(data.discount || 0));
             showToast("Áp dụng voucher thành công", "success");
         } catch (err) {
             console.error(err);
@@ -124,19 +153,18 @@ export default function CheckoutPage() {
         }
     };
 
+    const isMomoSelected = useMemo(() => {
+        const pm = payments.find((p) => Number(p?.id) === Number(selectedPaymentId));
+        if (!pm) return false;
+        return String(pm.type).toUpperCase() === "WALLET" && String(pm.brand || "").toUpperCase() === "MOMO";
+    }, [payments, selectedPaymentId]);
+
     const handleCheckout = async () => {
-        if (!cartItems.length) {
-            showToast("Giỏ hàng trống", "error");
-            return;
-        }
-        if (!selectedAddressId) {
-            showToast("Vui lòng chọn địa chỉ giao hàng", "error");
-            return;
-        }
-        if (!selectedPaymentId) {
-            showToast("Vui lòng chọn phương thức thanh toán", "error");
-            return;
-        }
+        if (!token) return;
+
+        if (!cartItems.length) return showToast("Giỏ hàng trống", "error");
+        if (!selectedAddressId) return showToast("Vui lòng chọn địa chỉ giao hàng", "error");
+        if (!selectedPaymentId) return showToast("Vui lòng chọn phương thức thanh toán", "error");
 
         try {
             setSubmitting(true);
@@ -145,32 +173,57 @@ export default function CheckoutPage() {
                 address_id: selectedAddressId,
                 payment_method_id: selectedPaymentId,
                 items: cartItems.map((item) => ({
-                    product_id: item.id || item.product_id,
+                    product_id: item.product_id ?? item.productId ?? item.product?.id ?? item.id,
                     quantity: item.quantity || 1,
-                    size: item.size || null,
+                    size: item.size ?? null,
                 })),
                 voucher_code: appliedVoucher?.code || null,
             };
 
             const res = await fetch(`${API_BASE}/orders/checkout`, {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
-                },
+                headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
                 body: JSON.stringify(body),
             });
 
-            const data = await res.json();
+            const data = await res.json().catch(() => ({}));
             if (!res.ok) {
                 console.error(data);
                 showToast(data.message || "Đặt hàng thất bại", "error");
                 return;
             }
 
-            clearLocalCart();
-            setCartItems([]);
+            // ✅ Nếu chọn MoMo thì gọi /momo/create để lấy payUrl
+            if (isMomoSelected) {
+                const momoRes = await fetch(`${API_BASE}/momo/create-payment`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+                    body: JSON.stringify({ orderId: data.id }),
+                });
 
+                const momoData = await momoRes.json().catch(() => ({}));
+                if (!momoRes.ok) {
+                    console.error(momoData);
+                    showToast(momoData.message || "Không tạo được link thanh toán MoMo", "error");
+                    return;
+                }
+
+                if (momoData?.payUrl) {
+                    window.location.href = momoData.payUrl;
+                    return;
+                }
+
+                showToast("MoMo không trả về payUrl", "error");
+                return;
+            }
+
+            //  Không phải MoMo: đi như cũ
+            await fetch(`${API_BASE}/cart/clear`, {
+                method: "DELETE",
+                headers: { Authorization: `Bearer ${token}` },
+            });
+
+            setCartItems([]);
             showToast(`Đặt hàng thành công! Mã đơn: #${data.id}`, "success");
             router.push("/account/orders");
         } catch (err) {
@@ -181,6 +234,90 @@ export default function CheckoutPage() {
         }
     };
 
+
+    const addMomo = async () => {
+        const existing = payments.find(
+            (p) => String(p?.type).toUpperCase() === "WALLET" && String(p?.brand || "").toUpperCase() === "MOMO"
+        );
+        if (existing?.id) {
+            setSelectedPaymentId(existing.id);
+            showToast("Đã chọn MoMo", "success");
+            return;
+        }
+
+        try {
+            // Tạo payment method MoMo (WALLET/MOMO)
+            const res = await fetch(`${API_BASE}/payments`, {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    type: "WALLET",
+                    brand: "MOMO",
+                    is_default: 1,
+                }),
+            });
+
+            const created = await res.json().catch(() => ({}));
+            if (!res.ok) {
+                console.error(created);
+                showToast(created?.message || "Thêm MoMo thất bại", "error");
+                return;
+            }
+
+            setPayments((prev) => [created, ...(Array.isArray(prev) ? prev : [])]);
+            setSelectedPaymentId(created.id);
+            showToast("Đã thêm & chọn MoMo", "success");
+        } catch (e) {
+            console.error(e);
+            showToast("Thêm MoMo thất bại", "error");
+        }
+    };
+
+    const addCod = async () => {
+        // Nếu đã có COD thì chỉ cần chọn
+        const existing = payments.find((p) => String(p?.type).toUpperCase() === "COD");
+        if (existing?.id) {
+            setSelectedPaymentId(existing.id);
+            showToast("Đã chọn COD", "success");
+            return;
+        }
+
+        try {
+            // Tạo payment method COD
+            const res = await fetch(`${API_BASE}/payments`, {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    type: "COD",
+                    brand: null,
+                    is_default: 1,
+                }),
+            });
+
+            const created = await res.json().catch(() => ({}));
+            if (!res.ok) {
+                console.error(created);
+                showToast(created?.message || "Thêm COD thất bại", "error");
+                return;
+            }
+
+            setPayments((prev) => [created, ...(Array.isArray(prev) ? prev : [])]);
+            setSelectedPaymentId(created.id);
+            showToast("Đã bật thanh toán khi nhận hàng (COD)", "success");
+        } catch (e) {
+            console.error(e);
+            showToast("Thêm COD thất bại", "error");
+        }
+    };
+
+    if (!token) return null;
+
     return (
         <div className="checkout-container">
             <h1 className="checkout-title">Thanh toán</h1>
@@ -190,13 +327,11 @@ export default function CheckoutPage() {
             ) : (
                 <div className="checkout-content">
                     <div className="checkout-left">
-                        {/* Địa chỉ giao hàng */}
                         <section className="checkout-section">
                             <h2>Địa chỉ giao hàng</h2>
                             {addresses.length === 0 ? (
                                 <p>
-                                    Bạn chưa có địa chỉ. Vui lòng thêm ở trang{" "}
-                                    <a href="/account/addresses">Sổ địa chỉ</a>.
+                                    Bạn chưa có địa chỉ. Vui lòng thêm ở trang <a href="/account/addresses">Địa chỉ của bạn</a>.
                                 </p>
                             ) : (
                                 <ul className="checkout-address-list">
@@ -213,9 +348,7 @@ export default function CheckoutPage() {
                                                     <strong>{addr.full_name}</strong> | {addr.phone}
                                                     <br />
                                                     {addr.address_line}
-                                                    {addr.is_default ? (
-                                                        <span className="badge-default">Mặc định</span>
-                                                    ) : null}
+                                                    {addr.is_default ? <span className="badge-default">Mặc định</span> : null}
                                                 </span>
                                             </label>
                                         </li>
@@ -226,34 +359,43 @@ export default function CheckoutPage() {
 
                         <section className="checkout-section">
                             <h2>Phương thức thanh toán</h2>
-                            {payments.length === 0 ? (
-                                <p>
-                                    Bạn chưa thêm phương thức thanh toán. Quản lý tại{" "}
-                                    <a href="/account/payments">Tài khoản &gt; Thanh toán</a>.
+
+                            <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+                                <button
+                                    className="actionBtn actionBtnPrimary"
+                                    type="button"
+                                    onClick={addMomo}
+                                    disabled={!token}
+                                    title="Chọn hoặc thêm phương thức MoMo"
+                                >
+                                    Thanh toán bằng MoMo
+                                </button>
+
+                                <button
+                                    className="actionBtn actionBtnPrimary"
+                                    type="button"
+                                    onClick={addCod}
+                                    disabled={!token}
+                                    title="Thanh toán khi nhận hàng"
+                                >
+                                    Thanh toán khi nhận hàng (COD)
+                                </button>
+                            </div>
+
+                            {selectedPaymentId ? (
+                                <p style={{ marginTop: 8, opacity: 0.85 }}>
+                                    Đang chọn:{" "}
+                                    <b>
+                                        {(() => {
+                                            const pm = payments.find((p) => Number(p?.id) === Number(selectedPaymentId));
+                                            if (!pm) return `#${selectedPaymentId}`;
+                                            const t = String(pm?.type || "").toUpperCase();
+                                            const b = String(pm?.brand || "").toUpperCase();
+                                            return t === "WALLET" && b === "MOMO" ? "MoMo" : t;
+                                        })()}
+                                    </b>
                                 </p>
-                            ) : (
-                                <ul className="checkout-payment-list">
-                                    {payments.map((pm) => (
-                                        <li key={pm.id} className="checkout-payment-item">
-                                            <label>
-                                                <input
-                                                    type="radio"
-                                                    name="payment"
-                                                    checked={selectedPaymentId === pm.id}
-                                                    onChange={() => setSelectedPaymentId(pm.id)}
-                                                />
-                                                <span>
-                                                    <strong>{pm.brand || pm.type}</strong>{" "}
-                                                    {pm.last4 ? `•••• ${pm.last4}` : ""}
-                                                    {pm.is_default ? (
-                                                        <span className="badge-default">Mặc định</span>
-                                                    ) : null}
-                                                </span>
-                                            </label>
-                                        </li>
-                                    ))}
-                                </ul>
-                            )}
+                            ) : null}
                         </section>
 
                         <section className="checkout-section">
@@ -269,6 +411,7 @@ export default function CheckoutPage() {
                                     Áp dụng
                                 </button>
                             </div>
+
                             {appliedVoucher && (
                                 <p className="checkout-voucher-info">
                                     Đã áp dụng: <strong>{appliedVoucher.code}</strong> (-{" "}
@@ -278,7 +421,6 @@ export default function CheckoutPage() {
                         </section>
                     </div>
 
-                    {/* Tóm tắt đơn hàng */}
                     <div className="checkout-right">
                         <section className="checkout-section summary">
                             <h2>Tóm tắt đơn hàng</h2>

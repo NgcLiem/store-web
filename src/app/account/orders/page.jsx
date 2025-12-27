@@ -124,7 +124,7 @@ export default function MyOrdersPage() {
                             <tr>
                                 <th>Mã đơn</th>
                                 <th>Ngày đặt</th>
-                                <th className="text-right">Tổng tiền</th>
+                                <th className="text-center">Tổng tiền</th>
                                 <th className="text-center">Trạng thái</th>
                                 <th className="text-center">Hành động</th>
                             </tr>
@@ -149,11 +149,11 @@ export default function MyOrdersPage() {
                                             <strong>{o.code || `#${o.id}`}</strong>
                                         </td>
                                         <td>{new Date(o.order_date || o.created_at).toLocaleString()}</td>
-                                        <td className="text-right orders-amount">
+                                        <td className=" orders-amount">
                                             {formatPrice(Number(o.total || o.total_amount || 0))}
                                         </td>
-                                        <td className="text-center">{getStatusBadge(o.status)}</td>
-                                        <td className="text-center">
+                                        <td className="">{getStatusBadge(o.status)}</td>
+                                        <td className="">
                                             <button
                                                 className="orders-detail-btn"
                                                 onClick={() => router.push(`/account/orders/${o.id}`)}

@@ -111,11 +111,9 @@ export default function AccessoriesSection({
                             <div className="containProduct">
                                 <img
                                     src={
-                                        p.image_url
+                                        p?.image_url && p.image_url.trim()
                                             ? p.image_url
-                                            : p.image && !String(p.image).startsWith("http")
-                                                ? `/images/${p.image}`
-                                                : p.image
+                                            : "/images/no-image.png"
                                     }
                                     alt={p.name}
                                     className="product-image"

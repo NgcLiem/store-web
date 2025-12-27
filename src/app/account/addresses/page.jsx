@@ -1,45 +1,65 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useToast } from "@/components/Toast";
 import { useAuth } from "@/contexts/AuthContexts";
+import "./addresses.css";
 
 export default function AddressBookPage() {
-    const { user, token } = useAuth();
+    const { token } = useAuth();
+    const { showToast } = useToast();
+
+    const API_BASE = useMemo(
+        () => process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001",
+        []
+    );
+
     const [items, setItems] = useState([]);
     const [form, setForm] = useState({ name: "", phone: "", line: "" });
     const [editing, setEditing] = useState(null);
-    const { showToast } = useToast();
     const [loading, setLoading] = useState(true);
 
-    const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+    const fetchList = async (signal) => {
+        if (!token) return;
+        setLoading(true);
+        try {
+            const res = await fetch(`${API_BASE}/addresses`, {
+                headers: { Authorization: `Bearer ${token}` },
+                cache: "no-store",
+                signal,
+            });
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const data = await res.json();
+            setItems(Array.isArray(data) ? data : []);
+        } catch (e) {
+            if (e?.name !== "AbortError") {
+                console.error(e);
+                showToast("Không tải được địa chỉ của bạn", "error");
+            }
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
         if (!token) return;
-        (async () => {
-            setLoading(true);
-            try {
-                const res = await fetch(`${API_BASE}/addresses`, {
-                    headers: { Authorization: `Bearer ${token}` },
-                    cache: "no-store",
-                });
-                const data = await res.json();
-                setItems(Array.isArray(data) ? data : []);
-            } catch (e) {
-                console.error(e);
-                showToast("Không tải được sổ địa chỉ", "error");
-            } finally {
-                setLoading(false);
-            }
-        })();
+        const ac = new AbortController();
+        fetchList(ac.signal);
+        return () => ac.abort();
     }, [token]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!form.name || !form.phone || !form.line) {
+
+        const name = form.name.trim();
+        const phone = form.phone.trim();
+        const line = form.line.trim();
+
+        if (!name || !phone || !line) {
             showToast("Vui lòng nhập đầy đủ thông tin địa chỉ", "error");
             return;
         }
+
         try {
             const method = editing ? "PATCH" : "POST";
             const url = editing
@@ -53,40 +73,42 @@ export default function AddressBookPage() {
                     Authorization: `Bearer ${token}`,
                 },
                 body: JSON.stringify({
-                    full_name: form.name,
-                    phone: form.phone,
-                    address_line: form.line,
-                    is_default: items.length === 0,
+                    fullName: name,
+                    phone,
+                    addressLine: line,
+                    ...(editing ? {} : { isDefault: items.length === 0 }),
                 }),
             });
 
-            if (!res.ok) throw new Error();
-            showToast(
-                editing ? "Cập nhật địa chỉ thành công" : "Thêm địa chỉ thành công",
-                "success",
-            );
-            // reload danh sách
-            const updated = await res.json();
-            if (editing) {
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+            const updated = await res.json().catch(() => null);
+
+            if (editing && updated) {
                 setItems((prev) => prev.map((a) => (a.id === editing ? updated : a)));
-            } else {
+            } else if (updated) {
                 setItems((prev) => [updated, ...prev]);
+            } else {
+                // fallback: reload nếu backend không trả object
+                await fetchList();
             }
+
+            showToast(editing ? "Cập nhật địa chỉ thành công" : "Thêm địa chỉ thành công", "success");
 
             setForm({ name: "", phone: "", line: "" });
             setEditing(null);
-        } catch {
+        } catch (e) {
+            console.error(e);
             showToast("Lưu địa chỉ thất bại", "error");
         }
     };
 
-
     const startEdit = (addr) => {
         setEditing(addr.id);
         setForm({
-            name: addr.name,
-            phone: addr.phone,
-            line: addr.line,
+            name: addr.name ?? addr.full_name ?? "",
+            phone: addr.phone ?? "",
+            line: addr.line ?? addr.address_line ?? "",
         });
     };
 
@@ -96,17 +118,15 @@ export default function AddressBookPage() {
                 method: "PATCH",
                 headers: { Authorization: `Bearer ${token}` },
             });
-            if (!res.ok) throw new Error();
-            const updated = await res.json();
-            setItems((prev) =>
-                prev.map((a) => ({ ...a, is_default: a.id === updated.id ? 1 : 0 })),
-            );
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const updated = await res.json().catch(() => ({ id }));
+            setItems((prev) => prev.map((a) => ({ ...a, is_default: a.id === updated.id ? 1 : 0 })));
             showToast("Đã đặt làm địa chỉ mặc định", "success");
-        } catch {
+        } catch (e) {
+            console.error(e);
             showToast("Không đặt được địa chỉ mặc định", "error");
         }
     };
-
 
     const remove = async (id) => {
         try {
@@ -114,78 +134,67 @@ export default function AddressBookPage() {
                 method: "DELETE",
                 headers: { Authorization: `Bearer ${token}` },
             });
-            if (!res.ok) throw new Error();
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
             setItems((prev) => prev.filter((a) => a.id !== id));
             showToast("Đã xoá địa chỉ", "success");
-        } catch {
+        } catch (e) {
+            console.error(e);
             showToast("Xoá địa chỉ thất bại", "error");
         }
     };
 
-
     return (
         <>
             <div className="customer-header">
-                <h1>Sổ địa chỉ</h1>
+                <h1>Địa chỉ của bạn</h1>
                 <p>Lưu và quản lý địa chỉ giao hàng của bạn.</p>
             </div>
 
-            <div className="customer-content" style={{ display: "grid", gap: 16 }}>
+            <div className="customer-content customerContentGrid">
                 <div className="panel">
-                    <h3>{editing ? "Cập nhật địa chỉ" : "Thêm địa chỉ mới"}</h3>
-                    <form
-                        onSubmit={handleSubmit}
-                        className="profile-form"
-                        style={{ maxWidth: 600 }}
-                    >
+                    <h3 className="panelTitle">{editing ? "Cập nhật địa chỉ" : "Thêm địa chỉ mới"}</h3>
+
+                    <form onSubmit={handleSubmit} className="profile-form formWrap">
                         <label>
                             Họ tên người nhận
                             <input
                                 className="form-input-customer"
                                 value={form.name}
-                                onChange={(e) =>
-                                    setForm({ ...form, name: e.target.value })
-                                }
+                                onChange={(e) => setForm({ ...form, name: e.target.value })}
                             />
                         </label>
+
                         <label>
                             Số điện thoại
                             <input
                                 className="form-input-customer"
                                 value={form.phone}
-                                onChange={(e) =>
-                                    setForm({ ...form, phone: e.target.value })
-                                }
+                                onChange={(e) => setForm({ ...form, phone: e.target.value })}
                             />
                         </label>
+
                         <label>
                             Địa chỉ chi tiết
                             <input
                                 className="form-input-customer"
                                 placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành phố"
                                 value={form.line}
-                                onChange={(e) =>
-                                    setForm({ ...form, line: e.target.value })
-                                }
+                                onChange={(e) => setForm({ ...form, line: e.target.value })}
                             />
                         </label>
 
-                        <div style={{ display: "flex", gap: 8, marginTop: 6 }}>
-                            <button type="submit" className="action-btn">
+                        <div className="formActions">
+                            <button type="submit" className="action-btn actionBtnPrimary">
                                 {editing ? "Lưu thay đổi" : "Thêm địa chỉ"}
                             </button>
+
                             {editing && (
                                 <button
                                     type="button"
-                                    className="action-btn"
+                                    className="action-btn actionBtnNeutral"
                                     onClick={() => {
                                         setEditing(null);
                                         setForm({ name: "", phone: "", line: "" });
-                                    }}
-                                    style={{
-                                        background: "#e5e7eb",
-                                        color: "#111827",
-                                        borderColor: "#e5e7eb",
                                     }}
                                 >
                                     Huỷ
@@ -196,92 +205,56 @@ export default function AddressBookPage() {
                 </div>
 
                 <div className="panel">
-                    <h3>Danh sách địa chỉ</h3>
-                    {items.length === 0 ? (
-                        <p style={{ fontSize: 14, color: "#6b7280" }}>
-                            Bạn chưa lưu địa chỉ nào.
-                        </p>
+                    <h3 className="panelTitle">Danh sách địa chỉ</h3>
+
+                    {loading ? (
+                        <p className="emptyHint">Đang tải…</p>
+                    ) : items.length === 0 ? (
+                        <p className="emptyHint">Bạn chưa lưu địa chỉ nào.</p>
                     ) : (
-                        <div style={{ display: "grid", gap: 10 }}>
+                        <div className="addressList">
                             {items.map((addr) => (
-                                <div
-                                    key={addr.id}
-                                    style={{
-                                        border: "1px solid #e5e7eb",
-                                        borderRadius: 12,
-                                        padding: 12,
-                                        display: "flex",
-                                        justifyContent: "space-between",
-                                        gap: 10,
-                                        alignItems: "flex-start",
-                                    }}
-                                >
-                                    <div>
-                                        <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
-                                            <strong style={{ fontSize: 14 }}>{addr.name}</strong>
-                                            {addr.is_default && (
-                                                <span
-                                                    style={{
-                                                        fontSize: 11,
-                                                        padding: "2px 8px",
-                                                        borderRadius: 999,
-                                                        background: "#ecfdf5",
-                                                        color: "#047857",
-                                                        textTransform: "uppercase",
-                                                        letterSpacing: ".08em",
-                                                    }}
-                                                >
-                                                    Mặc định
-                                                </span>
-                                            )}
+                                <div key={addr.id} className="addressCard">
+                                    <div className="addressMain">
+                                        <div className="addressHeader">
+                                            <strong className="addressName">
+                                                {addr.name ?? addr.full_name ?? "Không tên"}
+                                            </strong>
+
+                                            {!!addr.is_default && <span className="badgeDefault">Mặc định</span>}
                                         </div>
-                                        <div
-                                            style={{
-                                                marginTop: 4,
-                                                fontSize: 13,
-                                                color: "#4b5563",
-                                            }}
-                                        >
-                                            <div>{addr.phone}</div>
-                                            <div>{addr.line}</div>
+
+                                        <div className="addressMeta">
+                                            <div className="addressPhone">{addr.phone}</div>
+                                            <div className="addressLine" title={addr.line ?? addr.address_line}>
+                                                {addr.line ?? addr.address_line}
+                                            </div>
                                         </div>
                                     </div>
-                                    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+
+                                    <div className="addressActions">
                                         {!addr.is_default && (
                                             <button
-                                                className="action-btn"
+                                                className="action-btn actionBtnSoft"
                                                 type="button"
                                                 onClick={() => setDefault(addr.id)}
-                                                style={{
-                                                    background: "#f9fafb",
-                                                    color: "#111827",
-                                                    borderColor: "#e5e7eb",
-                                                }}
                                             >
                                                 Đặt làm mặc định
                                             </button>
                                         )}
+
                                         <button
-                                            className="action-btn"
+                                            className="action-btn actionBtnOutline"
                                             type="button"
                                             onClick={() => startEdit(addr)}
-                                            style={{
-                                                background: "#ffffff",
-                                                color: "#111827",
-                                                borderColor: "#e5e7eb",
-                                            }}
                                         >
                                             Sửa
                                         </button>
+
                                         <button
-                                            className="action-btn"
+                                            className="action-btn actionBtnDanger"
                                             type="button"
                                             onClick={() => remove(addr.id)}
-                                            style={{
-                                                background: "#fee2e2",
-                                                color: "#b91c1c",
-                                                borderColor: "#fecaca",
-                                            }}
                                         >
                                             Xoá
                                         </button>

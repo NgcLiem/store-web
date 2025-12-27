@@ -107,7 +107,7 @@ export default function ProfilePage() {
                                 {saving ? "Đang lưu…" : "Lưu thay đổi"}
                             </button>
 
-                            <Link href="/reset-password" className="btn-secondary">
+                            <Link href="/reset-password" className="btn-primary-profile">
                                 Đổi mật khẩu
                             </Link>
                         </div>

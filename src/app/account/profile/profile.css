@@ -51,21 +51,30 @@
     margin-top: 20px;
 }
 
-.btn-primary {
+.btn-primary-profile{
     width: 100%;
-    padding: 10px 20px;
-    background: #0066cc;
-    color: #fff;
-    border-radius: 8px;
+    padding: 14px;
+    background: #333;
+    color: white;
     border: none;
-    font-size: 14px;
+    border-radius: 10px;
+    font-size: 0.95rem;
     font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
     cursor: pointer;
-    transition: 0.2s ease;
+    transition: all 0.3s ease;
+    margin: 1rem 0;
+    text-align: center;
 }
 
 .btn-primary:hover:not([disabled]) {
-    background: #004c99;
+    background: #555;
+    transform: translateY(-1px);
+}
+
+.btn-primary-profile:hover:not([disabled]) {
+    background: #555;
     transform: translateY(-1px);
 }
 
@@ -89,7 +98,7 @@
 .btn-primary-history {
     width: 100%;
     padding: 10px 20px;
-    background: #0066cc;
+    background: rgba(21, 220, 35, .9);
     color: white;
     border-radius: 8px;
     font-size: 14px;

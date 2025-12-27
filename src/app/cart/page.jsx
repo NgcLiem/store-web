@@ -156,16 +156,26 @@ export default function CartPage() {
                         {cartItems.map((item, idx) => (
                             <div key={makeKey(item, idx)} className="cart-item">
                                 <img src={item.image_url} alt={item.name} className="cart-item-img" />
+
                                 <div className="cart-item-info">
                                     <div className="cart-item-name">{item.name}</div>
+
                                     <div className="cart-item-qty-wrap">
-                                        <button className="btn-remove" onClick={() => updateQuantity(item.product_id, item.quantity - 1)}>-</button>
+                                        <button className="btn-remove" onClick={() => updateQuantity(item, item.quantity - 1)}>
+                                            -
+                                        </button>
                                         <span>{item.quantity}</span>
-                                        <button className="btn-add" onClick={() => updateQuantity(item.product_id, item.quantity + 1)}>+</button>
+                                        <button className="btn-add" onClick={() => updateQuantity(item, item.quantity + 1)}>
+                                            +
+                                        </button>
                                     </div>
                                 </div>
+
                                 <div className="cart-item-total">{formatPrice(item.price * item.quantity)}</div>
-                                <button onClick={() => handleRemove(item.product_id)} className="cart-item-remove">Xoá</button>
+
+                                <button onClick={() => handleRemove(item)} className="cart-item-remove">
+                                    Xoá
+                                </button>
                             </div>
                         ))}
                     </div>

@@ -14,9 +14,9 @@ export default function AccountLayout({ children }) {
     const menu = [
         { href: "/account", icon: "fa-house", label: "Tổng quan" },
         { href: "/account/profile", icon: "fa-user", label: "Hồ sơ cá nhân" },
-        { href: "/account/orders", icon: "fa-receipt", label: "Đơn hàng của tôi" },
-        { href: "/account/addresses", icon: "fa-location-dot", label: "Sổ địa chỉ" },
-        { href: "/account/vouchers", icon: "fa-ticket", label: "Voucher của tôi" },
+        { href: "/account/orders", icon: "fa-receipt", label: "Đơn hàng của bạn" },
+        { href: "/account/addresses", icon: "fa-location-dot", label: "Địa chỉ của bạn" },
+        { href: "/account/vouchers", icon: "fa-ticket", label: "Voucher của bạn" },
         { href: "/account/payments", icon: "fa-credit-card", label: "Thanh toán" },
     ];
 
