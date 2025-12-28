@@ -2,8 +2,6 @@
 import { useSearchParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import "./resetPassword.css"
-import { useSearchParams } from 'next/navigation';
-
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL;
 
