@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import MomoReturnHandler from "./MomoReturnHandler";
 
-export const dynamic = "force-dynamic"; // tránh prerender static
+export const dynamic = "force-dynamic";
 
 export default function Page() {
   return (
