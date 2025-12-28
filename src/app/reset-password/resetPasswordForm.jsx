@@ -1,10 +1,11 @@
-"use client";
+'use client';
 import { useSearchParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import "./resetPassword.css"
+import { useSearchParams } from 'next/navigation';
 
-const API_BASE =
-    process.env.NEXT_PUBLIC_API_URL;
+
+const API_BASE = process.env.NEXT_PUBLIC_API_URL;
 
 export default function ResetPasswordPage() {
     const searchParams = useSearchParams();
@@ -87,18 +88,55 @@ export default function ResetPasswordPage() {
     if (!token) {
         return <div>Link không hợp lệ.</div>;
     }
-
     
-}
-
-
-import { Suspense } from 'react';
-import ResetPasswordForm from './ResetPasswordForm';
-
-export default function ResetPasswordPage() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <ResetPasswordForm />
-    </Suspense>
-  );
+        <div className="reset-password-container">
+            <form onSubmit={handleSubmit}>
+                <h2>ĐẶT LẠI MẬT KHẨU</h2>
+                {messages.success && <div className="success-message">{messages.success}</div>}
+                {messages.error && <div className="error-message">{messages.error}</div>}
+                <div className="password-wrapper">
+                    <input
+                        type={showNewPassword ? "text" : "password"}
+                        className={`form-input ${invalidFields.includes("newPassword") ? "input-error" : ""}`}
+                        placeholder="Mật khẩu mới"
+                        name="newPassword"
+                        onChange={(e) => {
+                            setInvalidFields((prev) => prev.filter(f => f !== e.target.name))
+                        }}
+                    />
+                    <button
+                        type="button"
+                        className="toggle-password-btn"
+                        onClick={() => setNewPassword(prev => !prev)}
+                        aria-label="Hiện / ẩn mật khẩu"
+                    >
+                        <i className={`fa-regular ${showNewPassword ? "fa-eye-slash" : "fa-eye"}`} />
+                    </button>
+                </div>
+
+                <div className="password-wrapper">
+                    <input
+                        type={showConfirmPassword ? "text" : "password"}
+                        className={`form-input ${invalidFields.includes("confirmPassword") ? "input-error" : ""}`}
+                        placeholder="Nhập lại mật khẩu mới"
+                        name="confirmPassword"
+                        onChange={(e) => {
+                            setInvalidFields((prev) => prev.filter(f => f !== e.target.name))
+                        }}
+                    />
+                    <button
+                        type="button"
+                        className="toggle-password-btn"
+                        onClick={() => setConfrimPassword(prev => !prev)}
+                        aria-label="Hiện / ẩn mật khẩu"
+                    >
+                        <i className={`fa-regular ${showConfirmPassword ? "fa-eye-slash" : "fa-eye"}`} />
+                    </button>
+                </div>
+                <button type="submit">Xác nhận</button>
+            </form>
+
+        </div>
+    );
 }
