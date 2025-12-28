@@ -1,12 +1,22 @@
 "use client";
+import { Suspense, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useState } from "react";
 import "./resetPassword.css"
 
 const API_BASE =
     process.env.NEXT_PUBLIC_API_URL;
 
-export default function ResetPasswordPage() {
+export const dynamic = "force-dynamic"; // tránh prerender static
+
+export default function Page() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ResetPasswordPage />
+    </Suspense>
+  );
+}
+
+function ResetPasswordPage() {
     const searchParams = useSearchParams();
     const router = useRouter();
     const token = searchParams.get("token");
