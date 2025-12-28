@@ -1,13 +1,13 @@
 "use client";
 
-import { useSearchParams, useRouter } from "next/navigation";
+import { Suspense, useSearchParams, useRouter } from "next/navigation";
 import { useEffect, useState, useMemo } from "react";
 import { formatVND } from "@/utils/money";
 import "./search.css";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 
-export default function SearchPage() {
+function SearchHandler() {
     const params = useSearchParams();
     const router = useRouter();
 
@@ -211,5 +211,13 @@ export default function SearchPage() {
                 </div>
             )}
         </main>
+    );
+}
+
+export default function SearchPage() {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <SearchHandler />
+        </Suspense>
     );
 }

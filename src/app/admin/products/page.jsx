@@ -420,7 +420,7 @@ export default function AdminProductsPage() {
                                         setForm({ ...form, category_id: e.target.value })
                                     }
                                 />
-                                <label>ID danh mục (tuỳ chọn)</label>
+                                <label>Size</label>
                             </div>
 
                             <div className="image-input-group">

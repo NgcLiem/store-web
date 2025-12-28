@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContexts";
 import { useToast } from "@/components/Toast";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 
-export default function MomoReturnPage() {
+function MomoReturnHandler() {
     const router = useRouter();
     const sp = useSearchParams();
     const { token } = useAuth();
@@ -45,5 +45,13 @@ export default function MomoReturnPage() {
             <h2>Đang xử lý kết quả thanh toán...</h2>
             <p>Vui lòng không đóng trang.</p>
         </div>
+    );
+}
+
+export default function MomoReturnPage() {
+    return (
+        <Suspense fallback={<div style={{ padding: 24 }}><h2>Loading...</h2></div>}>
+            <MomoReturnHandler />
+        </Suspense>
     );
 }

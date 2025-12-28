@@ -148,7 +148,7 @@ export default function CartPage() {
             </div>
             {cartItems.length === 0 ? (
                 <div className="cart-empty">
-                    Giỏ hàng trống. <button onClick={() => router.push("/")}>Mua ngay</button>
+                    Giỏ hàng trống. <div className="buy-now"><button onClick={() => router.push("/")}>Mua ngay</button></div>
                 </div>
             ) : (
                 <>

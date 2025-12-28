@@ -1,14 +1,14 @@
 "use client";
 
-import "./orders.css";
-
+import { Suspense } from "react";
 import { useAuth } from "@/contexts/AuthContexts";
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import "./orders.css";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 
-export default function MyOrdersPage() {
+function OrdersHandler() {
     const { user, token } = useAuth();
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -169,5 +169,13 @@ export default function MyOrdersPage() {
                 </div>
             </div>
         </>
+    );
+}
+
+export default function MyOrdersPage() {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <OrdersHandler />
+        </Suspense>
     );
 }
