@@ -1,7 +1,7 @@
-import { Suspense } from "react";
-import dynamic from 'next/dynamic';
+"use client";
 
-const MomoReturnHandler = dynamic(() => import('./MomoReturnHandler'), { ssr: false });
+import { Suspense } from "react";
+import MomoReturnHandler from "./MomoReturnHandler";
 
 export default function MomoReturnPage() {
     return (

@@ -1,7 +1,7 @@
-import { Suspense } from "react";
-import dynamic from 'next/dynamic';
+"use client";
 
-const ResetPasswordHandler = dynamic(() => import('./ResetPasswordHandler'), { ssr: false });
+import { Suspense } from "react";
+import ResetPasswordHandler from "./ResetPasswordHandler";
 
 export default function ResetPasswordPage() {
     return (

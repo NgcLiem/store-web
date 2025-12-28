@@ -1,7 +1,7 @@
-import { Suspense } from "react";
-import dynamic from 'next/dynamic';
+"use client";
 
-const SearchHandler = dynamic(() => import('./SearchHandler'), { ssr: false });
+import { Suspense } from "react";
+import SearchHandler from "./SearchHandler";
 
 export default function SearchPage() {
     return (

@@ -1,7 +1,7 @@
-import { Suspense } from "react";
-import dynamic from 'next/dynamic';
+"use client";
 
-const OrdersHandler = dynamic(() => import('./OrdersHandler'), { ssr: false });
+import { Suspense } from "react";
+import OrdersHandler from "./OrdersHandler";
 
 export default function MyOrdersPage() {
     return (
