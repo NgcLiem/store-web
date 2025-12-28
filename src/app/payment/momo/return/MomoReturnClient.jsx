@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContexts";
 import { useToast } from "@/components/Toast";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL;
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 
 export default function MomoReturnHandler() {
   const router = useRouter();
