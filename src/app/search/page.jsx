@@ -1,5 +1,7 @@
 import { Suspense } from "react";
-import SearchHandler from "./SearchHandler";
+import dynamic from 'next/dynamic';
+
+const SearchHandler = dynamic(() => import('./SearchHandler'), { ssr: false });
 
 export default function SearchPage() {
     return (

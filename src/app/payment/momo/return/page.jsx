@@ -1,7 +1,7 @@
 import { Suspense } from "react";
-import MomoReturnHandler from "./MomoReturnHandler";
+import dynamic from 'next/dynamic';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+const MomoReturnHandler = dynamic(() => import('./MomoReturnHandler'), { ssr: false });
 
 export default function MomoReturnPage() {
     return (
