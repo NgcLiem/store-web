@@ -1,48 +1,81 @@
+
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useAuth } from "@/contexts/AuthContexts";
-import { useToast } from "@/components/Toast";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 
-export default function MomoReturnHandler() {
+export default function ResetPasswordClient() {
   const router = useRouter();
   const sp = useSearchParams();
-  const { token } = useAuth();
-  const { showToast } = useToast();
 
+  const [token, setToken] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  // ✅ lấy query string ổn định để làm dependency
   const qs = sp.toString();
 
   useEffect(() => {
-    const resultCode = Number(sp.get("resultCode") || "-1");
-    const orderId = sp.get("orderId");
+    const t = sp.get("token") || "";
+    setToken(t);
+  }, [qs]); // ✅ không phụ thuộc trực tiếp sp
 
-    (async () => {
-      if (resultCode === 0) {
-        showToast("Thanh toán MoMo thành công!", "success");
+  const submit = async (e) => {
+    e.preventDefault();
+    if (!token) return alert("Thiếu token reset password");
+    if (!password || password.length < 6) return alert("Mật khẩu tối thiểu 6 ký tự");
+    if (password !== confirm) return alert("Mật khẩu nhập lại không khớp");
 
-        if (token && API_BASE) {
-          await fetch(`${API_BASE}/cart/clear`, {
-            method: "DELETE",
-            headers: { Authorization: `Bearer ${token}` },
-          }).catch(() => {});
-        }
+    setLoading(true);
+    try {
+      const res = await fetch(`${API_BASE}/auth/reset-password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token, password }),
+      });
 
-        router.replace("/account/orders");
+      const data = await res.json().catch(() => null);
+      if (!res.ok) {
+        alert(data?.message || data?.error || "Đổi mật khẩu thất bại");
         return;
       }
 
-      showToast("Thanh toán MoMo thất bại hoặc bị huỷ", "error");
-      router.replace(orderId ? "/account/orders" : "/checkout");
-    })();
-  }, [qs, router, token, showToast, sp]);
+      alert("Đổi mật khẩu thành công! Mời đăng nhập.");
+      router.replace("/login");
+    } catch (err) {
+      console.error(err);
+      alert("Lỗi mạng");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div style={{ padding: 24 }}>
-      <h2>Đang xử lý kết quả thanh toán...</h2>
-      <p>Vui lòng không đóng trang.</p>
+    <div style={{ padding: 24, maxWidth: 420 }}>
+      <h2>Reset Password</h2>
+
+      <form onSubmit={submit} style={{ display: "grid", gap: 12, marginTop: 12 }}>
+        <input
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Mật khẩu mới"
+          type="password"
+        />
+
+        <input
+          value={confirm}
+          onChange={(e) => setConfirm(e.target.value)}
+          placeholder="Nhập lại mật khẩu"
+          type="password"
+        />
+
+        <button disabled={loading} type="submit">
+          {loading ? "Đang xử lý..." : "Đổi mật khẩu"}
+        </button>
+      </form>
     </div>
   );
 }
