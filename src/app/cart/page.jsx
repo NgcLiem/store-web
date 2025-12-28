@@ -189,20 +189,14 @@ export default function CartPage() {
                                 Nhận Hàng Thanh Toán
                                 <div className="cart-btn-desc">(Phí Giao Hàng: 30.000đ)</div>
                             </button>
-                            <button className="cart-btn cart-btn-pay" onClick={() => router.push('/checkout')}>
-                                Thanh Toán Trước
-                                <div className="cart-btn-desc">(Miễn Phí Giao Hàng)</div>
+                            <button className="cart-btn continue-shopping-btn" onClick={handleContinueShopping}>
+                                Tiếp Tục Mua Sắm
                             </button>
                         </div>
                     </div>
                 </>
             )}
-            <div style={{ textAlign: 'center', padding: 24 }}>
-                <button className="continue-shopping-btn" onClick={handleContinueShopping}>
-                    Tiếp Tục Mua Sắm
-                </button>
-            </div>
-        </div>
+        </div >
 
     );
 

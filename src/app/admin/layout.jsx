@@ -65,16 +65,16 @@ export default function AdminLayout({ children }) {
         <ProtectedRoute allowedRoles={["admin"]}>
             <div className="admin-container">
                 <aside className="admin-sidebar">
-
                     <div className="sidebar-header clickable-header" onClick={() => setIsAdminInfoModalOpen(true)}>
                         <div className="logo-section">
                             {adminInfo.logoUrl ? (
-                                <img src={adminInfo.logoUrl} alt="Admin Logo" className="admin-logo-img" />
+                                <div alt="Admin Logo" className="" />
                             ) : (
                                 <div className="logo-placeholder admin-logo-text">
                                     <i className="fa-solid fa-user-gear"></i>
                                 </div>
                             )}
+                            <h2>👔 QUẢN LÝ</h2>
                             <span className="admin-email">{adminInfo.email}</span>
                         </div>
                     </div>

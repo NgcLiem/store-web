@@ -1,7 +1,7 @@
 .cart-popup {
   background: #fff;
   padding: 0;
-  max-width: 840px;
+  width: 90%;
   margin: 100px auto 20px;
   border-radius: 12px;
   box-shadow: 0 2px 16px rgba(0,0,0,0.08);
@@ -37,7 +37,7 @@
   text-align: center;
   color: #444;
   font-size: 17px;
-  margin: 32px 0 0 0;
+  margin: 50px 0 0 0;
 }
 .cart-empty-btn-wrap {
   position: absolute;
@@ -189,11 +189,16 @@
 .cart-total-btns {
   display: flex;
   gap: 16px;
+  padding: 32px;
+}
+
+.continue-shopping{
+  text-align: center;
+  padding: 60px 0;
 }
 
 .continue-shopping-btn {
   height: 80px;
-  width: 300px;
   background-color: #4cfa10;
   padding: 0 16px;
   color: #fff;

@@ -509,7 +509,7 @@
 
 .admin-email {
     font-size: 0.9em;
-    color: #bdc3c7; /* Màu chữ sáng cho Sidebar tối */
+    color: #000; /* Màu chữ sáng cho Sidebar tối */
     font-weight: 500;
     margin: 0;
 }
@@ -579,4 +579,178 @@
     border-color: #10b981;
     background-color: #f9fffb;
     box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.25);
+}
+
+.chart-container {
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    margin-top: 20px;
+}
+
+.chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.chart-box {
+    height: 350px;
+}
+
+.chart-container {
+  width: 100%;
+}
+
+.revenue-chart {
+  margin-top: 18px;
+}
+
+/* ===== DASHBOARD LAYOUT ===== */
+.dashboard-layout {
+    margin-top: 24px;
+}
+
+/* ===== CHART CONTAINER ===== */
+.chart-container {
+    background: linear-gradient(135deg, #fdfbfb, #ebedee);
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+}
+
+/* ===== CHART HEADER ===== */
+.chart-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 18px;
+}
+
+.chart-header h3 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #333;
+}
+
+.chart-menu {
+    font-size: 20px;
+    cursor: pointer;
+    opacity: 0.6;
+    transition: 0.2s;
+}
+
+.chart-menu:hover {
+    opacity: 1;
+}
+
+/* ===== INDIVIDUAL CHART CARD ===== */
+.chart-container > div > div {
+    background: linear-gradient(180deg, #ffffff, #f8f9fb);
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.06);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.chart-container > div > div:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.1);
+}
+
+/* ===== CHART TITLES ===== */
+.chart-container > div > div > div:first-child {
+    font-size: 15px;
+    font-weight: 600;
+    color: #555;
+    margin-bottom: 10px;
+}
+
+/* ===== STAT CARDS ===== */
+.admin-stats-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 18px;
+    margin: 20px 0 30px;
+}
+
+.stat-card {
+    background: linear-gradient(
+        135deg,
+        var(--bg-color),
+        rgba(255, 255, 255, 0.9)
+    );
+    border-radius: 18px;
+    padding: 18px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.08);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-6px) scale(1.01);
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.12);
+}
+
+/* ===== STAT ICON ===== */
+.card-icon-wrapper {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.card-icon {
+    font-size: 26px;
+}
+
+/* ===== STAT TEXT ===== */
+.card-info {
+    flex: 1;
+}
+
+.stat-value {
+    font-size: 20px;
+    font-weight: 700;
+    color: #222;
+}
+
+.stat-label {
+    font-size: 13px;
+    color: #555;
+    margin-top: 4px;
+}
+
+/* ===== SEARCH BAR (CHO ĐỒNG BỘ UI) ===== */
+.search-bar-wrapper {
+    margin-left: auto;
+    position: relative;
+}
+
+.search-input {
+    padding: 10px 36px 10px 14px;
+    border-radius: 12px;
+    border: 1px solid #ddd;
+    outline: none;
+    font-size: 14px;
+    transition: 0.2s;
+}
+
+.search-input:focus {
+    border-color: #7aa7ff;
+    box-shadow: 0 0 0 3px rgba(122, 167, 255, 0.25);
+}
+
+.search-icon {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #888;
 }

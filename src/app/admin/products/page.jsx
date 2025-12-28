@@ -19,9 +19,8 @@ export default function AdminProductsPage() {
         product_code: "",
         name: "",
         price: "",
-        stock: "",
-        category_id: "",
         image_url: "",
+        sizes: [{ size_id: "", stock: "" }],
     });
     const [loading, setLoading] = useState(true);
     const [uploading, setUploading] = useState(false);
@@ -115,9 +114,10 @@ export default function AdminProductsPage() {
             product_code: form.product_code?.trim() || null,
             name: form.name?.trim(),
             price: Number(form.price || 0),
-            stock: Number(form.stock || 0),
-            category_id: form.category_id ? Number(form.category_id) : null,
             image_url: form.image_url?.trim() || null,
+            sizes: (form.sizes || [])
+                .map(s => ({ size_id: Number(s.size_id), stock: Number(s.stock || 0) }))
+                .filter(s => Number.isInteger(s.size_id) && s.size_id > 0),
         };
 
         const basePath =

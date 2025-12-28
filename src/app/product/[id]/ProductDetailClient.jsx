@@ -18,7 +18,7 @@ export default function ProductDetailClient({ product }) {
     const { user, token, loading } = useAuth();
     const { showToast } = useToast();
 
-    const sizes = ["39", "40", "40.5", "42.5", "43"];
+    const sizes = Array.isArray(product?.sizes) ? product.sizes : [];
 
     const addToCartBackend = async () => {
         const res = await fetch(`${API_BASE}/cart/items`, {
@@ -111,18 +111,26 @@ export default function ProductDetailClient({ product }) {
 
                 <div className="pd-sizes">
                     <h4>Chọn size</h4>
-                    <div className="pd-sizes-list">
-                        {sizes.map((s) => (
-                            <button
-                                key={`size-${s}`}
-                                className={`pd-size-btn ${selectedSize === s ? "selected" : ""}`}
-                                onClick={() => setSelectedSize(s)}
-                            >
-                                {s}
-                            </button>
-                        ))}
-                    </div>
+
+                    {sizes.length === 0 ? (
+                        <p>Chưa có size cho sản phẩm này</p>
+                    ) : (
+                        <div className="pd-sizes-list">
+                            {sizes.map((s) => (
+                                <button
+                                    key={`size-${s.value}`}
+                                    className={`pd-size-btn ${selectedSize === s.value ? "selected" : ""}`}
+                                    onClick={() => setSelectedSize(s.value)}
+                                    disabled={s.stock <= 0}
+                                    title={s.stock <= 0 ? "Hết hàng" : `Còn ${s.stock}`}
+                                >
+                                    {s.value}
+                                </button>
+                            ))}
+                        </div>
+                    )}
                 </div>
+
 
                 <div className="pd-qty">
                     <h4>Số lượng</h4>

@@ -2,6 +2,7 @@
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { useAuth } from "../../contexts/AuthContexts";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import "./staff.css";
 
 function StaffContent() {
@@ -44,15 +45,12 @@ function StaffContent() {
 
             <div className="staff-content">
                 <h2>Chào mừng Nhân Viên!</h2>
-                <p>Đây là trang làm việc dành cho nhân viên.</p>
-                <div className="quick-actions">
-                    <button className="action-btn">
-                        <i className="fa-solid fa-plus"></i> Tạo đơn mới
-                    </button>
+                <p>Đây là trang làm việc dành cho bạn.</p>
+                <Link href="/staff/orders" className="quick-actions">
                     <button className="action-btn">
                         <i className="fa-solid fa-search"></i> Tra cứu đơn hàng
                     </button>
-                </div>
+                </Link>
             </div>
         </main>
 

@@ -3,11 +3,13 @@ import Hero from "@/components/Hero";
 import { useState, useEffect, useMemo } from "react";
 import "./accessories.css";
 import { formatPrice } from "@/lib/format";
+import { useRouter } from "next/navigation";
 
 export default function AccessoriesPage() {
     const [products, setProducts] = useState([]);
     const [sort, setSort] = useState("default");
     const [loading, setLoading] = useState(true);
+    const router = useRouter();
 
     const sortedProducts = useMemo(() => {
         const items = Array.isArray(products) ? products : [];
@@ -78,7 +80,7 @@ export default function AccessoriesPage() {
                                 <div className="products-grid">
                                     {sortedProducts.length > 0 ? (
                                         sortedProducts.map((p) => (
-                                            <div key={p.id} className="product-card">
+                                            <div key={p.id} className="product-card" onClick={() => router.push(`/product/${p.id}`)} style={{ cursor: 'pointer' }}>
                                                 {p.is_hot === 1 && (
                                                     <div className="product-badge">Hot</div>)}
                                                 <div className="containProduct">
