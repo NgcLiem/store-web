@@ -14,12 +14,13 @@ export default function Signup() {
     const [birthLimit, setBirthLimit] = useState("");
     const [invalidFields, setInvalidFields] = useState([]);
     const { login } = useAuth();
-    const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+    const API_BASE = process.env.NEXT_PUBLIC_API_URL;
 
     const [showLoginPassword, setShowLoginPassword] = useState(false);
     const [showRegisterPassword, setShowRegisterPassword] = useState(false);
     const [showRegisterConfirmPassword, setShowRegisterConfirmPassword] = useState(false);
 
+    console.log(API_BASE)
 
     const router = useRouter();
 

@@ -24,7 +24,7 @@ export default function OtherBrand() {
     }, [products, sort]);
 
     useEffect(() => {
-        fetch("http://localhost:3001/products")
+        fetch("process.env.NEXT_PUBLIC_API_URL/products")
             .then((res) => res.json())
             .then((data) => {
                 // Filter other brands (categories 3,5,6,7,8,9)

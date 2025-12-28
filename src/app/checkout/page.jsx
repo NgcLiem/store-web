@@ -6,7 +6,7 @@ import { useAuth } from "@/contexts/AuthContexts";
 import { useToast } from "@/components/Toast";
 import "./checkout.css";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL;
 
 export default function CheckoutPage() {
     const router = useRouter();

@@ -4,7 +4,7 @@ import Link from "next/link";
 import "../assets/css/productSection.css";
 import { formatPrice } from "@/lib/format";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL;
 
 export default function Products() {
     const [products, setProducts] = useState([]);

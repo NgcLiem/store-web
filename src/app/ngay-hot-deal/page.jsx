@@ -38,7 +38,7 @@ export default function HotDeal() {
     const [products, setProducts] = useState([]);
 
     useEffect(() => {
-        fetch("http://localhost:3001/products")
+        fetch("process.env.NEXT_PUBLIC_API_URL/products")
             .then((res) => res.json())
             .then((data) => {
                 // Filter only hot deal products (is_hot = 1)

@@ -22,7 +22,7 @@ export default function Header() {
 
     // ✅ FIX: lấy token từ context (trước bạn quên)
     const { user, token, logout, isAuthenticated } = useAuth();
-    const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+    const API_BASE = process.env.NEXT_PUBLIC_API_URL;
 
     const [cartCount, setCartCount] = useState(0);
 

@@ -21,7 +21,7 @@ export default function NikePage() {
     }, [products, sort]);
 
     useEffect(() => {
-        fetch("http://localhost:3001/products")
+        fetch("process.env.NEXT_PUBLIC_API_URL/products")
             .then((res) => res.json())
             .then((data) => {
                 const nikeProducts = Array.isArray(data) ? data.filter(p => p.category_id === 1) : [];

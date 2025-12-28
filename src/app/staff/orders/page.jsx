@@ -7,7 +7,7 @@ import "./orders.css";
 import { useAuth } from "@/contexts/AuthContexts";
 import { useToast } from "@/components/Toast";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL;
 
 export default function StaffOrdersPage() {
     return (

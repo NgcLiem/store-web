@@ -6,7 +6,7 @@ import "./orders.css";
 import { useAuth } from "../../../contexts/AuthContexts"; // chỉnh path nếu khác
 import { useToast } from "@/components/Toast"; // nếu bạn dùng toast kiểu này
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL;
 
 export default function AdminOrdersPage() {
     const { token, user } = useAuth();

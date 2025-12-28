@@ -14,7 +14,7 @@ export default function AdminUsersPage() {
     const load = async () => {
         setLoading(true);
         try {
-            const res = await fetch(`http://localhost:3001/users?q=${encodeURIComponent(u)}`);
+            const res = await fetch(`process.env.NEXT_PUBLIC_API_URL/users?q=${encodeURIComponent(u)}`);
             const data = await res.json();
             setItems(Array.isArray(data) ? data : []);
         } catch (error) {
@@ -46,7 +46,7 @@ export default function AdminUsersPage() {
         const nextStatus = isActive ? "inactive" : "active";
 
         try {
-            const res = await fetch(`http://localhost:3001/users/${u.id}`, {
+            const res = await fetch(`process.env.NEXT_PUBLIC_API_URL/users/${u.id}`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ status: nextStatus }),

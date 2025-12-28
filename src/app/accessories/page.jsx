@@ -22,7 +22,7 @@ export default function AccessoriesPage() {
     }, [products, sort]);
 
     useEffect(() => {
-        fetch("http://localhost:3001/products")
+        fetch("process.env.NEXT_PUBLIC_API_URL/products")
             .then((res) => res.json())
             .then((data) => {
                 // Filter accessories (category_id = 4)

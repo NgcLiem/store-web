@@ -24,7 +24,7 @@ export default function AdidasPage() {
     }, [products, sort]);
 
     useEffect(() => {
-        fetch("http://localhost:3001/products")
+        fetch("process.env.NEXT_PUBLIC_API_URL/products")
             .then((res) => res.json())
             .then((data) => {
                 // Filter Adidas products (category_id = 2)

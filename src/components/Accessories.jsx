@@ -5,7 +5,7 @@ import "../assets/css/productSection.css";
 import "../assets/css/accessories.css";
 import { formatPrice } from "@/lib/format";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL;
 
 export default function AccessoriesSection({
     categoryId = 4,

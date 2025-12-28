@@ -1,5 +1,5 @@
 export const API_BASE =
-    process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+    process.env.NEXT_PUBLIC_API_URL;
 
 export async function apiGet(path) {
     const res = await fetch(`${API_BASE}${path}`, { cache: "no-store" });
