@@ -27,14 +27,19 @@ export default function AccessoriesSection({
                 const url = new URL(`${API_BASE}/products`);
                 url.searchParams.set("category", String(categoryId));
 
+                console.log("Fetching from:", url.toString());
+                
                 const res = await fetch(url.toString(), { cache: "no-store" });
                 const data = await res.json().catch(() => null);
+                
+                console.log("Accessories raw response:", data);
 
                 let arr = [];
                 if (Array.isArray(data)) arr = data;
                 else if (data?.items && Array.isArray(data.items)) arr = data.items;
                 else if (data?.rows && Array.isArray(data.rows)) arr = data.rows;
 
+                console.log("Accessories parsed array:", arr);
                 setProducts(Array.isArray(arr) ? arr : []);
                 setCurrentPage(1);
             } catch (e) {
@@ -53,6 +58,9 @@ export default function AccessoriesSection({
         const inCat = products.filter(
             (p) => String(p.category_id) === String(categoryId)
         );
+        
+        console.log("Products with matching category_id:", inCat);
+        
         if (inCat.length > 0) return inCat;
 
         const keys = [
@@ -74,7 +82,9 @@ export default function AccessoriesSection({
             const t = String(s).toLowerCase();
             return keys.some((k) => t.includes(k));
         };
-        return products.filter((p) => hasKey(p.name) || hasKey(p.brand));
+        const filtered = products.filter((p) => hasKey(p.name) || hasKey(p.brand));
+        console.log("Products with matching keywords:", filtered);
+        return filtered;
     }, [products, categoryId]);
 
     const totalItems = normalized.length;
