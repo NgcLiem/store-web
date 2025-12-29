@@ -42,7 +42,7 @@ export default function AdminProductsPage() {
                         ? "/staff/products"
                         : "/products";
 
-            const url = `${API_BASE}${path}?q=${encodeURIComponent(q)}`;
+            const url = (`${API_BASE}${path}?q=${encodeURIComponent(q)}`);
 
             const res = await fetch(url, {
                 headers: withAuthHeaders(),

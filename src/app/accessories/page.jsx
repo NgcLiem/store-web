@@ -22,8 +22,7 @@ export default function AccessoriesPage() {
     }, [products, sort]);
 
     useEffect(() => {
-        fetch("process.env.NEXT_PUBLIC_API_URL/products")
-            .then((res) => res.json())
+fetch(`${process.env.NEXT_PUBLIC_API_URL}/products`)
             .then((data) => {
                 // Filter accessories (category_id = 4)
                 const accessoryProducts = Array.isArray(data) ? data.filter(p => p.category_id === 4) : [];

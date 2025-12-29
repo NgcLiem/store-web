@@ -5,7 +5,6 @@ import { useAuth } from "../../contexts/AuthContexts";
 import { useRouter } from "next/navigation";
 import "./admin.css";
 
-// ✅ Chart.js
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -31,7 +30,6 @@ ChartJS.register(
 );
 
 function RevenueChart() {
-    // ✅ hard-code data (12 tháng)
     const labels = ["T1", "T2", "T3", "T4", "T5", "T6", "T7", "T8", "T9", "T10", "T11", "T12"];
     const revenueByMonth = [2.5, 3.2, 4.1, 3.8, 4.6, 5.2, 6.0, 5.5, 6.8, 7.2, 6.7, 8.1]; // triệu VND (demo)
     const ordersByMonth = [12, 18, 24, 20, 30, 32, 40, 36, 45, 48, 44, 55]; // số đơn (demo)

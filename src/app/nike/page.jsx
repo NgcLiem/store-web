@@ -21,7 +21,7 @@ export default function NikePage() {
     }, [products, sort]);
 
     useEffect(() => {
-        fetch("process.env.NEXT_PUBLIC_API_URL/products")
+        fetch(`${process.env.NEXT_PUBLIC_API_URL}/products`) // ← Template literal với ${}
             .then((res) => res.json())
             .then((data) => {
                 const nikeProducts = Array.isArray(data) ? data.filter(p => p.category_id === 1) : [];
