@@ -1,0 +1,63 @@
+.voucherList {
+  display: grid;
+  gap: 10px;
+}
+
+.voucherCard {
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  padding: 12px;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.voucherCode {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.voucherDesc {
+  font-size: 13px;
+  color: #4b5563;
+  margin-top: 4px;
+}
+
+.voucherExpiry {
+  font-size: 12px;
+  color: #6b7280;
+  margin-top: 4px;
+}
+
+.voucherRight {
+  text-align: right;
+}
+
+.mutedText {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+/* badge status */
+.badge {
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  display: inline-block;
+}
+
+.badgeOk {
+  background: #ecfdf5;
+  color: #047857;
+}
+
+.badgeMuted {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.badgeDanger {
+  background: #fee2e2;
+  color: #b91c1c;
+}

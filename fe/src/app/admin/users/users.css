@@ -1,0 +1,226 @@
+/* --- Form Tìm kiếm (Tái sử dụng) --- */
+.search-form-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+    align-items: center;
+}
+
+/* --- Table Styles (Tái sử dụng) --- */
+
+.table-responsive-wrapper {
+    overflow-x: auto;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 800px; /* Đảm bảo bảng không quá hẹp trên màn hình nhỏ */
+}
+
+/* Header của bảng */
+.table-header-row {
+    background: #f1f2f6;
+    border-bottom: 1px solid #ddd;
+}
+
+.table-header-cell {
+    padding: 12px;
+    font-weight: 600;
+    color: #444;
+}
+
+/* Căn lề chung */
+.text-left { text-align: left !important; }
+.text-center { text-align: center !important; }
+
+/* Dòng dữ liệu */
+.table-body-row {
+    border-bottom: 1px solid #eee;
+}
+
+.table-body-row:last-child {
+    border-bottom: none;
+}
+
+.table-cell {
+    padding: 12px;
+    color: #555;
+    vertical-align: middle;
+}
+
+/* Cell đặc biệt (ví dụ: Đang tải...) */
+.table-cell-center {
+    text-align: center;
+    color: #999;
+    padding: 20px !important;
+}
+
+.table-actions-cell {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    padding: 12px;
+    white-space: nowrap; 
+}
+
+/* --- Badge Trạng thái --- */
+.status-badge {
+    padding: 4px 8px;
+    border-radius: 6px;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+    display: inline-block;
+}
+
+.status-active {
+    background: #27ae60; /* Xanh lá cây (Đang hoạt động) */
+}
+
+.status-inactive {
+    background: #7f8c8d; /* Xám (Đã khoá) */
+}
+
+/* ===== Modal chung ===== */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+    backdrop-filter: blur(4px);
+}
+
+.modal-content-wrapper {
+    background: #ffffff;
+    padding: 22px;
+    border-radius: 16px;
+    width: 380px;
+    max-width: 90%;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.25);
+    animation: fadeIn 0.16s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px) scale(0.97); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ===== Modal xác nhận hành động ===== */
+.confirm-modal h3.confirm-title {
+    margin: 0 0 6px;
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: #111;
+}
+
+.confirm-text {
+    font-size: 0.92rem;
+    color: #4b5563;
+    line-height: 1.5;
+    margin-bottom: 20px;
+}
+
+.confirm-highlight {
+    font-weight: 600;
+    color: #111;
+}
+
+.confirm-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+
+/* ===== STATUS MODAL (THÀNH CÔNG / LỖI) ===== */
+
+.status-modal {
+  width: 360px;
+  max-width: 90%;
+  text-align: left;
+}
+
+.status-title {
+  margin: 0 0 6px;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.status-text {
+  font-size: 0.9rem;
+  color: #4b5563;
+  line-height: 1.6;
+  margin-bottom: 18px;
+}
+
+/* màu viền + nền nhạt theo trạng thái */
+
+.status-modal--success {
+  border-left: 4px solid #22c55e;
+}
+
+.status-modal--success .status-title {
+  color: #16a34a;
+}
+
+.status-modal--error {
+  border-left: 4px solid #ef4444;
+}
+
+.status-modal--error .status-title {
+  color: #b91c1c;
+}
+
+.status-open {
+  background: #ef4444!important;
+  box-shadow: 0 4px 6px rgba(239, 68, 68, 0.3) !important;
+}
+
+/* Layout thân status modal với icon + nội dung */
+.status-modal-body {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.status-icon-wrap {
+  flex-shrink: 0;
+}
+
+/* Icon tròn */
+.status-icon {
+  font-size: 24px;
+  padding: 6px;
+  border-radius: 999px;
+  background: #f3f4f6;
+}
+
+.status-icon--success {
+  color: #16a34a;
+  background: #dcfce7;
+}
+
+.status-icon--error {
+  color: #b91c1c;
+  background: #fee2e2;
+}
+
+.status-text-wrap {
+  flex: 1;
+}
+
+.status-title {
+  margin: 0 0 4px;
+}
+
+.status-text {
+  margin: 0;
+}

@@ -1,0 +1,131 @@
+.orders-filters {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.orders-search-input,
+.orders-status-select {
+    flex: 1;
+    min-width: 200px;
+    padding: 8px 10px;
+    font-size: 14px;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    outline: none;
+    transition: border-color 0.2s ease;
+    background: #fff;
+}
+
+.orders-status-select {
+    flex: 0 0 180px;
+}
+
+.orders-search-input:focus,
+.orders-status-select:focus {
+    border-color: #111;
+}
+
+/* Bảng đơn hàng */
+
+.orders-table-wrapper {
+    overflow-x: auto;
+}
+
+.orders-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.03);
+}
+
+.orders-table thead tr {
+    background: #f1f2f6;
+}
+
+.orders-table th,
+.orders-table td {
+    padding: 12px;
+    font-size: 14px;
+}
+
+.orders-table th {
+    text-align: left;
+    font-weight: 600;
+    color: #444;
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.orders-table td {
+    border-bottom: 1px solid #f0f0f0;
+    color: #333;
+}
+
+.orders-table tr:last-child td {
+    border-bottom: none;
+}
+
+.orders-table tr:hover {
+    background: #fafafa;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.orders-amount {
+    font-weight: 600;
+}
+
+/* trạng thái */
+
+.order-status-badge {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 4px;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+/* nút Chi tiết */
+
+.orders-detail-btn {
+    padding: 6px 12px;
+    background-color: #0066cc;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.orders-detail-btn:hover {
+    background-color: #004c99;
+    transform: translateY(-1px);
+}
+
+.orders-empty {
+    padding: 20px;
+    text-align: center;
+    color: #777;
+}
+
+/* responsive */
+
+@media (max-width: 600px) {
+    .orders-status-select {
+        flex: 1;
+        min-width: 150px;
+    }
+}

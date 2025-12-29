@@ -1,0 +1,103 @@
+.order-search-form {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+    align-items: center;
+}
+
+.status-select {
+    max-width: 220px; 
+}
+
+.table-wrapper {
+    overflow-x: auto;
+    border: 1px solid #e0e0e0; 
+    border-radius: 8px; 
+}
+
+.order-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 700px; /* Đảm bảo bảng không quá hẹp trên màn hình nhỏ */
+}
+
+/* Header của bảng */
+.table-header-row {
+    background: #f8f8f8; /* Nền nhẹ cho header */
+}
+
+.table-header-cell {
+    padding: 12px;
+    font-weight: 600;
+    color: #444;
+    text-align: left; /* Mặc định */
+}
+
+/* Căn lề cho tiêu đề cột */
+.text-left { text-align: left !important; }
+.text-right { text-align: right !important; }
+.text-center { text-align: center !important; }
+
+/* Dòng dữ liệu */
+.table-body-row {
+    border-bottom: 1px solid #eee;
+}
+
+.table-body-row:last-child {
+    border-bottom: none;
+}
+
+.table-cell {
+    padding: 12px;
+    color: #555;
+    white-space: nowrap; /* Ngăn không cho text bị xuống dòng */
+}
+
+.order-status-cell {
+    text-transform: capitalize;
+    text-align: center;
+}
+
+/* Cell chứa nút thao tác */
+.table-actions-cell {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    padding: 12px;
+}
+
+/* Dòng loading/empty */
+.table-row-loading .table-cell-center {
+    padding: 20px;
+    text-align: center;
+    color: #999;
+}
+
+/* Nút Huỷ (Danger Button) */
+.btn-danger {
+    background: #e74c3c;
+}
+.btn-danger:hover {
+    background: #c0392b;
+}
+
+/* --- Phân trang --- */
+.pagination-controls {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    margin-top: 16px;
+    align-items: center;
+}
+
+.pagination-btn {
+    padding: 8px 12px;
+    min-width: 32px;
+    border-radius: 6px;
+}
+
+.page-info {
+    padding: 8px 12px;
+    font-weight: 600;
+    color: #333;
+}
