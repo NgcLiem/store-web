@@ -18,11 +18,10 @@ export default function Footer() {
                     <div className="footer-section">
                         <h3 className="footer-title">LIÊN HỆ</h3>
                         <p>
-                            <i className="fa-solid fa-location-dot"></i> 123
-                            Đường ABC, Quận 1, TP.HCM
+                            <i className="fa-solid fa-location-dot"></i> 97 Man Thiện, p. Hiệp Phú, TP.HCM
                         </p>
                         <p>
-                            <i className="fa-solid fa-phone"></i> 0123 456 789
+                            <i className="fa-solid fa-phone"></i> 0908070605
                         </p>
                         <p>
                             <i className="fa-solid fa-envelope"></i>{" "}
@@ -38,10 +37,10 @@ export default function Footer() {
                         <Link href="/adidas" className="footer-link">
                             Adidas
                         </Link>
-                        <Link href="/jordan" className="footer-link">
-                            Jordan
+                        <Link href="/otherBrand" className="footer-link">
+                            Vans
                         </Link>
-                        <Link href="/puma" className="footer-link">
+                        <Link href="/otherBrand" className="footer-link">
                             Puma
                         </Link>
                     </div>
@@ -103,7 +102,7 @@ export default function Footer() {
                 </div>
 
                 <div className="footer-bottom">
-                    © {new Date().getFullYear()} DONIDG STUDIO — All Rights
+                    © {new Date().getFullYear()} DONIDG STORE — All Rights
                     Reserved.
                 </div>
             </div>

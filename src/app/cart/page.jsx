@@ -70,7 +70,22 @@ export default function CartPage() {
                 });
                 const data = await res.json();
                 const items = data?.items ?? [];
-                setCartItems(items);
+
+                // Cập nhật giá mới nhất (ưu tiên sale_price)
+                const enrichedItems = await Promise.all(items.map(async (it) => {
+                    try {
+                        const resP = await fetch(`${API_BASE}/products/${it.product_id}`);
+                        const prod = await resP.json();
+                        const finalPrice = (prod?.sale_price && prod.sale_price < prod.price) ? prod.sale_price : (prod?.price ?? 0);
+                        return {
+                            ...it,
+                            price: finalPrice, // Ghi đè giá hiển thị
+                        };
+                    } catch (err) {
+                        return it;
+                    }
+                }));
+                setCartItems(enrichedItems);
             } catch (e) {
                 console.error(e);
                 setCartItems([]);

@@ -17,7 +17,7 @@ export default function AdminUsersPage() {
         setLoading(true);
         try {
             const res = await fetch(
-                `${API_BASE}/users?q=${encodeURIComponent(u)})`,
+                `${API_BASE}/users?q=${encodeURIComponent(u)}`,
             );
 
             const data = await res.json();

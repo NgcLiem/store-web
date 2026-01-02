@@ -16,7 +16,7 @@ export default function NikePage() {
 
     //  phân trang
     const [currentPage, setCurrentPage] = useState(1);
-    const pageSize = 16; // bạn đổi 8/12/16 tuỳ ý
+    const pageSize = 16;
 
     useEffect(() => {
         (async () => {

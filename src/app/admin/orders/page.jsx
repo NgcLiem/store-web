@@ -3,8 +3,8 @@
 import { useEffect, useMemo, useState } from "react";
 import "../admin.css";
 import "./orders.css";
-import { useAuth } from "../../../contexts/AuthContexts"; // chỉnh path nếu khác
-import { useToast } from "@/components/Toast"; // nếu bạn dùng toast kiểu này
+import { useAuth } from "../../../contexts/AuthContexts"; 
+import { useToast } from "@/components/Toast"; 
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3003";
 
@@ -20,16 +20,15 @@ export default function AdminOrdersPage() {
 
     const [loading, setLoading] = useState(true);
 
-    // ===== auth headers =====
+    //auth headers 
     const withAuthHeaders = (headers = {}) => {
         return token
             ? { ...headers, Authorization: `Bearer ${token}` }
             : headers;
     };
 
-    // ===== chọn endpoint theo role (giống products) =====
+    
     const getOrdersPathByRole = () => {
-        //  bạn muốn gắn role như products
         if (user?.role === "admin") return "/admin/orders";
         if (user?.role === "staff") return "/staff/orders";
 
@@ -37,8 +36,8 @@ export default function AdminOrdersPage() {
         return null;
     };
 
-    // ===== load =====
-    const load = async () => {
+    // load 
+    const load = async (searchQuery = q) => {
         setLoading(true);
 
         try {
@@ -53,9 +52,11 @@ export default function AdminOrdersPage() {
             const params = new URLSearchParams();
             if (status !== "all") params.set("status", status);
 
-            // Nếu muốn search phía backend: gửi q lên backend
-            // (khuyến nghị) => backend tự search theo id/email/phone/name
-            if (q.trim()) params.set("q", q.trim());
+            if (searchQuery && searchQuery.trim()) {
+                params.set("q", searchQuery.trim());
+            }
+
+            // if (q.trim()) params.set("q", q.trim());
 
             const url = `${API_BASE}${path}?${params.toString()}`;
 
@@ -72,7 +73,6 @@ export default function AdminOrdersPage() {
             try {
                 data = JSON.parse(text);
             } catch {
-                // backend trả text/html => in ra để debug
                 console.error("Không parse được JSON:", text);
             }
 
@@ -87,9 +87,6 @@ export default function AdminOrdersPage() {
                 return;
             }
 
-            //  chấp nhận 2 kiểu response:
-            // 1) backend trả mảng trực tiếp
-            // 2) backend trả { items } hoặc { orders } hoặc { success, orders }
             const list = Array.isArray(data)
                 ? data
                 : Array.isArray(data?.items)
@@ -113,30 +110,27 @@ export default function AdminOrdersPage() {
 
     useEffect(() => {
         load();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [status, user?.role, token]);
 
     const submitSearch = (e) => {
         e.preventDefault();
         setPage(1);
-        load();
+        load(q);
     };
 
-    // ===== pagination =====
+    //pagination
     const totalPages = Math.max(1, Math.ceil(orders.length / pageSize));
     const paged = useMemo(() => {
         const start = (page - 1) * pageSize;
         return orders.slice(start, start + pageSize);
     }, [orders, page]);
 
-    // ===== update status =====
+    // update status
     const updateStatus = async (order, newStatus) => {
         try {
             const path = getOrdersPathByRole();
             if (!path) return;
 
-            // endpoint update status: /admin/orders/:id/status (gợi ý)
-            // Nếu backend bạn khác, sửa ở đây cho khớp.
             const url = `${API_BASE}${path}/${order.id}/status`;
 
             const res = await fetch(url, {
@@ -170,7 +164,7 @@ export default function AdminOrdersPage() {
         }
     };
 
-    // ===== delete =====
+    // delete 
     const removeOrder = async (order) => {
         try {
             const path = getOrdersPathByRole();
@@ -220,7 +214,7 @@ export default function AdminOrdersPage() {
                         value={q}
                         onChange={(e) => setQ(e.target.value)}
                         className="form-input-admin search-input-narrow"
-                        placeholder="Tìm mã đơn / email / SĐT"
+                        placeholder="Tìm mã đơn / email"
                     />
 
                     <select
@@ -364,10 +358,6 @@ export default function AdminOrdersPage() {
                                                     Đã hủy
                                                 </option>
                                             </select>
-
-                                            {/* <button className="action-btn btn-danger" onClick={() => removeOrder(o)}>
-                                                Xoá
-                                            </button> */}
                                         </td>
                                     </tr>
                                 ))

@@ -1,4 +1,3 @@
-// src/utils/money.js
 export const formatVND = (value) => {
     const n = Number(value ?? 0);          // DECIMAL của mysql2 trả về string → ép số
     return new Intl.NumberFormat('vi-VN', {

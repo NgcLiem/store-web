@@ -28,7 +28,6 @@ function StaffOrdersPageContent() {
     const pageSize = 10;
     const [loading, setLoading] = useState(true);
 
-    // modal xác nhận xoá (thay cho window.confirm)
     const [confirmOpen, setConfirmOpen] = useState(false);
     const [confirmOrder, setConfirmOrder] = useState(null);
 
@@ -39,7 +38,6 @@ function StaffOrdersPageContent() {
     };
 
     const getOrdersPathByRole = () => {
-        // staff gọi /staff/orders giống hệt cách admin gọi /admin/orders
         if (user?.role === "staff") return "/staff/orders";
         return null;
     };
@@ -110,7 +108,6 @@ function StaffOrdersPageContent() {
 
     useEffect(() => {
         load();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [status, user?.role, token]);
 
     const submitSearch = (e) => {
@@ -136,15 +133,10 @@ function StaffOrdersPageContent() {
                 return;
             }
 
-            //  chọn 1 trong 2 kiểu endpoint (tùy backend bạn đang có):
-            // 1) PUT /staff/orders/:id  body {status}
             const url = `${API_BASE}${path}/${id}`;
 
-            // 2) nếu backend bạn dùng /:id/status thì đổi sang:
-            // const url = `${API_BASE}${path}/${id}/status`;
-
             const res = await fetch(url, {
-                method: "PUT", // hoặc PATCH tùy backend
+                method: "PUT",  
                 headers: withAuthHeaders({
                     "Content-Type": "application/json",
                 }),
@@ -181,7 +173,6 @@ function StaffOrdersPageContent() {
         setConfirmOpen(true);
     };
 
-    // xoá thật
     const removeOrder = async () => {
         const order = confirmOrder;
         setConfirmOpen(false);
@@ -405,16 +396,16 @@ function StaffOrdersPageContent() {
                                                 }}
                                             >
                                                 <option value="pending">
-                                                    pending
+                                                    Chờ xử lý
                                                 </option>
                                                 <option value="shipped">
-                                                    shipped
+                                                    Đã giao
                                                 </option>
                                                 <option value="delivered">
-                                                    delivered
+                                                    Hoàn thành
                                                 </option>
                                                 <option value="cancelled">
-                                                    cancelled
+                                                    Đã hủy
                                                 </option>
                                             </select>
                                         </td>

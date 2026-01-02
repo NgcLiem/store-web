@@ -57,7 +57,21 @@ export default function CheckoutPage() {
                 });
 
                 const data = await res.json().catch(() => ({}));
-                setCartItems(Array.isArray(data?.items) ? data.items : []);
+                const items = Array.isArray(data?.items) ? data.items : [];
+
+                const enrichedItems = await Promise.all(items.map(async (it) => {
+                    try {
+                        const pid = it.product_id || it.productId || it.id;
+                        const resP = await fetch(`${API_BASE}/products/${pid}`, { signal: ac.signal });
+                        const prod = await resP.json();
+                        const finalPrice = (prod?.sale_price && prod.sale_price < prod.price) ? prod.sale_price : (prod?.price ?? 0);
+                        return { ...it, price: finalPrice };
+                    } catch (err) {
+                        return it;
+                    }
+                }));
+                // setCartItems(Array.isArray(data?.items) ? data.items : []);
+                setCartItems(enrichedItems);
             } catch (e) {
                 if (e?.name !== "AbortError") {
                     console.error(e);
@@ -648,34 +662,6 @@ export default function CheckoutPage() {
                                 </p>
                             ) : null}
                         </section>
-
-                        <section className="checkout-section">
-                            <h2>Mã giảm giá</h2>
-                            <div className="checkout-voucher">
-                                <input
-                                    type="text"
-                                    value={voucherCode}
-                                    onChange={(e) =>
-                                        setVoucherCode(e.target.value)
-                                    }
-                                    placeholder="Nhập mã voucher"
-                                />
-                                <button
-                                    type="button"
-                                    onClick={handleApplyVoucher}
-                                >
-                                    Áp dụng
-                                </button>
-                            </div>
-
-                            {appliedVoucher && (
-                                <p className="checkout-voucher-info">
-                                    Đã áp dụng:{" "}
-                                    <strong>{appliedVoucher.code}</strong> (-{" "}
-                                    {discount.toLocaleString("vi-VN")} đ)
-                                </p>
-                            )}
-                        </section>
                     </div>
 
                     <div className="checkout-right">
@@ -687,12 +673,7 @@ export default function CheckoutPage() {
                                     {subTotal.toLocaleString("vi-VN")} đ
                                 </span>
                             </div>
-                            <div className="summary-line">
-                                <span>Voucher</span>
-                                <span>
-                                    - {discount.toLocaleString("vi-VN")} đ
-                                </span>
-                            </div>
+                            
                             <div className="summary-line">
                                 <span>Phí vận chuyển</span>
                                 <span>

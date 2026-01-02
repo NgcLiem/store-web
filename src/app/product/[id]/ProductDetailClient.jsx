@@ -118,12 +118,16 @@ export default function ProductDetailClient({ product }) {
                 <h1>{product.name}</h1>
 
                 <div className="pd-price">
-                    {formatPrice(product.price)}{" "}
-                    {product.original_price && (
-                        <span className="pd-original">
-                            {formatPrice(product.original_price)}
-                        </span>
-                    )}
+                   {product.sale_price && product.sale_price < product.price ? (
+                        <>
+                            <span className="pd-sale-price" style={{ color: "#d0021b", fontWeight: "bold", marginRight: "10px" }}>
+                                {formatPrice(product.sale_price)}
+                            </span>
+                            <span className="pd-original" style={{ textDecoration: "line-through", color: "#999", fontSize: "0.9em" }}>
+                                {formatPrice(product.price)}
+                            </span>
+                        </>
+                    ) : formatPrice(product.price)}
                 </div>
 
                 <div className="pd-sizes">

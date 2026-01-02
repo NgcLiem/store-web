@@ -23,7 +23,7 @@ function MomoReturnContent() {
             if (resultCode === 0) {
                 showToast("Thanh toán MoMo thành công!", "success");
 
-                // (tuỳ bạn) xoá cart ở client
+                //xoá cart ở client
                 if (token) {
                     await fetch(`${API_BASE}/cart/clear`, {
                         method: "DELETE",

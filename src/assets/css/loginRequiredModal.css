@@ -54,6 +54,7 @@
 }
 
 .lrm-primary {
-    background: linear-gradient(135deg, #10b981, #22c55e);
-    color: #fff;
+    background: #fff;
+    color: #333;
+    border: 1px solid #ccc;
 }
