@@ -1,13 +1,13 @@
 "use client";
 
 import { useSearchParams, useRouter } from "next/navigation";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, Suspense } from "react";
 import { formatVND } from "@/utils/money";
 import "./search.css";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3003";
 
-export default function SearchPage() {
+function SearchContent() {
     const params = useSearchParams();
     const router = useRouter();
 
@@ -216,5 +216,13 @@ export default function SearchPage() {
                 </div>
             )}
         </main>
+    );
+}
+
+export default function SearchPage() {
+    return (
+        <Suspense fallback={<div className="loadResultSearch">Đang tải kết quả tìm kiếm...</div>}>
+            <SearchContent />
+        </Suspense>
     );
 }

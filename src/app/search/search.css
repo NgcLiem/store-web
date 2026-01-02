@@ -253,3 +253,8 @@
 /* Small utilities */
 .muted { color: #6b7280; }
 .hidden { display: none !important; }
+
+.loadResultSearch{
+    text-align: center;
+    padding: 50px;
+}

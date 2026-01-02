@@ -1,12 +1,12 @@
 "use client";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import "./resetPassword.css"
 
 const API_BASE =
     process.env.NEXT_PUBLIC_API_URL || "http://localhost:3003";
 
-export default function ResetPasswordPage() {
+function ResetPasswordForm() {
     const searchParams = useSearchParams();
     const router = useRouter();
     const token = searchParams.get("token");
@@ -137,5 +137,13 @@ export default function ResetPasswordPage() {
             </form>
 
         </div>
+    );
+}
+
+export default function ResetPasswordPage() {
+    return (
+        <Suspense fallback={<div>Đang tải...</div>}>
+            <ResetPasswordForm />
+        </Suspense>
     );
 }
