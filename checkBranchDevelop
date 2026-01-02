@@ -1,0 +1,39 @@
+********************************************************************** Quy Trình Test Code Trên Nhánh Develop *******************************************
+................................... 1. Chuyển sang nhánh develop và kéo code mới nhất ...................................
+Mở terminal và chạy:
+git checkout develop
+git pull origin develop
+
+................................... 2. Cài lại dependencies ..................................
+Nếu là project frontend (React/Vue/Angular):
+npm install
+hoặc
+yarn install
+
+................................... 3. Chạy ứng dụng ...................................
+npm start
+hoặc
+yarn start
+Ứng dụng sẽ chạy với toàn bộ code từ develop. Mở trình duyệt và kiểm tra các tính năng.
+
+
+................................... 4. Chạy test tự động (nếu có) ...................................
+npm test
+Nếu có pipeline CI/CD thì chạy theo script của team để kiểm tra tự động.
+
+
+................................... 5. Báo lỗi hoặc sửa lỗi ngay trên develop/feature ...................................
+Nếu phát hiện bug:
+git checkout develop
+git pull origin develop
+git checkout -b bugfix/fix-login
+# sửa code
+git add .
+git commit -m "fix: lỗi login không redirect"
+git push origin bugfix/fix-login
+
+Sau đó tạo Pull Request để merge vào develop và test lại.
+Mẹo:
+- Luôn pull develop mới nhất trước khi test.
+- Tạo checklist test tính năng (login, đăng ký, giỏ hàng, API...).
+- Báo lỗi ngay hoặc tự fix và mở PR.

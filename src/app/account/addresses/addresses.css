@@ -1,0 +1,182 @@
+/* addresses.css */
+
+.customerContentGrid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: 1fr 1fr;
+  align-items: start;
+}
+
+@media (max-width: 980px) {
+  .customerContentGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.panelTitle {
+  margin: 0 0 10px;
+}
+
+.formWrap {
+  max-width: 640px;
+}
+
+.formWrap label {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+  font-size: 13px;
+  color: #111827;
+}
+
+.formActions {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+
+/* ===== Buttons (ghi đè nhẹ theo kiểu production) ===== */
+.action-btn {
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: transform 0.06s ease, box-shadow 0.15s ease, background 0.15s ease,
+    border-color 0.15s ease;
+  user-select: none;
+}
+
+.action-btn:active {
+  transform: translateY(1px);
+}
+
+.actionBtnPrimary {
+  background: #111827;
+  color: #fff;
+  border-color: #111827;
+  box-shadow: 0 8px 22px rgba(17, 24, 39, 0.12);
+}
+
+/* NÚT "Thêm địa chỉ" chính là actionBtnPrimary khi không editing */
+.actionBtnPrimary:hover {
+  box-shadow: 0 10px 26px rgba(17, 24, 39, 0.18);
+}
+
+.actionBtnNeutral {
+  background: #f3f4f6;
+  color: #111827;
+  border-color: #e5e7eb;
+}
+
+.actionBtnSoft {
+  background: #f9fafb;
+  color: #111827;
+  border-color: #e5e7eb;
+}
+
+.actionBtnOutline {
+  background: #ffffff;
+  color: #111827;
+  border-color: #e5e7eb;
+}
+
+/* ===== List ===== */
+.emptyHint {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 8px 0 0;
+}
+
+.addressList {
+  display: grid;
+  gap: 10px;
+}
+
+.addressCard {
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 12px;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+  background: #fff;
+}
+
+.addressMain {
+  min-width: 0; /* để ellipsis hoạt động */
+}
+
+.addressHeader {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.addressName {
+  font-size: 14px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.badgeDefault {
+  font-size: 11px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: #ecfdf5;
+  color: #047857;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+}
+
+.addressMeta {
+  margin-top: 6px;
+  font-size: 13px;
+  color: #4b5563;
+  display: grid;
+  gap: 3px;
+}
+
+.addressPhone {
+  color: #374151;
+}
+
+/* “…” cho địa chỉ dài */
+.addressLine {
+  max-width: 520px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Nếu bạn muốn 2 dòng + “…”, dùng cái này thay cho block trên:
+.addressLine{
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+*/
+
+.addressActions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-end;
+  flex-shrink: 0;
+}
+
+@media (max-width: 520px) {
+  .addressCard {
+    flex-direction: column;
+  }
+  .addressActions {
+    width: 100%;
+    align-items: stretch;
+  }
+}
