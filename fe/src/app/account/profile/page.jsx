@@ -13,10 +13,10 @@ export default function ProfilePage() {
     const { showToast } = useToast();
 
     const [form, setForm] = useState({
-        full_name: user?.full_name || "",
-        email: user?.email || "",
-        phone: user?.phone || "",
-        address: user?.address || "",
+        full_name: "",
+        email: "",
+        phone: "",
+        address: "",
     });
 
     // Cập nhật form khi user data thay đổi
@@ -109,7 +109,11 @@ export default function ProfilePage() {
             }
 
             showToast("Đổi mật khẩu thành công!", "success");
-            setPasswordForm({ oldPassword: "", newPassword: "", confirmPassword: "" });
+            setPasswordForm({
+                oldPassword: "",
+                newPassword: "",
+                confirmPassword: "",
+            });
             setShowChangePassword(false);
         } catch (err) {
             console.error(err);
@@ -128,27 +132,37 @@ export default function ProfilePage() {
 
             <div className="customer-content">
                 <div className="profile-grid">
-                    {/* Form */}
                     <form onSubmit={save} className="profile-card">
                         <h3>Thông tin cá nhân</h3>
 
                         <label>
-                            <span>Email <span className="required">*</span></span>
+                            <span>
+                                Email <span className="required">*</span>
+                            </span>
                             <input
                                 className="form-input-customer"
                                 type="email"
                                 value={form.email}
                                 disabled
                             />
-                            <small className="muted">Email không thể thay đổi</small>
+                            <small className="muted">
+                                Email không thể thay đổi
+                            </small>
                         </label>
 
                         <label>
-                            <span>Họ tên <span className="required">*</span></span>
+                            <span>
+                                Họ tên <span className="required">*</span>
+                            </span>
                             <input
                                 className="form-input-customer"
                                 value={form.full_name}
-                                onChange={(e) => setForm({ ...form, full_name: e.target.value })}
+                                onChange={(e) =>
+                                    setForm({
+                                        ...form,
+                                        full_name: e.target.value,
+                                    })
+                                }
                                 required
                             />
                         </label>
@@ -159,19 +173,23 @@ export default function ProfilePage() {
                                 className="form-input-customer"
                                 type="tel"
                                 value={form.phone}
-                                onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                                onChange={(e) =>
+                                    setForm({ ...form, phone: e.target.value })
+                                }
                             />
                         </label>
 
-                        
-
                         <div className="profile-actions">
-                            <button className="btn-primary" type="submit" disabled={saving}>
+                            <button
+                                className="btn-primary-profile"
+                                type="submit"
+                                disabled={saving}
+                            >
                                 {saving ? "Đang lưu…" : "Lưu thay đổi"}
                             </button>
 
-                            <button 
-                                type="button" 
+                            <button
+                                type="button"
                                 className="btn-primary-profile"
                                 onClick={() => setShowChangePassword(true)}
                             >
@@ -186,12 +204,16 @@ export default function ProfilePage() {
 
                         <div className="profile-side-block">
                             <p className="label">Họ tên:</p>
-                            <p className="value">{form.full_name || "Chưa cập nhật"}</p>
+                            <p className="value">
+                                {form.full_name || "Chưa cập nhật"}
+                            </p>
                         </div>
 
                         <div className="profile-side-block">
                             <p className="label">Số điện thoại:</p>
-                            <p className="value">{form.phone || "Chưa cập nhật"}</p>
+                            <p className="value">
+                                {form.phone || "Chưa cập nhật"}
+                            </p>
                         </div>
 
                         <div className="profile-side-block">
@@ -204,9 +226,10 @@ export default function ProfilePage() {
                             <p className="value">Khách hàng thường xuyên</p>
                         </div>
 
-                       
-
-                        <Link href="/account/orders" className="btn-primary-history full">
+                        <Link
+                            href="/account/orders"
+                            className="btn-primary-history full"
+                        >
                             Xem lịch sử đơn hàng
                         </Link>
 
@@ -219,42 +242,72 @@ export default function ProfilePage() {
 
             {/* Change Password Modal */}
             {showChangePassword && (
-                <div className="profile-modal-backdrop" onClick={() => setShowChangePassword(false)}>
-                    <div className="profile-modal" onClick={(e) => e.stopPropagation()}>
+                <div
+                    className="profile-modal-backdrop"
+                    onClick={() => setShowChangePassword(false)}
+                >
+                    <div
+                        className="profile-modal"
+                        onClick={(e) => e.stopPropagation()}
+                    >
                         <h3>Đổi mật khẩu</h3>
 
                         <form onSubmit={handleChangePassword}>
                             <label>
-                                <span>Mật khẩu hiện tại <span className="required">*</span></span>
+                                <span>
+                                    Mật khẩu hiện tại{" "}
+                                    <span className="required">*</span>
+                                </span>
                                 <input
                                     className="form-input-customer"
                                     type="password"
                                     value={passwordForm.oldPassword}
-                                    onChange={(e) => setPasswordForm({ ...passwordForm, oldPassword: e.target.value })}
+                                    onChange={(e) =>
+                                        setPasswordForm({
+                                            ...passwordForm,
+                                            oldPassword: e.target.value,
+                                        })
+                                    }
                                     required
                                     placeholder="Nhập mật khẩu hiện tại"
                                 />
                             </label>
 
                             <label>
-                                <span>Mật khẩu mới <span className="required">*</span></span>
+                                <span>
+                                    Mật khẩu mới{" "}
+                                    <span className="required">*</span>
+                                </span>
                                 <input
                                     className="form-input-customer"
                                     type="password"
                                     value={passwordForm.newPassword}
-                                    onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
+                                    onChange={(e) =>
+                                        setPasswordForm({
+                                            ...passwordForm,
+                                            newPassword: e.target.value,
+                                        })
+                                    }
                                     required
                                     placeholder="Nhập mật khẩu mới"
                                 />
                             </label>
 
                             <label>
-                                <span>Xác nhận mật khẩu mới <span className="required">*</span></span>
+                                <span>
+                                    Xác nhận mật khẩu mới{" "}
+                                    <span className="required">*</span>
+                                </span>
                                 <input
                                     className="form-input-customer"
                                     type="password"
                                     value={passwordForm.confirmPassword}
-                                    onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
+                                    onChange={(e) =>
+                                        setPasswordForm({
+                                            ...passwordForm,
+                                            confirmPassword: e.target.value,
+                                        })
+                                    }
                                     required
                                     placeholder="Nhập lại mật khẩu mới"
                                 />
@@ -274,7 +327,9 @@ export default function ProfilePage() {
                                     className="btn-primary"
                                     disabled={changingPassword}
                                 >
-                                    {changingPassword ? "Đang đổi..." : "Đổi mật khẩu"}
+                                    {changingPassword
+                                        ? "Đang đổi..."
+                                        : "Đổi mật khẩu"}
                                 </button>
                             </div>
                         </form>

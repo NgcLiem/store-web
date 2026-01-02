@@ -1,0 +1,275 @@
+
+.admin-container,
+.staff-container {
+  display: flex;
+  min-height: 100vh;
+  background: #f5f7fa;
+}
+
+/* Sidebar */
+.admin-sidebar,
+.staff-sidebar {
+  width: 260px;
+  background: #fff;
+  color: #333;
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  height: 100vh;
+  left: 0;
+  top: 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.35);
+
+}
+
+.sidebar-header {
+  padding: 2rem 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  font-weight: 500;
+}
+
+.sidebar-header h2 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.5rem;
+}
+
+.sidebar-header p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #bdc3c7;
+}
+
+.sidebar-menu {
+  flex: 1;
+  padding: 1rem 0;
+  overflow-y: auto;
+}
+
+.menu-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-left-color: rgba(21, 240, 35, 0.9);
+  border-radius: 40px;
+}
+
+.menu-item i {
+  font-size: 1.1rem;
+  width: 20px;
+}
+
+.sidebar-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.product-thumb {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid #eee;
+}
+
+/* Main Content */
+.admin-main,
+.staff-main {
+  margin-left: 260px;
+  flex: 1;
+  padding: 2rem;
+  margin-top: -80px;
+}
+
+.admin-header,
+.staff-header {
+  margin-bottom: 2rem;
+}
+
+.admin-header h1,
+.staff-header h1 {
+  font-size: 2rem;
+  color: #2c3e50;
+  margin-bottom: 1.5rem;
+}
+
+/* Stats Cards */
+.admin-stats,
+.staff-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.stat-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+.stat-card i {
+  font-size: 2.5rem;
+  color: var(--maincolor);
+  width: 60px;
+  height: 60px;
+  background: rgba(52, 152, 219, 0.1);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stat-card h3 {
+  margin: 0;
+  font-size: 1.8rem;
+  color: #2c3e50;
+}
+
+.stat-card p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #7f8c8d;
+}
+
+/* Content */
+.admin-content,
+.staff-content {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  margin-top: 2rem;
+}
+
+.admin-content h2,
+.staff-content h2 {
+  color: #2c3e50;
+  margin-bottom: 1rem;
+}
+
+/* Quick Actions */
+.quick-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.action-btn {
+  padding: 0.75rem 1.5rem;
+  background: var(--maincolor);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+  transition: background 0.3s ease, transform 0.2s ease;
+      justify-content: center;
+}
+
+.action-btn:hover {
+  background: rgba(28, 180, 70, 0.8);
+  transform: translateY(-2px);
+}
+
+.action-btn i {
+  font-size: 1.1rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .admin-sidebar,
+  .staff-sidebar {
+    width: 80px;
+  }
+
+  .admin-main,
+  .staff-main {
+    margin-left: 80px;
+  }
+
+  .sidebar-header h2,
+  .sidebar-header p,
+  .menu-item span {
+    display: none;
+  }
+
+  .menu-item {
+    justify-content: center;
+    padding: 1rem;
+  }
+
+  .admin-stats,
+  .staff-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .quick-actions {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-sidebar,
+  .staff-sidebar {
+    display: none;
+  }
+
+  .admin-main,
+  .staff-main {
+    margin-left: 0;
+    padding: 1rem;
+  }
+}
+
+.floating-group {
+  position: relative;
+  margin-bottom: 16px;
+}
+
+.floating-group input {
+  width: 100%;
+  padding: 14px 12px 10px 12px;
+  font-size: 15px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  outline: none;
+  background: white;
+  transition: border-color 0.2s ease;
+}
+
+.floating-group input:focus {
+  border-color: rgba(21, 150, 35, 0.9);
+}
+
+.floating-group label {
+  position: absolute;
+  left: 12px;
+  top: 14px;
+  font-size: 15px;
+  color: #666;
+  background: white;
+  padding: 0 4px;
+  pointer-events: none;
+  transition: all 0.15s ease;
+}
+
+/* Label bay lên khi gõ hoặc khi focus */
+.floating-group input:focus + label,
+.floating-group input:not(:placeholder-shown) + label {
+  top: -8px;
+  left: 10px;
+  font-size: 12px;
+  color: rgba(21, 150, 35, 0.9); /* màu label khi nổi lên */
+  font-weight: 600;
+}

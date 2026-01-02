@@ -6,8 +6,9 @@ import { useToast } from "@/components/Toast";
 import { addItemToLocalCart } from "@/lib/localCart";
 import { formatPrice } from "@/lib/format";
 import "./productDetail.css";
-import "../../../assets/css/toast.css"
-
+import "../../../assets/css/toast.css";
+import LoginRequiredModal from "@/components/LoginRequiredModal";
+import { useMemo } from "react";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3003";
 
@@ -16,6 +17,7 @@ export default function ProductDetailClient({ product }) {
     const [quantity, setQuantity] = useState(1);
     const router = useRouter();
     const { user, token, loading } = useAuth();
+    const [openLoginModal, setOpenLoginModal] = useState(false);
     const { showToast } = useToast();
 
     const sizes = Array.isArray(product?.sizes) ? product.sizes : [];
@@ -35,7 +37,8 @@ export default function ProductDetailClient({ product }) {
         });
 
         const json = await res.json().catch(() => ({}));
-        if (!res.ok) throw new Error(json.message || "Không thể thêm vào giỏ hàng");
+        if (!res.ok)
+            throw new Error(json.message || "Không thể thêm vào giỏ hàng");
         return json;
     };
 
@@ -51,7 +54,11 @@ export default function ProductDetailClient({ product }) {
         }
 
         if (!user || !token) {
-            addItemToLocalCart({ product_id: product.id, quantity, size: selectedSize });
+            addItemToLocalCart({
+                product_id: product.id,
+                quantity,
+                size: selectedSize,
+            });
             showToast("Đã thêm vào giỏ hàng", "success");
             return;
         }
@@ -76,8 +83,13 @@ export default function ProductDetailClient({ product }) {
         }
 
         if (!user || !token) {
-            addItemToLocalCart({ product_id: product.id, quantity, size: selectedSize });
-            router.push("/checkout");
+            addItemToLocalCart({
+                product_id: product.id,
+                quantity,
+                size: selectedSize,
+            });
+
+            setOpenLoginModal(true);
             return;
         }
 
@@ -93,19 +105,24 @@ export default function ProductDetailClient({ product }) {
         <div className="product-detail-container">
             <div className="pd-left">
                 <img
-                    src={(product?.image_url && product.image_url.trim()) ? product.image_url : "/images/no-image.png"}
+                    src={
+                        product?.image_url && product.image_url.trim()
+                            ? product.image_url
+                            : "/images/no-image.png"
+                    }
                     alt={product?.name || "Product"}
                 />
-
             </div>
 
             <div className="pd-right">
-                <h1>{product.name}aaa</h1>
+                <h1>{product.name}</h1>
 
                 <div className="pd-price">
                     {formatPrice(product.price)}{" "}
                     {product.original_price && (
-                        <span className="pd-original">{formatPrice(product.original_price)}</span>
+                        <span className="pd-original">
+                            {formatPrice(product.original_price)}
+                        </span>
                     )}
                 </div>
 
@@ -120,9 +137,15 @@ export default function ProductDetailClient({ product }) {
                                 <button
                                     key={`size-${s.size.size_value}`}
                                     className={`pd-size-btn ${selectedSize === s.size.size_value ? "selected" : ""}`}
-                                    onClick={() => setSelectedSize(s.size.size_value)}
+                                    onClick={() =>
+                                        setSelectedSize(s.size.size_value)
+                                    }
                                     disabled={s.stock <= 0}
-                                    title={s.stock <= 0 ? "Hết hàng" : `Còn ${s.stock}`}
+                                    title={
+                                        s.stock <= 0
+                                            ? "Hết hàng"
+                                            : `Còn ${s.stock}`
+                                    }
                                 >
                                     {s.size.size_value}
                                 </button>
@@ -131,19 +154,31 @@ export default function ProductDetailClient({ product }) {
                     )}
                 </div>
 
-
                 <div className="pd-qty">
                     <h4>Số lượng</h4>
                     <div className="pd-qty-controls">
-                        <button onClick={() => setQuantity(Math.max(1, quantity - 1))} disabled={quantity <= 1}>-</button>
+                        <button
+                            onClick={() =>
+                                setQuantity(Math.max(1, quantity - 1))
+                            }
+                            disabled={quantity <= 1}
+                        >
+                            -
+                        </button>
                         <span>{quantity}</span>
-                        <button onClick={() => setQuantity(quantity + 1)}>+</button>
+                        <button onClick={() => setQuantity(quantity + 1)}>
+                            +
+                        </button>
                     </div>
                 </div>
 
                 <div className="pd-actions">
-                    <button className="pd-add" onClick={handleAddToCart}>THÊM VÀO GIỎ HÀNG</button>
-                    <button className="pd-buy" onClick={handleBuyNow}>MUA NGAY</button>
+                    <button className="pd-add" onClick={handleAddToCart}>
+                        THÊM VÀO GIỎ HÀNG
+                    </button>
+                    <button className="pd-buy" onClick={handleBuyNow}>
+                        MUA NGAY
+                    </button>
                 </div>
 
                 <div className="pd-desc">
@@ -151,6 +186,12 @@ export default function ProductDetailClient({ product }) {
                     <p>{product.description || "Chưa có mô tả"}</p>
                 </div>
             </div>
+            <LoginRequiredModal
+                open={openLoginModal}
+                onClose={() => setOpenLoginModal(false)}
+                message="Bạn cần đăng nhập để có thể mua ngay. Vui lòng đăng nhập để tiếp tục."
+                callback="/checkout"
+            />
         </div>
     );
 }

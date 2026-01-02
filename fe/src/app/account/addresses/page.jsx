@@ -5,14 +5,11 @@ import { useToast } from "@/components/Toast";
 import { useAuth } from "@/contexts/AuthContexts";
 import "./addresses.css";
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL;
+
 export default function AddressBookPage() {
     const { token } = useAuth();
     const { showToast } = useToast();
-
-    const API_BASE = useMemo(
-        () => process.env.NEXT_PUBLIC_API_URL || "http://localhost:3003",
-        []
-    );
 
     const [items, setItems] = useState([]);
     const [form, setForm] = useState({ name: "", phone: "", line: "" });
@@ -85,7 +82,9 @@ export default function AddressBookPage() {
             const updated = await res.json().catch(() => null);
 
             if (editing && updated) {
-                setItems((prev) => prev.map((a) => (a.id === editing ? updated : a)));
+                setItems((prev) =>
+                    prev.map((a) => (a.id === editing ? updated : a)),
+                );
             } else if (updated) {
                 setItems((prev) => [updated, ...prev]);
             } else {
@@ -93,7 +92,12 @@ export default function AddressBookPage() {
                 await fetchList();
             }
 
-            showToast(editing ? "Cập nhật địa chỉ thành công" : "Thêm địa chỉ thành công", "success");
+            showToast(
+                editing
+                    ? "Cập nhật địa chỉ thành công"
+                    : "Thêm địa chỉ thành công",
+                "success",
+            );
 
             setForm({ name: "", phone: "", line: "" });
             setEditing(null);
@@ -120,7 +124,12 @@ export default function AddressBookPage() {
             });
             if (!res.ok) throw new Error(`HTTP ${res.status}`);
             const updated = await res.json().catch(() => ({ id }));
-            setItems((prev) => prev.map((a) => ({ ...a, is_default: a.id === updated.id ? 1 : 0 })));
+            setItems((prev) =>
+                prev.map((a) => ({
+                    ...a,
+                    is_default: a.id === updated.id ? 1 : 0,
+                })),
+            );
             showToast("Đã đặt làm địa chỉ mặc định", "success");
         } catch (e) {
             console.error(e);
@@ -129,6 +138,7 @@ export default function AddressBookPage() {
     };
 
     const remove = async (id) => {
+        console.log("REMOVE id =", id, "type =", typeof id);
         try {
             const res = await fetch(`${API_BASE}/addresses/${id}`, {
                 method: "DELETE",
@@ -152,15 +162,22 @@ export default function AddressBookPage() {
 
             <div className="customer-content customerContentGrid">
                 <div className="panel">
-                    <h3 className="panelTitle">{editing ? "Cập nhật địa chỉ" : "Thêm địa chỉ mới"}</h3>
+                    <h3 className="panelTitle">
+                        {editing ? "Cập nhật địa chỉ" : "Thêm địa chỉ mới"}
+                    </h3>
 
-                    <form onSubmit={handleSubmit} className="profile-form formWrap">
+                    <form
+                        onSubmit={handleSubmit}
+                        className="profile-form formWrap"
+                    >
                         <label>
                             Họ tên người nhận
                             <input
                                 className="form-input-customer"
                                 value={form.name}
-                                onChange={(e) => setForm({ ...form, name: e.target.value })}
+                                onChange={(e) =>
+                                    setForm({ ...form, name: e.target.value })
+                                }
                             />
                         </label>
 
@@ -169,7 +186,9 @@ export default function AddressBookPage() {
                             <input
                                 className="form-input-customer"
                                 value={form.phone}
-                                onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                                onChange={(e) =>
+                                    setForm({ ...form, phone: e.target.value })
+                                }
                             />
                         </label>
 
@@ -179,12 +198,17 @@ export default function AddressBookPage() {
                                 className="form-input-customer"
                                 placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành phố"
                                 value={form.line}
-                                onChange={(e) => setForm({ ...form, line: e.target.value })}
+                                onChange={(e) =>
+                                    setForm({ ...form, line: e.target.value })
+                                }
                             />
                         </label>
 
                         <div className="formActions">
-                            <button type="submit" className="action-btn actionBtnPrimary">
+                            <button
+                                type="submit"
+                                className="action-btn actionBtnPrimary"
+                            >
                                 {editing ? "Lưu thay đổi" : "Thêm địa chỉ"}
                             </button>
 
@@ -194,7 +218,11 @@ export default function AddressBookPage() {
                                     className="action-btn actionBtnNeutral"
                                     onClick={() => {
                                         setEditing(null);
-                                        setForm({ name: "", phone: "", line: "" });
+                                        setForm({
+                                            name: "",
+                                            phone: "",
+                                            line: "",
+                                        });
                                     }}
                                 >
                                     Huỷ
@@ -218,15 +246,29 @@ export default function AddressBookPage() {
                                     <div className="addressMain">
                                         <div className="addressHeader">
                                             <strong className="addressName">
-                                                {addr.name ?? addr.full_name ?? "Không tên"}
+                                                {addr.name ??
+                                                    addr.full_name ??
+                                                    "Không tên"}
                                             </strong>
 
-                                            {!!addr.is_default && <span className="badgeDefault">Mặc định</span>}
+                                            {!!addr.is_default && (
+                                                <span className="badgeDefault">
+                                                    Mặc định
+                                                </span>
+                                            )}
                                         </div>
 
                                         <div className="addressMeta">
-                                            <div className="addressPhone">{addr.phone}</div>
-                                            <div className="addressLine" title={addr.line ?? addr.address_line}>
+                                            <div className="addressPhone">
+                                                {addr.phone}
+                                            </div>
+                                            <div
+                                                className="addressLine"
+                                                title={
+                                                    addr.line ??
+                                                    addr.address_line
+                                                }
+                                            >
                                                 {addr.line ?? addr.address_line}
                                             </div>
                                         </div>
@@ -235,9 +277,11 @@ export default function AddressBookPage() {
                                     <div className="addressActions">
                                         {!addr.is_default && (
                                             <button
-                                                className="action-btn actionBtnSoft"
+                                                className=" actionBtnSoftDefault"
                                                 type="button"
-                                                onClick={() => setDefault(addr.id)}
+                                                onClick={() =>
+                                                    setDefault(addr.id)
+                                                }
                                             >
                                                 Đặt làm mặc định
                                             </button>
@@ -254,7 +298,9 @@ export default function AddressBookPage() {
                                         <button
                                             className="action-btn actionBtnDanger"
                                             type="button"
-                                            onClick={() => remove(addr.id)}
+                                            onClick={() =>
+                                                remove(Number(addr.id))
+                                            }
                                         >
                                             Xoá
                                         </button>

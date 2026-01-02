@@ -1,0 +1,314 @@
+.product-search-form {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+    align-items: center;
+}
+
+.table-wrapper {
+    overflow-x: auto;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    margin-top: 16px; 
+}
+
+.product-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 800px;
+}
+
+.table-header-row {
+    background: #f8f8f8;
+    border-bottom: 2px solid #ddd;
+}
+
+.table-header-cell {
+    padding: 12px;
+    font-weight: 600;
+    color: #444;
+}
+
+.text-left { text-align: left !important; }
+.text-right { text-align: right !important; }
+.text-center { text-align: center !important; }
+
+.product-image-header {
+    width: 90px;
+}
+.product-image-cell {
+    padding: 12px;
+    text-align: center;
+}
+.no-image-text {
+    font-size: 12px;
+    color: #888;
+}
+
+.table-body-row {
+    border-bottom: 1px solid #eee;
+}
+
+.table-body-row:last-child {
+    border-bottom: none;
+}
+
+.table-cell {
+    padding: 12px;
+    color: #555;
+    vertical-align: middle;
+}
+
+.table-cell-center {
+    text-align: center;
+    color: #999;
+}
+
+.table-actions-cell {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    padding: 12px;
+    white-space: nowrap;
+}
+
+/* --- Modal (Popup) --- */
+
+.modal-form {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px 18px;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    margin-top: 20px;
+}
+
+.floating-group,
+.image-input-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.floating-group {
+    position: relative;
+}
+
+/* Input trong floating-group */
+.floating-group input,
+.floating-group select {
+    width: 100%;
+    border-radius: 12px;
+    border: 1px solid #d1d5db;
+    background: #f9fafb;
+    padding: 12px 12px 10px;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease,
+        background-color 0.15s ease;
+}
+
+.floating-group input:focus,
+.floating-group select:focus {
+    border-color: #10b981;
+    background-color: #ffffff;
+    box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.3);
+}
+
+/* Label nổi */
+.floating-group label {
+    position: absolute;
+    left: 12px;
+    top: 11px;
+    font-size: 13px;
+    color: #9ca3af;
+    pointer-events: none;
+    transition: all 0.14s ease;
+    background: transparent;
+}
+
+/* hiệu ứng label nổi khi có value hoặc focus (input đang dùng placeholder=" ") */
+.floating-group input:focus + label,
+.floating-group input:not(:placeholder-shown) + label,
+.floating-group select:focus + label {
+    top: -7px;
+    font-size: 11px;
+    color: #10b981;
+    background: #ffffff;
+    padding: 0 6px;
+    border-radius: 999px;
+    box-shadow: 0 0 0 1px rgba(209, 213, 219, 0.7);
+}
+
+
+.image-input-group {
+    grid-column: span 2;
+    padding: 10px 12px 12px;
+    border-radius: 16px;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+}
+
+
+@media (max-width: 600px) {
+    .modal-form {
+        grid-template-columns: 1fr;
+    }
+}
+
+.image-label {
+    font-weight: 600;
+    color: #2c3e50;
+    padding: 5px 0 10px 5px;
+}
+
+.image-input-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.image-input-row .form-input {
+    flex: 1;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    margin-top: 20px;
+}
+
+.btn-danger {
+    background: #e74c3c;
+    color: #fff;
+}
+.btn-danger:hover {
+    background: #c0392b;
+}
+
+.btn-secondary {
+    background: #bdc3c7; /* Màu xám cho nút Huỷ */
+    color: #333;
+}
+.btn-secondary:hover {
+    background: #95a5a6;
+    color: #fff;
+}
+
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+/* Khu vực drag & drop */
+.image-dropzone {
+    margin-top: 12px;
+    padding: 12px;
+    border: 1px dashed #d0d7de;
+    border-radius: 12px;
+    text-align: center;
+    font-size: 0.9rem;
+    color: #666;
+    background: #f3f4f6;
+    transition: all 0.2s ease;
+}
+
+
+.image-dropzone.drag-active {
+    border-color: #2ecc71;
+    background: #f0fff5;
+}
+
+.link-button {
+    background: none;
+    border: none;
+    color: var(--maincolor);
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0;
+}
+.link-button:hover {
+    text-decoration: underline;
+}
+
+.uploading-text {
+    margin-top: 4px;
+    font-size: 0.85rem;
+    color: #888;
+}
+
+/* Preview ảnh */
+.image-preview {
+    margin-top: 10px;
+    padding: 8px;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    background: #ffffff;
+    display: flex;
+    justify-content: center;
+}
+
+.image-preview img {
+    max-width: 140px;
+    max-height: 140px;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+.image-preview img {
+    max-width: 120px;
+    max-height: 120px;
+    object-fit: contain;
+    border-radius: 6px;
+}
+
+.image-placeholder {
+    margin-top: 8px;
+    color: #aaa;
+    font-size: 0.9rem;
+}
+
+.product-thumb {
+    width: 56px;
+    height: 56px;
+    border-radius: 12px;
+    object-fit: cover;
+    border: 1px solid #e5e7eb;
+}
+/* ===== MODAL XÁC NHẬN XOÁ ===== */
+
+.confirm-modal {
+  width: 380px;
+  max-width: 90%;
+  text-align: left;
+}
+
+.confirm-title {
+  margin: 0 0 8px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.confirm-text {
+  font-size: 0.9rem;
+  color: #4b5563;
+  line-height: 1.6;
+  margin-bottom: 18px;
+}
+
+.confirm-product-name {
+  font-weight: 600;
+  color: #111827;
+}
+
+.confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}

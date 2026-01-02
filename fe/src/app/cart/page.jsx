@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContexts";
 import { getLocalCart, saveLocalCart } from "@/lib/localCart";
+import LoginRequiredModal from "@/components/LoginRequiredModal";
 import "./cart.css";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3003";
@@ -12,6 +13,7 @@ export default function CartPage() {
     const { user, token, loading } = useAuth();
     const [cartItems, setCartItems] = useState([]);
     const [loadingCart, setLoadingCart] = useState(true);
+    const [openLoginModal, setOpenLoginModal] = useState(false);
 
     const makeKey = (item, idx) => {
         if (item.cart_item_id) return `ci-${item.cart_item_id}`;
@@ -34,7 +36,9 @@ export default function CartPage() {
 
                     const fetched = await Promise.all(
                         local.map(async (it) => {
-                            const res = await fetch(`${API_BASE}/products/${it.product_id}`);
+                            const res = await fetch(
+                                `${API_BASE}/products/${it.product_id}`,
+                            );
                             const prod = await res.json().catch(() => null);
                             return {
                                 cart_item_id: null,
@@ -45,7 +49,7 @@ export default function CartPage() {
                                 price: prod?.price ?? 0,
                                 image_url: prod?.image_url ?? "/no-image.png",
                             };
-                        })
+                        }),
                     );
 
                     setCartItems(fetched);
@@ -77,22 +81,31 @@ export default function CartPage() {
     }, [loading, user, token]);
 
     const sameGuestLine = (a, product_id, size) =>
-        Number(a.product_id) === Number(product_id) && (a.size ?? null) === (size ?? null);
+        Number(a.product_id) === Number(product_id) &&
+        (a.size ?? null) === (size ?? null);
 
     const removeGuest = (product_id, size) => {
-        const local = getLocalCart().filter((it) => !sameGuestLine(it, product_id, size));
+        const local = getLocalCart().filter(
+            (it) => !sameGuestLine(it, product_id, size),
+        );
         saveLocalCart(local);
-        setCartItems((prev) => prev.filter((it) => !sameGuestLine(it, product_id, size)));
+        setCartItems((prev) =>
+            prev.filter((it) => !sameGuestLine(it, product_id, size)),
+        );
     };
 
     const updateGuestQty = (product_id, size, newQty) => {
         const qty = Math.max(1, Number(newQty || 1));
         const local = getLocalCart().map((it) =>
-            sameGuestLine(it, product_id, size) ? { ...it, quantity: qty } : it
+            sameGuestLine(it, product_id, size) ? { ...it, quantity: qty } : it,
         );
         saveLocalCart(local);
         setCartItems((prev) =>
-            prev.map((it) => (sameGuestLine(it, product_id, size) ? { ...it, quantity: qty } : it))
+            prev.map((it) =>
+                sameGuestLine(it, product_id, size)
+                    ? { ...it, quantity: qty }
+                    : it,
+            ),
         );
     };
 
@@ -107,7 +120,9 @@ export default function CartPage() {
             headers: { Authorization: `Bearer ${token}` },
         });
 
-        setCartItems((prev) => prev.filter((x) => x.cart_item_id !== item.cart_item_id));
+        setCartItems((prev) =>
+            prev.filter((x) => x.cart_item_id !== item.cart_item_id),
+        );
     };
 
     const updateQuantity = async (item, newQty) => {
@@ -128,13 +143,21 @@ export default function CartPage() {
         });
 
         setCartItems((prev) =>
-            prev.map((x) => (x.cart_item_id === item.cart_item_id ? { ...x, quantity: qty } : x))
+            prev.map((x) =>
+                x.cart_item_id === item.cart_item_id
+                    ? { ...x, quantity: qty }
+                    : x,
+            ),
         );
     };
 
-    const formatPrice = (price) => new Intl.NumberFormat("vi-VN").format(price) + "đ";
+    const formatPrice = (price) =>
+        new Intl.NumberFormat("vi-VN").format(price) + "đ";
 
-    const totalPrice = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
+    const totalPrice = cartItems.reduce(
+        (acc, item) => acc + item.price * item.quantity,
+        0,
+    );
 
     if (loading || loadingCart) return <p>Đang tải giỏ hàng...</p>;
 
@@ -142,38 +165,75 @@ export default function CartPage() {
         <div className="cart-popup">
             <div className="cart-header">
                 <div className="cart-title">
-                    Giỏ Hàng {cartItems.length > 0 && <span>({cartItems.length} sản phẩm)</span>}
+                    Giỏ Hàng{" "}
+                    {cartItems.length > 0 && (
+                        <span>({cartItems.length} sản phẩm)</span>
+                    )}
                 </div>
-                <button className="cart-close" title="Đóng" onClick={() => router.push("/")}>×</button>
+                <button
+                    className="cart-close"
+                    title="Đóng"
+                    onClick={() => router.push("/")}
+                >
+                    ×
+                </button>
             </div>
             {cartItems.length === 0 ? (
                 <div className="cart-empty">
-                    Giỏ hàng trống. <button onClick={() => router.push("/")}>Mua ngay</button>
+                    Giỏ hàng trống.{" "}
+                    <button onClick={() => router.push("/")}>Mua ngay</button>
                 </div>
             ) : (
                 <>
                     <div className="cart-list">
                         {cartItems.map((item, idx) => (
                             <div key={makeKey(item, idx)} className="cart-item">
-                                <img src={item.image_url} alt={item.name} className="cart-item-img" />
+                                <img
+                                    src={item.image_url}
+                                    alt={item.name}
+                                    className="cart-item-img"
+                                />
 
                                 <div className="cart-item-info">
-                                    <div className="cart-item-name">{item.name}</div>
+                                    <div className="cart-item-name">
+                                        {item.name}
+                                    </div>
 
                                     <div className="cart-item-qty-wrap">
-                                        <button className="btn-remove" onClick={() => updateQuantity(item, item.quantity - 1)}>
+                                        <button
+                                            className="btn-remove"
+                                            onClick={() =>
+                                                updateQuantity(
+                                                    item,
+                                                    item.quantity - 1,
+                                                )
+                                            }
+                                        >
                                             -
                                         </button>
                                         <span>{item.quantity}</span>
-                                        <button className="btn-add" onClick={() => updateQuantity(item, item.quantity + 1)}>
+                                        <button
+                                            className="btn-add"
+                                            onClick={() =>
+                                                updateQuantity(
+                                                    item,
+                                                    item.quantity + 1,
+                                                )
+                                            }
+                                        >
                                             +
                                         </button>
                                     </div>
                                 </div>
 
-                                <div className="cart-item-total">{formatPrice(item.price * item.quantity)}</div>
+                                <div className="cart-item-total">
+                                    {formatPrice(item.price * item.quantity)}
+                                </div>
 
-                                <button onClick={() => handleRemove(item)} className="cart-item-remove">
+                                <button
+                                    onClick={() => handleRemove(item)}
+                                    className="cart-item-remove"
+                                >
                                     Xoá
                                 </button>
                             </div>
@@ -182,22 +242,43 @@ export default function CartPage() {
                     <div className="cart-total-wrap">
                         <div className="cart-total-row">
                             <div className="cart-total-label">Tổng</div>
-                            <div className="cart-total-value">{formatPrice(totalPrice)} VND</div>
+                            <div className="cart-total-value">
+                                {formatPrice(totalPrice)} VND
+                            </div>
                         </div>
                         <div className="cart-total-btns">
-                            <button className="cart-btn cart-btn-cod" onClick={() => router.push('/checkout')}>
+                            <button
+                                className="cart-btn cart-btn-cod"
+                                onClick={() => {
+                                    if (!user || !token) {
+                                        setOpenLoginModal(true);
+                                        return;
+                                    }
+                                    router.push("/checkout");
+                                }}
+                            >
                                 Nhận Hàng Thanh Toán
-                                <div className="cart-btn-desc">(Phí Giao Hàng: 30.000đ)</div>
+                                <div className="cart-btn-desc">
+                                    (Phí Giao Hàng: 30.000đ)
+                                </div>
                             </button>
-                            <button className="cart-btn continue-shopping-btn" onClick={handleContinueShopping}>
+                            <button
+                                className="cart-btn continue-shopping-btn"
+                                onClick={handleContinueShopping}
+                            >
                                 Tiếp Tục Mua Sắm
                             </button>
                         </div>
                     </div>
                 </>
             )}
-        </div >
-
+            <LoginRequiredModal
+                open={openLoginModal}
+                onClose={() => setOpenLoginModal(false)}
+                message="Bạn cần đăng nhập để thanh toán. Vui lòng đăng nhập để tiếp tục."
+                callback="/checkout"
+            />
+        </div>
     );
 
     function handleContinueShopping() {

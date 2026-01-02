@@ -4,6 +4,8 @@ import { useRouter } from "next/navigation";
 import "./hotdeal.css";
 import { formatPrice } from "@/lib/format";
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3003";
+
 export default function HotDeal() {
     const router = useRouter();
     const [timeLeft, setTimeLeft] = useState({
@@ -38,11 +40,12 @@ export default function HotDeal() {
     const [products, setProducts] = useState([]);
 
     useEffect(() => {
-        fetch("http://localhost:3003/products")
+        fetch(`${API_BASE}/products`)
             .then((res) => res.json())
             .then((data) => {
-                // Filter only hot deal products (is_hot = 1)
-                const hotProducts = Array.isArray(data) ? data.filter(p => p.is_hot === 1) : [];
+                const hotProducts = Array.isArray(data)
+                    ? data.filter((p) => p.is_hot === 1)
+                    : [];
                 setProducts(hotProducts);
             })
             .catch((err) => {
@@ -53,26 +56,40 @@ export default function HotDeal() {
 
     return (
         <div className="hotdeal-container">
-            {/* Banner */}
             <div className="hotdeal-banner">
                 <h1>🔥 Hot Deal Hôm Nay</h1>
                 <p>Giảm giá sốc – chỉ trong hôm nay!</p>
                 <div className="countdown">
                     <span>{String(timeLeft.hours).padStart(2, "0")}giờ</span> :
-                    <span>{String(timeLeft.minutes).padStart(2, "0")}phút</span> :
+                    <span>{String(timeLeft.minutes).padStart(2, "0")}phút</span>{" "}
+                    :
                     <span>{String(timeLeft.seconds).padStart(2, "0")}giây</span>
-
                     <div className="container">
                         <div className="products-grid">
                             {products.map((p) => (
-                                <div key={p.id} className="product-card" onClick={() => router.push(`/product/${p.id}`)} style={{ cursor: 'pointer' }}>
+                                <div
+                                    key={p.id}
+                                    className="product-card"
+                                    onClick={() =>
+                                        router.push(`/product/${p.id}`)
+                                    }
+                                    style={{ cursor: "pointer" }}
+                                >
                                     <div className="containProduct">
-                                        <img src={p.image_url} alt={p.name} className="product-image" />
+                                        <img
+                                            src={p.image_url}
+                                            alt={p.name}
+                                            className="product-image"
+                                        />
                                     </div>
                                     <div className="product-info">
                                         <h3>{p.name}</h3>
                                         <p>{p.description}</p>
-                                        <div className="product-price">{formatPrice(p.price || p.priceValue)}</div>
+                                        <div className="product-price">
+                                            {formatPrice(
+                                                p.price || p.priceValue,
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
                             ))}

@@ -5,6 +5,8 @@ import "./accessories.css";
 import { formatPrice } from "@/lib/format";
 import { useRouter } from "next/navigation";
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3003";
+
 export default function AccessoriesPage() {
     const [products, setProducts] = useState([]);
     const [sort, setSort] = useState("default");
@@ -16,17 +18,22 @@ export default function AccessoriesPage() {
         let result = [...items];
         if (sort === "price-asc") result.sort((a, b) => a.price - b.price);
         if (sort === "price-desc") result.sort((a, b) => b.price - a.price);
-        if (sort === "newest") result.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        if (sort === "newest")
+            result.sort(
+                (a, b) => new Date(b.created_at) - new Date(a.created_at),
+            );
         if (sort === "sale") result = result.filter((p) => p.is_hot === 1);
         return result;
     }, [products, sort]);
 
     useEffect(() => {
-        fetch("http://localhost:3003/products")
+        fetch(`${API_BASE}/products`)
             .then((res) => res.json())
             .then((data) => {
                 // Filter accessories (category_id = 4)
-                const accessoryProducts = Array.isArray(data) ? data.filter(p => p.category_id === 4) : [];
+                const accessoryProducts = Array.isArray(data)
+                    ? data.filter((p) => p.category_id === 4)
+                    : [];
                 setProducts(accessoryProducts);
                 setLoading(false);
             })
@@ -39,34 +46,59 @@ export default function AccessoriesPage() {
     return (
         <main>
             <Hero />
-            <section className="product" id="accessories">
+            <section className="products" id="accessories">
                 <div className="container">
                     <div className="page-layout">
                         <aside className="sidebar">
                             <h3>Bộ lọc & Sắp xếp</h3>
                             <div>
                                 <label>
-                                    <input type="radio" checked={sort === "default"} onChange={() => setSort("default")} /> Mặc định
+                                    <input
+                                        type="radio"
+                                        checked={sort === "default"}
+                                        onChange={() => setSort("default")}
+                                    />{" "}
+                                    Mặc định
                                 </label>
                             </div>
                             <div>
                                 <label>
-                                    <input type="radio" checked={sort === "price-asc"} onChange={() => setSort("price-asc")} /> Giá tăng dần
+                                    <input
+                                        type="radio"
+                                        checked={sort === "price-asc"}
+                                        onChange={() => setSort("price-asc")}
+                                    />{" "}
+                                    Giá tăng dần
                                 </label>
                             </div>
                             <div>
                                 <label>
-                                    <input type="radio" checked={sort === "price-desc"} onChange={() => setSort("price-desc")} /> Giá giảm dần
+                                    <input
+                                        type="radio"
+                                        checked={sort === "price-desc"}
+                                        onChange={() => setSort("price-desc")}
+                                    />{" "}
+                                    Giá giảm dần
                                 </label>
                             </div>
                             <div>
                                 <label>
-                                    <input type="radio" checked={sort === "newest"} onChange={() => setSort("newest")} /> Mới nhất
+                                    <input
+                                        type="radio"
+                                        checked={sort === "newest"}
+                                        onChange={() => setSort("newest")}
+                                    />{" "}
+                                    Mới nhất
                                 </label>
                             </div>
                             <div>
                                 <label>
-                                    <input type="radio" checked={sort === "sale"} onChange={() => setSort("sale")} /> Đang Sale
+                                    <input
+                                        type="radio"
+                                        checked={sort === "sale"}
+                                        onChange={() => setSort("sale")}
+                                    />{" "}
+                                    Đang Sale
                                 </label>
                             </div>
                         </aside>
@@ -80,18 +112,37 @@ export default function AccessoriesPage() {
                                 <div className="products-grid">
                                     {sortedProducts.length > 0 ? (
                                         sortedProducts.map((p) => (
-                                            <div key={p.id} className="product-card" onClick={() => router.push(`/product/${p.id}`)} style={{ cursor: 'pointer' }}>
+                                            <div
+                                                key={p.id}
+                                                className="product-card"
+                                                onClick={() =>
+                                                    router.push(
+                                                        `/product/${p.id}`,
+                                                    )
+                                                }
+                                                style={{ cursor: "pointer" }}
+                                            >
                                                 {p.is_hot === 1 && (
-                                                    <div className="product-badge">Hot</div>)}
+                                                    <div className="product-badge">
+                                                        Hot
+                                                    </div>
+                                                )}
                                                 <div className="containProduct">
-                                                    <img src={p.image_url} alt={p.name} className="product-image" />
+                                                    <img
+                                                        src={p.image_url}
+                                                        alt={p.name}
+                                                        className="product-image"
+                                                    />
                                                 </div>
                                                 <div className="product-info">
-                                                    <h3>{p.name}aaaa</h3>
-                                                    <div className="product-price">{formatPrice(p.price)}</div>
+                                                    <h3>{p.name}</h3>
+                                                    <div className="product-price">
+                                                        {formatPrice(p.price)}
+                                                    </div>
                                                 </div>
                                             </div>
-                                        ))) : (
+                                        ))
+                                    ) : (
                                         <p> Không có sản phẩm nào.</p>
                                     )}
                                 </div>

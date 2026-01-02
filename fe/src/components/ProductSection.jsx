@@ -66,7 +66,10 @@ export default function Products() {
     }, [currentPage, totalPages]);
 
     const startIndex = totalPages === 0 ? 0 : (currentPage - 1) * pageSize;
-    const paginated = totalPages === 0 ? [] : products.slice(startIndex, startIndex + pageSize);
+    const paginated =
+        totalPages === 0
+            ? []
+            : products.slice(startIndex, startIndex + pageSize);
 
     const goToPage = (n) => {
         setCurrentPage(n);
@@ -77,7 +80,6 @@ export default function Products() {
                 ?.scrollIntoView({ behavior: "smooth", block: "start" });
         });
     };
-
 
     return (
         <section className="products" id="products">
@@ -107,24 +109,21 @@ export default function Products() {
                                     className="product-image"
                                     onError={(e) => {
                                         e.currentTarget.onerror = null;
-                                        e.currentTarget.src = "/images/no-image.png";
+                                        e.currentTarget.src =
+                                            "/images/no-image.png";
                                     }}
                                 />
                             </div>
                             <div className="product-info">
                                 <h3>{p.name}</h3>
-                                <div className="product-price">{formatPrice(p.price)}</div>
+                                <div className="product-price">
+                                    {formatPrice(p.price)}
+                                </div>
                             </div>
                         </Link>
                     ))
                 ) : (
-                    <div
-                        style={{
-                            gridColumn: "1/-1",
-                            textAlign: "center",
-                            color: "#666",
-                        }}
-                    >
+                    <div className="none-products">
                         Không có sản phẩm hiển thị
                     </div>
                 )}
@@ -139,19 +138,29 @@ export default function Products() {
                         Prev
                     </button>
 
-                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
-                        <button
-                            key={n}
-                            onClick={() => goToPage(n)}
-                            aria-current={n === currentPage ? "page" : undefined}
-                            style={n === currentPage ? { fontWeight: "700" } : {}}
-                        >
-                            {n}
-                        </button>
-                    ))}
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                        (n) => (
+                            <button
+                                key={n}
+                                onClick={() => goToPage(n)}
+                                aria-current={
+                                    n === currentPage ? "page" : undefined
+                                }
+                                style={
+                                    n === currentPage
+                                        ? { fontWeight: "700" }
+                                        : {}
+                                }
+                            >
+                                {n}
+                            </button>
+                        ),
+                    )}
 
                     <button
-                        onClick={() => goToPage(Math.min(totalPages, currentPage + 1))}
+                        onClick={() =>
+                            goToPage(Math.min(totalPages, currentPage + 1))
+                        }
                         disabled={currentPage === totalPages}
                     >
                         Next
@@ -161,7 +170,9 @@ export default function Products() {
 
             {totalItems > 0 && (
                 <div className="pagination-summary">
-                    Hiển thị {startIndex + 1} - {Math.min(startIndex + pageSize, totalItems)} trên {totalItems} sản phẩm
+                    Hiển thị {startIndex + 1} -{" "}
+                    {Math.min(startIndex + pageSize, totalItems)} trên{" "}
+                    {totalItems} sản phẩm
                 </div>
             )}
         </section>

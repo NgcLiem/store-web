@@ -7,7 +7,6 @@ import { useToast } from "../../../components/Toast";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3003";
 
-// Mapping sizes: display (39-43) -> id (1-5)
 const SIZES_MAP = [
     { id: 1, size: 39 },
     { id: 2, size: 40 },
@@ -50,8 +49,8 @@ export default function AdminProductsPage() {
                 user?.role === "admin"
                     ? "/admin/products"
                     : user?.role === "staff"
-                        ? "/staff/products"
-                        : "/products";
+                      ? "/staff/products"
+                      : "/products";
 
             const url = `${API_BASE}${path}?q=${encodeURIComponent(q)}`;
 
@@ -115,7 +114,6 @@ export default function AdminProductsPage() {
         setModalOpen(true);
     };
 
-    // ====== SAVE (CREATE / UPDATE) ======
     const save = async (e) => {
         e.preventDefault();
 
@@ -125,8 +123,11 @@ export default function AdminProductsPage() {
             price: Number(form.price || 0),
             image_url: form.image_url?.trim() || null,
             sizes: (form.sizes || [])
-                .map(s => ({ size_id: Number(s.size_id), stock: Number(s.stock || 0) }))
-                .filter(s => Number.isInteger(s.size_id) && s.size_id > 0),
+                .map((s) => ({
+                    size_id: Number(s.size_id),
+                    stock: Number(s.stock || 0),
+                }))
+                .filter((s) => Number.isInteger(s.size_id) && s.size_id > 0),
         };
 
         const basePath =
@@ -149,7 +150,10 @@ export default function AdminProductsPage() {
                 return;
             }
 
-            showToast(editing ? "Cập nhật thành công" : "Thêm sản phẩm thành công", "success");
+            showToast(
+                editing ? "Cập nhật thành công" : "Thêm sản phẩm thành công",
+                "success",
+            );
             await load();
             setModalOpen(false);
         } catch (err) {
@@ -196,23 +200,20 @@ export default function AdminProductsPage() {
             const formData = new FormData();
             formData.append("file", file);
 
-            console.log('Uploading file:', file.name, file.size);
+            console.log("Uploading file:", file.name, file.size);
 
             const headers = {};
             if (token) {
-                headers['Authorization'] = `Bearer ${token}`;
+                headers["Authorization"] = `Bearer ${token}`;
             }
 
-            const res = await fetch(
-                `${API_BASE}/upload/cloudinary`,
-                {
-                    method: "POST",
-                    headers: headers,
-                    body: formData,
-                }
-            );
+            const res = await fetch(`${API_BASE}/upload/cloudinary`, {
+                method: "POST",
+                headers: headers,
+                body: formData,
+            });
 
-            console.log('Response status:', res.status);
+            console.log("Response status:", res.status);
 
             const data = await res.json().catch(() => null);
 
@@ -224,7 +225,7 @@ export default function AdminProductsPage() {
             if (!url) throw new Error("Không nhận được URL ảnh từ server");
 
             setForm((prev) => ({ ...prev, image_url: url }));
-            showToast('Upload ảnh thành công', 'success');
+            showToast("Upload ảnh thành công", "success");
         } catch (e) {
             console.error("Upload image error:", e);
             showToast(e.message || "Upload ảnh thất bại", "error");
@@ -260,7 +261,7 @@ export default function AdminProductsPage() {
             <div className="admin-header">
                 <h1>Quản lý Sản phẩm</h1>
                 <div className="quick-actions">
-                    <button className="action-btn primary-btn" onClick={openCreate}>
+                    <button className="addPr" onClick={openCreate}>
                         <i className="fa-solid fa-plus" /> Thêm sản phẩm
                     </button>
                 </div>
@@ -283,27 +284,45 @@ export default function AdminProductsPage() {
                     <table className="product-table">
                         <thead>
                             <tr className="table-header-row">
-                                <th className="table-header-cell text-left">Mã</th>
+                                <th className="table-header-cell text-left">
+                                    Mã
+                                </th>
                                 <th className="table-header-cell text-left product-image-header">
                                     Ảnh
                                 </th>
-                                <th className="table-header-cell text-center">Tên</th>
-                                <th className="table-header-cell text-center">Giá</th>
-                                <th className="table-header-cell text-center">Tồn kho</th>
-                                <th className="table-header-cell text-center">Size</th>
-                                <th className="table-header-cell text-center">Thao tác</th>
+                                <th className="table-header-cell text-center">
+                                    Tên
+                                </th>
+                                <th className="table-header-cell text-center">
+                                    Giá
+                                </th>
+                                <th className="table-header-cell text-center">
+                                    Tồn kho
+                                </th>
+                                <th className="table-header-cell text-center">
+                                    Size
+                                </th>
+                                <th className="table-header-cell text-center">
+                                    Thao tác
+                                </th>
                             </tr>
                         </thead>
                         <tbody>
                             {loading ? (
                                 <tr className="table-body-row">
-                                    <td colSpan={6} className="table-cell table-cell-center">
+                                    <td
+                                        colSpan={6}
+                                        className="table-cell table-cell-center"
+                                    >
                                         Đang tải...
                                     </td>
                                 </tr>
                             ) : items.length === 0 ? (
                                 <tr className="table-body-row">
-                                    <td colSpan={6} className="table-cell table-cell-center">
+                                    <td
+                                        colSpan={6}
+                                        className="table-cell table-cell-center"
+                                    >
                                         Không có dữ liệu
                                     </td>
                                 </tr>
@@ -311,52 +330,109 @@ export default function AdminProductsPage() {
                                 items.flatMap((p) => {
                                     if (p.sizes && p.sizes.length > 0) {
                                         return p.sizes.map((sizeItem, idx) => {
-                                            const sizeDisplay = SIZES_MAP.find(m => m.id == sizeItem.size_id);
+                                            const sizeDisplay = SIZES_MAP.find(
+                                                (m) => m.id == sizeItem.size_id,
+                                            );
                                             return (
-                                                <tr key={`${p.id}-${idx}`} className="table-body-row">
+                                                <tr
+                                                    key={`${p.id}-${idx}`}
+                                                    className="table-body-row"
+                                                >
                                                     {idx === 0 ? (
                                                         <>
-                                                            <td className="table-cell" rowSpan={p.sizes.length}>
-                                                                {p.product_code || `#${p.id}`}
+                                                            <td
+                                                                className="table-cell"
+                                                                rowSpan={
+                                                                    p.sizes
+                                                                        .length
+                                                                }
+                                                            >
+                                                                {p.product_code ||
+                                                                    `#${p.id}`}
                                                             </td>
-                                                            <td className="table-cell product-image-cell" rowSpan={p.sizes.length}>
+                                                            <td
+                                                                className="table-cell product-image-cell"
+                                                                rowSpan={
+                                                                    p.sizes
+                                                                        .length
+                                                                }
+                                                            >
                                                                 {p.image_url ? (
                                                                     <img
-                                                                        src={p.image_url}
-                                                                        alt={p.name}
+                                                                        src={
+                                                                            p.image_url
+                                                                        }
+                                                                        alt={
+                                                                            p.name
+                                                                        }
                                                                         className="product-thumb"
                                                                     />
                                                                 ) : (
-                                                                    <span className="no-image-text">Không có</span>
+                                                                    <span className="no-image-text">
+                                                                        Không có
+                                                                    </span>
                                                                 )}
                                                             </td>
-                                                            <td className="table-cell text-center" rowSpan={p.sizes.length}>
+                                                            <td
+                                                                className="table-cell text-center"
+                                                                rowSpan={
+                                                                    p.sizes
+                                                                        .length
+                                                                }
+                                                            >
                                                                 {p.name}
                                                             </td>
-                                                            <td className="table-cell text-center" rowSpan={p.sizes.length}>
-                                                                {Number(p.price || 0).toLocaleString()}₫
+                                                            <td
+                                                                className="table-cell text-center"
+                                                                rowSpan={
+                                                                    p.sizes
+                                                                        .length
+                                                                }
+                                                            >
+                                                                {Number(
+                                                                    p.price ||
+                                                                        0,
+                                                                ).toLocaleString()}
+                                                                ₫
                                                             </td>
                                                         </>
                                                     ) : null}
                                                     <td className="table-cell text-center">
-                                                        {Number(sizeItem.stock || 0)}
+                                                        {Number(
+                                                            sizeItem.stock || 0,
+                                                        )}
                                                     </td>
                                                     <td className="table-cell text-center">
-                                                        {sizeDisplay ? sizeDisplay.size : sizeItem.size_id}
+                                                        {sizeDisplay
+                                                            ? sizeDisplay.size
+                                                            : sizeItem.size_id}
                                                     </td>
                                                     {idx === 0 ? (
-                                                        <td className="table-cell table-actions-cell" rowSpan={p.sizes.length}>
+                                                        <td
+                                                            className="table-cell table-actions-cell"
+                                                            rowSpan={
+                                                                p.sizes.length
+                                                            }
+                                                        >
                                                             <button
                                                                 className="action-btn"
-                                                                onClick={() => openEdit(p)}
+                                                                onClick={() =>
+                                                                    openEdit(p)
+                                                                }
                                                             >
-                                                                <i className="fa-solid fa-pen" /> Sửa
+                                                                <i className="fa-solid fa-pen" />{" "}
+                                                                Sửa
                                                             </button>
                                                             <button
                                                                 className="action-btn btn-danger"
-                                                                onClick={() => setConfirmProduct(p)}
+                                                                onClick={() =>
+                                                                    setConfirmProduct(
+                                                                        p,
+                                                                    )
+                                                                }
                                                             >
-                                                                <i className="fa-solid fa-trash" /> Xoá
+                                                                <i className="fa-solid fa-trash" />{" "}
+                                                                Xoá
                                                             </button>
                                                         </td>
                                                     ) : null}
@@ -366,9 +442,13 @@ export default function AdminProductsPage() {
                                     } else {
                                         // Nếu không có size, hiển thị 1 dòng
                                         return (
-                                            <tr key={p.id} className="table-body-row">
+                                            <tr
+                                                key={p.id}
+                                                className="table-body-row"
+                                            >
                                                 <td className="table-cell">
-                                                    {p.product_code || `#${p.id}`}
+                                                    {p.product_code ||
+                                                        `#${p.id}`}
                                                 </td>
                                                 <td className="table-cell product-image-cell">
                                                     {p.image_url ? (
@@ -378,27 +458,44 @@ export default function AdminProductsPage() {
                                                             className="product-thumb"
                                                         />
                                                     ) : (
-                                                        <span className="no-image-text">Không có</span>
+                                                        <span className="no-image-text">
+                                                            Không có
+                                                        </span>
                                                     )}
                                                 </td>
-                                                <td className="table-cell text-center">{p.name}</td>
                                                 <td className="table-cell text-center">
-                                                    {Number(p.price || 0).toLocaleString()}₫
+                                                    {p.name}
                                                 </td>
-                                                <td className="table-cell text-center">-</td>
-                                                <td className="table-cell text-center">-</td>
+                                                <td className="table-cell text-center">
+                                                    {Number(
+                                                        p.price || 0,
+                                                    ).toLocaleString()}
+                                                    ₫
+                                                </td>
+                                                <td className="table-cell text-center">
+                                                    -
+                                                </td>
+                                                <td className="table-cell text-center">
+                                                    -
+                                                </td>
                                                 <td className="table-cell table-actions-cell">
                                                     <button
                                                         className="action-btn"
-                                                        onClick={() => openEdit(p)}
+                                                        onClick={() =>
+                                                            openEdit(p)
+                                                        }
                                                     >
-                                                        <i className="fa-solid fa-pen" /> Sửa
+                                                        <i className="fa-solid fa-pen" />{" "}
+                                                        Sửa
                                                     </button>
                                                     <button
                                                         className="action-btn btn-danger"
-                                                        onClick={() => setConfirmProduct(p)}
+                                                        onClick={() =>
+                                                            setConfirmProduct(p)
+                                                        }
                                                     >
-                                                        <i className="fa-solid fa-trash" /> Xoá
+                                                        <i className="fa-solid fa-trash" />{" "}
+                                                        Xoá
                                                     </button>
                                                 </td>
                                             </tr>
@@ -423,7 +520,10 @@ export default function AdminProductsPage() {
                                     placeholder=" "
                                     value={form.product_code}
                                     onChange={(e) =>
-                                        setForm({ ...form, product_code: e.target.value })
+                                        setForm({
+                                            ...form,
+                                            product_code: e.target.value,
+                                        })
                                     }
                                     required
                                 />
@@ -436,14 +536,15 @@ export default function AdminProductsPage() {
                                     placeholder=" "
                                     value={form.name}
                                     onChange={(e) =>
-                                        setForm({ ...form, name: e.target.value })
+                                        setForm({
+                                            ...form,
+                                            name: e.target.value,
+                                        })
                                     }
                                     required
                                 />
                                 <label>Tên sản phẩm</label>
                             </div>
-
-                            
 
                             {/* Sizes section */}
                             <div className="sizes-section">
@@ -453,13 +554,21 @@ export default function AdminProductsPage() {
                                         <select
                                             value={size.size_id}
                                             onChange={(e) => {
-                                                const newSizes = [...(form.sizes || [])];
-                                                newSizes[idx].size_id = e.target.value;
-                                                setForm({ ...form, sizes: newSizes });
+                                                const newSizes = [
+                                                    ...(form.sizes || []),
+                                                ];
+                                                newSizes[idx].size_id =
+                                                    e.target.value;
+                                                setForm({
+                                                    ...form,
+                                                    sizes: newSizes,
+                                                });
                                             }}
                                             className="size-input"
                                         >
-                                            <option value="">-- Chọn size --</option>
+                                            <option value="">
+                                                -- Chọn size --
+                                            </option>
                                             {SIZES_MAP.map((s) => (
                                                 <option key={s.id} value={s.id}>
                                                     Size {s.size}
@@ -470,8 +579,23 @@ export default function AdminProductsPage() {
                                             type="button"
                                             className="action-btn btn-danger btn-sm"
                                             onClick={() => {
-                                                const newSizes = form.sizes.filter((_, i) => i !== idx);
-                                                setForm({ ...form, sizes: newSizes.length > 0 ? newSizes : [{ size_id: "", stock: "" }] });
+                                                const newSizes =
+                                                    form.sizes.filter(
+                                                        (_, i) => i !== idx,
+                                                    );
+                                                setForm({
+                                                    ...form,
+                                                    sizes:
+                                                        newSizes.length > 0
+                                                            ? newSizes
+                                                            : [
+                                                                  {
+                                                                      size_id:
+                                                                          "",
+                                                                      stock: "",
+                                                                  },
+                                                              ],
+                                                });
                                             }}
                                         >
                                             Xoá
@@ -484,7 +608,10 @@ export default function AdminProductsPage() {
                                     onClick={() => {
                                         setForm({
                                             ...form,
-                                            sizes: [...(form.sizes || []), { size_id: "", stock: "" }]
+                                            sizes: [
+                                                ...(form.sizes || []),
+                                                { size_id: "", stock: "" },
+                                            ],
                                         });
                                     }}
                                 >
@@ -497,15 +624,24 @@ export default function AdminProductsPage() {
                                 <label className="stock-label">Tồn kho</label>
                                 {(form.sizes || []).map((size, idx) => (
                                     <div key={idx} className="stock-row">
-                                        <span className="stock-size-label">Size {size.size_id || `#${idx + 1}`}:</span>
+                                        <span className="stock-size-label">
+                                            Size {size.size_id || `#${idx + 1}`}
+                                            :
+                                        </span>
                                         <input
                                             type="number"
                                             placeholder="Tồn kho"
                                             value={size.stock}
                                             onChange={(e) => {
-                                                const newSizes = [...(form.sizes || [])];
-                                                newSizes[idx].stock = e.target.value;
-                                                setForm({ ...form, sizes: newSizes });
+                                                const newSizes = [
+                                                    ...(form.sizes || []),
+                                                ];
+                                                newSizes[idx].stock =
+                                                    e.target.value;
+                                                setForm({
+                                                    ...form,
+                                                    sizes: newSizes,
+                                                });
                                             }}
                                             className="stock-input"
                                         />
@@ -519,7 +655,10 @@ export default function AdminProductsPage() {
                                     placeholder=" "
                                     value={form.price}
                                     onChange={(e) =>
-                                        setForm({ ...form, price: e.target.value })
+                                        setForm({
+                                            ...form,
+                                            price: e.target.value,
+                                        })
                                     }
                                     required
                                 />
@@ -527,12 +666,15 @@ export default function AdminProductsPage() {
                             </div>
 
                             <div className="image-input-group">
-                                <label className="image-label">Hình ảnh sản phẩm</label>
+                                <label className="image-label">
+                                    Hình ảnh sản phẩm
+                                </label>
 
                                 {/* Drag & drop upload */}
                                 <div
-                                    className={`image-dropzone ${dragActive ? "drag-active" : ""
-                                        }`}
+                                    className={`image-dropzone ${
+                                        dragActive ? "drag-active" : ""
+                                    }`}
                                     onDragOver={handleDragOver}
                                     onDragLeave={handleDragLeave}
                                     onDrop={handleDrop}
@@ -552,7 +694,9 @@ export default function AdminProductsPage() {
                                             className="link-button"
                                             onClick={() =>
                                                 document
-                                                    .getElementById("product-image-input")
+                                                    .getElementById(
+                                                        "product-image-input",
+                                                    )
                                                     .click()
                                             }
                                         >
@@ -561,18 +705,26 @@ export default function AdminProductsPage() {
                                     </p>
 
                                     {uploading && (
-                                        <p className="uploading-text">Đang upload...</p>
+                                        <p className="uploading-text">
+                                            Đang upload...
+                                        </p>
                                     )}
                                 </div>
 
                                 {form.image_url ? (
                                     <div className="image-preview">
-                                        <img src={form.image_url} alt="Preview" />
+                                        <img
+                                            src={form.image_url}
+                                            alt="Preview"
+                                        />
                                         <button
                                             type="button"
                                             className="action-btn btn-danger"
                                             onClick={() =>
-                                                setForm({ ...form, image_url: "" })
+                                                setForm({
+                                                    ...form,
+                                                    image_url: "",
+                                                })
                                             }
                                         >
                                             Xoá ảnh
@@ -635,7 +787,6 @@ export default function AdminProductsPage() {
                     </div>
                 </div>
             )}
-
         </>
     );
 }

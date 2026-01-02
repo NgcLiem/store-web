@@ -4,6 +4,8 @@ import { mergeLocalCart, getLocalCart } from "@/lib/localCart";
 
 const AuthContext = createContext();
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3003";
+
 export function AuthProvider({ children }) {
     const [user, setUser] = useState(null);
     const [token, setToken] = useState(null);
@@ -21,7 +23,7 @@ export function AuthProvider({ children }) {
 
         (async () => {
             try {
-                const res = await fetch("http://localhost:3003/auth/me", {
+                const res = await fetch(`${API_BASE}/auth/me`, {
                     headers: { Authorization: `Bearer ${savedToken}` },
                 });
                 if (res.ok) {
@@ -62,16 +64,18 @@ export function AuthProvider({ children }) {
         localStorage.setItem("userRole", userData.role);
 
         // Nếu có giỏ hàng local (guest), merge lên server trong nền
-        if (typeof window !== 'undefined') {
+        if (typeof window !== "undefined") {
             try {
                 const local = getLocalCart();
                 if (local && local.length) {
-                    mergeLocalCart(userData.id, jwtToken)
-                        .then((res) => console.log('Merged local cart:', res))
-                        .catch((err) => console.warn('Merge local cart failed', err));
+                    mergeLocalCart(jwtToken)
+                        .then((res) => console.log("Merged local cart:", res))
+                        .catch((err) =>
+                            console.warn("Merge local cart failed", err),
+                        );
                 }
             } catch (e) {
-                console.warn('Error merging local cart after login', e);
+                console.warn("Error merging local cart after login", e);
             }
         }
     };
@@ -91,6 +95,16 @@ export function AuthProvider({ children }) {
     const isStaff = () => user?.role === "staff";
     const isCustomer = () => user?.role === "customer";
     const isAuthenticated = () => !!user;
+
+    const setUserFromProfile = (newUser) => {
+        setUser(newUser);
+        if (typeof window !== "undefined") {
+            localStorage.setItem("user", JSON.stringify(newUser));
+            localStorage.setItem("userId", newUser.id);
+            localStorage.setItem("userEmail", newUser.email);
+            localStorage.setItem("userRole", newUser.role);
+        }
+    };
 
     return (
         <AuthContext.Provider

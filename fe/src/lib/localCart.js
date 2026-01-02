@@ -43,11 +43,14 @@ export function addItemToLocalCart({ product_id, quantity = 1, size = null }) {
     const cart = getLocalCart();
 
     const idx = cart.findIndex(
-        (it) => Number(it.product_id) === pid && (it.size ?? null) === sz
+        (it) => Number(it.product_id) === pid && (it.size ?? null) === sz,
     );
 
     if (idx >= 0) {
-        cart[idx] = { ...cart[idx], quantity: Number(cart[idx].quantity || 0) + qty };
+        cart[idx] = {
+            ...cart[idx],
+            quantity: Number(cart[idx].quantity || 0) + qty,
+        };
     } else {
         cart.push({ product_id: pid, quantity: qty, size: sz });
     }
@@ -55,18 +58,18 @@ export function addItemToLocalCart({ product_id, quantity = 1, size = null }) {
     saveLocalCart(cart);
 }
 
-
 export async function mergeLocalCart(token) {
-    if (!isBrowser()) return { ok: true, merged: 0 };
+    if (!isBrowser()) return { ok: true, merged: 0, failed: 0 };
 
     const items = getLocalCart();
-    if (!items?.length) return { ok: true, merged: 0 };
+    if (!items?.length) return { ok: true, merged: 0, failed: 0 };
 
     let merged = 0;
+    const failedItems = [];
 
     for (const it of items) {
         try {
-            await fetch(`${API_BASE}/cart/items`, {
+            const res = await fetch(`${API_BASE}/cart/items`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -78,12 +81,22 @@ export async function mergeLocalCart(token) {
                     size: it.size ?? null,
                 }),
             });
+
+            if (!res.ok) {
+                failedItems.push(it);
+                continue;
+            }
             merged++;
         } catch (e) {
-            console.warn("mergeLocalCart item error", e);
+            failedItems.push(it);
         }
     }
 
-    clearLocalCart();
-    return { ok: true, merged };
+    if (failedItems.length === 0) {
+        clearLocalCart();
+        return { ok: true, merged, failed: 0 };
+    }
+
+    saveLocalCart(failedItems);
+    return { ok: false, merged, failed: failedItems.length };
 }

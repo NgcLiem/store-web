@@ -1,11 +1,18 @@
 "use client";
-import { createContext, useContext, useState, useCallback, useRef } from "react";
+import {
+    createContext,
+    useContext,
+    useState,
+    useCallback,
+    useRef,
+} from "react";
 import "../assets/css/toast.css";
 
-const ToastContext = createContext({ showToast: () => { } });
+const ToastContext = createContext({ showToast: () => {} });
 
 function uid() {
-    if (typeof crypto !== "undefined" && crypto.randomUUID) return crypto.randomUUID();
+    if (typeof crypto !== "undefined" && crypto.randomUUID)
+        return crypto.randomUUID();
     return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
@@ -36,16 +43,25 @@ export function ToastProvider({ children }) {
 
             window.setTimeout(() => removeToast(id), 3200);
         },
-        [removeToast]
+        [removeToast],
     );
 
     return (
         <ToastContext.Provider value={{ showToast }}>
             {children}
 
-            <div className="toast-container" role="region" aria-label="Notifications">
+            <div
+                className="toast-container"
+                role="region"
+                aria-label="Notifications"
+            >
                 {toasts.map((t) => (
-                    <div key={t.id} className={`toast toast-${t.type}`} role="status" aria-live="polite">
+                    <div
+                        key={t.id}
+                        className={`toast toast-${t.type}`}
+                        role="status"
+                        aria-live="polite"
+                    >
                         <div className="toast-icon-wrap" aria-hidden="true">
                             {t.type === "success" ? (
                                 <i className="fa-solid fa-circle-check" />
@@ -59,7 +75,11 @@ export function ToastProvider({ children }) {
                             <div className="toast-progress" />
                         </div>
 
-                        <button className="toast-close" onClick={() => removeToast(t.id)} aria-label="Close">
+                        <button
+                            className="toast-close"
+                            onClick={() => removeToast(t.id)}
+                            aria-label="Close"
+                        >
                             <i className="fa-solid fa-xmark" />
                         </button>
                     </div>

@@ -33,8 +33,12 @@
 }
 
 /* Căn lề chung */
-.text-left { text-align: left !important; }
-.text-center { text-align: center !important; }
+.text-left {
+    text-align: left !important;
+}
+.text-center {
+    text-align: center !important;
+}
 
 /* Dòng dữ liệu */
 .table-body-row {
@@ -63,7 +67,7 @@
     gap: 8px;
     justify-content: center;
     padding: 12px;
-    white-space: nowrap; 
+    white-space: nowrap;
 }
 
 /* --- Badge Trạng thái --- */
@@ -103,13 +107,19 @@
     border-radius: 16px;
     width: 380px;
     max-width: 90%;
-    box-shadow: 0 15px 40px rgba(0,0,0,0.25);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
     animation: fadeIn 0.16s ease-out;
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(8px) scale(0.97); }
-    to { opacity: 1; transform: translateY(0) scale(1); }
+    from {
+        opacity: 0;
+        transform: translateY(8px) scale(0.97);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
 }
 
 /* ===== Modal xác nhận hành động ===== */
@@ -138,89 +148,119 @@
     gap: 10px;
 }
 
-
 /* ===== STATUS MODAL (THÀNH CÔNG / LỖI) ===== */
 
 .status-modal {
-  width: 360px;
-  max-width: 90%;
-  text-align: left;
+    width: 360px;
+    max-width: 90%;
+    text-align: left;
 }
 
 .status-title {
-  margin: 0 0 6px;
-  font-size: 1.05rem;
-  font-weight: 700;
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+    font-weight: 700;
 }
 
 .status-text {
-  font-size: 0.9rem;
-  color: #4b5563;
-  line-height: 1.6;
-  margin-bottom: 18px;
+    font-size: 0.9rem;
+    color: #4b5563;
+    line-height: 1.6;
+    margin-bottom: 18px;
 }
 
 /* màu viền + nền nhạt theo trạng thái */
 
 .status-modal--success {
-  border-left: 4px solid #22c55e;
+    border-left: 4px solid #22c55e;
 }
 
 .status-modal--success .status-title {
-  color: #16a34a;
+    color: #16a34a;
 }
 
 .status-modal--error {
-  border-left: 4px solid #ef4444;
+    border-left: 4px solid #ef4444;
 }
 
 .status-modal--error .status-title {
-  color: #b91c1c;
+    color: #b91c1c;
 }
 
 .status-open {
-  background: #ef4444!important;
-  box-shadow: 0 4px 6px rgba(239, 68, 68, 0.3) !important;
+    background: #ef4444 !important;
+    box-shadow: 0 4px 6px rgba(239, 68, 68, 0.3) !important;
 }
 
 /* Layout thân status modal với icon + nội dung */
 .status-modal-body {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  margin-bottom: 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 16px;
 }
 
 .status-icon-wrap {
-  flex-shrink: 0;
+    flex-shrink: 0;
 }
 
 /* Icon tròn */
 .status-icon {
-  font-size: 24px;
-  padding: 6px;
-  border-radius: 999px;
-  background: #f3f4f6;
+    font-size: 24px;
+    padding: 6px;
+    border-radius: 999px;
+    background: #f3f4f6;
 }
 
 .status-icon--success {
-  color: #16a34a;
-  background: #dcfce7;
+    color: #16a34a;
+    background: #dcfce7;
 }
 
 .status-icon--error {
-  color: #b91c1c;
-  background: #fee2e2;
+    color: #b91c1c;
+    background: #fee2e2;
 }
 
 .status-text-wrap {
-  flex: 1;
+    flex: 1;
 }
 
 .status-title {
-  margin: 0 0 4px;
+    margin: 0 0 4px;
 }
 
 .status-text {
-  margin: 0;
+    margin: 0;
+}
+
+.action-btn-user {
+    cursor: pointer;
+    background: #f9fafb;
+    border: 1px solid #d1d5db;
+    border-radius: 999px;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 500;
+    transition:
+        background-color 0.15s,
+        border-color 0.15s,
+        transform 80ms,
+        box-shadow 0.12s;
+    display: inline-flex;
+    color: #000;
+    border-color: rgba #00000000 (0, 0, 0, 0);
+}
+
+.action-btn-user:hover {
+    border-color: #9ca3af;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+    transform: translateY(-1px);
+}
+
+.action-btn-user:active {
+    transform: translateY(0);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
 }

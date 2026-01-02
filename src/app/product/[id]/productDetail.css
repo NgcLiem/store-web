@@ -1,0 +1,356 @@
+.product-detail-page {
+  background: #f9fafb;
+}
+
+.product-detail-container {
+  max-width: 1120px;
+  margin: 24px auto 40px;
+  padding: 24px 16px 40px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  column-gap: 40px;
+  row-gap: 24px;
+}
+
+/* ===== BREADCRUMB ===== */
+
+.pd-breadcrumb {
+  max-width: 1120px;
+  margin: 12px auto 0;
+  padding: 8px 16px 0;
+  font-size: 13px;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.pd-breadcrumb a {
+  color: #4b5563;
+  text-decoration: none;
+}
+
+.pd-breadcrumb a:hover {
+  text-decoration: underline;
+}
+
+.pd-breadcrumb-sep {
+  color: #9ca3af;
+}
+
+.pd-breadcrumb-link {
+  color: #4b5563;
+}
+
+.pd-breadcrumb-current {
+  color: #111827;
+  font-weight: 500;
+}
+
+/* ===== CỘT TRÁI – HÌNH ẢNH ===== */
+
+.pd-left {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pd-image-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 460px;
+  border-radius: 22px;
+  background: radial-gradient(circle at top, #ffffff 0, #f5f5f5 45%, #e5e7eb 100%);
+  padding: 20px;
+  box-shadow: 0 22px 45px rgba(15, 23, 42, 0.18);
+  border: 1px solid rgba(148, 163, 184, 0.35);
+}
+
+.pd-left img {
+  width: 100%;
+  display: block;
+  object-fit: contain;
+}
+
+/* Badge giảm giá nổi trên ảnh */
+.pd-discount-badge {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  background: #ef4444;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 6px 10px;
+  border-radius: 999px;
+  box-shadow: 0 10px 20px rgba(239, 68, 68, 0.5);
+}
+
+/* ===== CỘT PHẢI – THÔNG TIN ===== */
+
+.pd-right {
+  display: flex;
+  flex-direction: column;
+}
+
+.pd-brand {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: #6b7280;
+  margin-bottom: 4px;
+}
+
+.pd-right h1 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 8px;
+}
+
+/* Giá + badge % */
+.pd-price-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 10px 0 4px;
+}
+
+.pd-price {
+  font-size: 24px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.pd-original {
+  margin-left: 4px;
+  color: #9ca3af;
+  text-decoration: line-through;
+  font-size: 13px;
+}
+
+.pd-discount-chip {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+/* Thông tin phụ */
+.pd-meta {
+  margin-top: 6px;
+}
+
+.pd-stock {
+  font-size: 13px;
+  padding: 3px 10px;
+  border-radius: 999px;
+}
+
+.pd-stock--ok {
+  background: #ecfdf5;
+  color: #047857;
+}
+
+.pd-stock--out {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+/* ===== TIÊU ĐỀ NHỎ ===== */
+
+.pd-right h4 {
+  margin: 16px 0 8px;
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #374151;
+}
+
+/* ===== SIZE ===== */
+
+.pd-sizes-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pd-size-btn {
+  min-width: 46px;
+  padding: 8px 10px;
+  border-radius: 999px;
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+  font-size: 13px;
+  font-weight: 500;
+  color: #111827;
+  cursor: pointer;
+  transition: background-color 0.16s ease, border-color 0.16s ease,
+    color 0.16s ease, transform 0.06s ease, box-shadow 0.12s ease;
+}
+
+.pd-size-btn:hover {
+  border-color: #111827;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.18);
+}
+
+.pd-size-btn.selected {
+  border-color: #111827;
+  background: #111827;
+  color: #ffffff;
+  box-shadow: 0 6px 14px rgba(15, 23, 42, 0.35);
+  transform: translateY(-1px);
+}
+
+/* ===== SỐ LƯỢNG ===== */
+
+.pd-qty {
+  margin-top: 4px;
+}
+
+.pd-qty-controls {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  border: 1px solid #d1d5db;
+  overflow: hidden;
+  background: #f9fafb;
+}
+
+.pd-qty-controls button {
+  width: 36px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  font-size: 18px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.16s ease;
+}
+
+.pd-qty-controls button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.pd-qty-controls button:not(:disabled):hover {
+  background: #e5e7eb;
+}
+
+.pd-qty-controls span {
+  min-width: 40px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 500;
+  color: #111827;
+}
+
+/* ===== NÚT HÀNH ĐỘNG ===== */
+
+.pd-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.pd-add,
+.pd-buy {
+  flex: 1 1 0;
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 11px 18px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: background-color 0.18s ease, border-color 0.18s ease,
+    transform 0.06s ease, box-shadow 0.12s ease;
+}
+
+.pd-add {
+  background: linear-gradient(135deg, #f97316, #ea580c);
+  color: #111827;
+  box-shadow: 0 12px 25px rgba(248, 113, 22, 0.55);
+}
+
+.pd-add:hover {
+  filter: brightness(1.03);
+  transform: translateY(-1px);
+}
+
+.pd-buy {
+  background: #ffffff;
+  color: #111827;
+  border-color: #111827;
+}
+
+.pd-buy:hover {
+  background: #111827;
+  color: #ffffff;
+}
+
+
+.pd-desc {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.pd-desc h4 {
+  margin-top: 0;
+}
+
+.pd-desc p {
+  margin: 4px 0 0;
+  font-size: 14px;
+  line-height: 1.65;
+  color: #4b5563;
+}
+
+
+.pd-loading,
+.pd-missing {
+  padding: 32px 16px;
+  text-align: center;
+  color: #6b7280;
+}
+
+/* ===== RESPONSIVE ===== */
+
+@media (max-width: 900px) {
+  .product-detail-container {
+    grid-template-columns: 1fr;
+    margin-top: 12px;
+  }
+
+  .pd-image-wrap {
+    max-width: 380px;
+    margin-inline: auto;
+  }
+}
+
+@media (max-width: 640px) {
+  .product-detail-container {
+    padding-inline: 12px;
+  }
+
+  .pd-right h1 {
+    font-size: 20px;
+  }
+
+  .pd-actions {
+    flex-direction: column;
+  }
+}

@@ -3,9 +3,9 @@
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { useAuth } from "../../contexts/AuthContexts";
 import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
 import "./admin.css";
 
-// ✅ Chart.js
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -27,109 +27,22 @@ ChartJS.register(
     PointElement,
     Tooltip,
     Legend,
-    Title
+    Title,
 );
 
-function RevenueChart() {
-    // ✅ hard-code data (12 tháng)
-    const labels = ["T1", "T2", "T3", "T4", "T5", "T6", "T7", "T8", "T9", "T10", "T11", "T12"];
-    const revenueByMonth = [2.5, 3.2, 4.1, 3.8, 4.6, 5.2, 6.0, 5.5, 6.8, 7.2, 6.7, 8.1]; // triệu VND (demo)
-    const ordersByMonth = [12, 18, 24, 20, 30, 32, 40, 36, 45, 48, 44, 55]; // số đơn (demo)
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 
-    const barData = {
-        labels,
-        datasets: [
-            {
-                label: "Doanh thu (triệu VND)",
-                data: revenueByMonth,
-                borderRadius: 12,
-                backgroundColor: (context) => {
-                    const chart = context.chart;
-                    const { ctx, chartArea } = chart;
-                    if (!chartArea) return "#ffd27d";
+const formatVND = (n) =>
+    new Intl.NumberFormat("vi-VN", {
+        style: "currency",
+        currency: "VND",
+    }).format(Number(n || 0));
 
-                    const gradient = ctx.createLinearGradient(
-                        0,
-                        chartArea.bottom,
-                        0,
-                        chartArea.top
-                    );
-                    gradient.addColorStop(0, "#ffd27d"); // vàng nhạt
-                    gradient.addColorStop(1, "#ff9f43"); // cam đậm
-
-                    return gradient;
-                },
-                hoverBackgroundColor: "#ff9f43",
-            },
-        ],
-    };
-
-
-    const lineData = {
-        labels,
-        datasets: [
-            {
-                label: "Số đơn hàng",
-                data: ordersByMonth,
-                tension: 0.4,
-                pointRadius: 4,
-                pointHoverRadius: 6,
-                borderWidth: 3,
-                borderColor: "#6c63ff",
-                pointBackgroundColor: "#6c63ff",
-                backgroundColor: (context) => {
-                    const chart = context.chart;
-                    const { ctx, chartArea } = chart;
-                    if (!chartArea) return "rgba(108,99,255,0.15)";
-
-                    const gradient = ctx.createLinearGradient(
-                        0,
-                        chartArea.top,
-                        0,
-                        chartArea.bottom
-                    );
-                    gradient.addColorStop(0, "rgba(108,99,255,0.35)");
-                    gradient.addColorStop(1, "rgba(108,99,255,0.05)");
-                    return gradient;
-                },
-                fill: true,
-            },
-        ],
-    };
-
-
-    const commonOptions = {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            legend: { position: "top" },
-            title: { display: false },
-            tooltip: { enabled: true },
-        },
-        scales: {
-            y: { beginAtZero: true },
-        },
-    };
-
+function ChartCard({ title, children }) {
     return (
-        <div className="chart-container revenue-chart">
-            <div className="chart-header">
-                <h3>Biểu đồ doanh thu sản phẩm trong năm</h3>
-                <span className="chart-menu">☰</span>
-            </div>
-
-            {/* ✅ layout 2 biểu đồ giống dashboard */}
-            <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: 18 }}>
-                <div style={{ height: 320, background: "#fff", borderRadius: 14, padding: 14 }}>
-                    <div style={{ fontWeight: 600, marginBottom: 10 }}>Doanh thu theo tháng</div>
-                    <Bar data={barData} options={commonOptions} />
-                </div>
-
-                <div style={{ height: 320, background: "#fff", borderRadius: 14, padding: 14 }}>
-                    <div style={{ fontWeight: 600, marginBottom: 10 }}>Số đơn theo tháng</div>
-                    <Line data={lineData} options={commonOptions} />
-                </div>
-            </div>
+        <div className="admin-chart-card">
+            <div className="admin-chart-card-title">{title}</div>
+            <div className="admin-chart-card-body">{children}</div>
         </div>
     );
 }
@@ -138,39 +51,191 @@ function AdminContent() {
     const { logout } = useAuth();
     const router = useRouter();
 
+    const [summary, setSummary] = useState(null);
+    const [daily, setDaily] = useState([]);
+    const [monthly, setMonthly] = useState([]);
+    const [yearly, setYearly] = useState([]);
+    const [loading, setLoading] = useState(true);
+
     const handleLogout = () => {
         logout();
         router.push("/login");
     };
 
-    // ✅ hard-code stats (theo đúng UI của bạn)
-    const stats = [
-        { value: "42,250,088 VND", label: "Tổng doanh thu", iconComponent: "💰", bgColor: "#ffcc66" },
-        { value: "13,064,345 VND", label: "Doanh thu tháng này", iconComponent: "📄", bgColor: "#a3c7ff" },
-        { value: "41", label: "Tổng số sản phẩm bán được", iconComponent: "📈", bgColor: "#ff99cc" },
-        { value: "27", label: "Tổng số sản phẩm mới", iconComponent: "🏷️", bgColor: "#f7a39e" },
-    ];
+    useEffect(() => {
+        (async () => {
+            try {
+                setLoading(true);
+
+                const res = await fetch(
+                    `${API_BASE}/admin-stats/dashboard?days=14&months=12&years=5`,
+                    { cache: "no-store" },
+                );
+                const data = await res.json().catch(() => null);
+
+                setSummary(data?.summary || null);
+                setDaily(Array.isArray(data?.daily) ? data.daily : []);
+                setMonthly(Array.isArray(data?.monthly) ? data.monthly : []);
+                setYearly(Array.isArray(data?.yearly) ? data.yearly : []);
+            } catch (e) {
+                console.error("Admin stats fetch error:", e);
+                setSummary(null);
+                setDaily([]);
+                setMonthly([]);
+                setYearly([]);
+            } finally {
+                setLoading(false);
+            }
+        })();
+    }, []);
+
+    const commonOptions = useMemo(
+        () => ({
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: "top" },
+                title: { display: false },
+                tooltip: { enabled: true },
+            },
+            scales: { y: { beginAtZero: true } },
+        }),
+        [],
+    );
+
+    // DAILY
+    const dailyLabels = daily.map((x) => x.label);
+    const dailyRevenue = daily.map((x) => x.revenue);
+    const dailyOrders = daily.map((x) => x.orders);
+
+    const dailyBarData = useMemo(
+        () => ({
+            labels: dailyLabels,
+            datasets: [
+                {
+                    label: "Doanh thu (VND)",
+                    data: dailyRevenue,
+                    borderRadius: 12,
+                },
+            ],
+        }),
+        [dailyLabels, dailyRevenue],
+    );
+
+    const dailyLineData = useMemo(
+        () => ({
+            labels: dailyLabels,
+            datasets: [
+                {
+                    label: "Số đơn (ngày)",
+                    data: dailyOrders,
+                    tension: 0.35,
+                    borderWidth: 3,
+                    pointRadius: 3,
+                    fill: false,
+                },
+            ],
+        }),
+        [dailyLabels, dailyOrders],
+    );
+
+    // MONTHLY
+    const monthlyLabels = monthly.map((x) => x.label);
+    const monthlyRevenue = monthly.map((x) => x.revenue);
+
+    const monthlyLineData = useMemo(
+        () => ({
+            labels: monthlyLabels,
+            datasets: [
+                {
+                    label: "Doanh thu theo tháng (VND)",
+                    data: monthlyRevenue,
+                    tension: 0.35,
+                    borderWidth: 3,
+                    pointRadius: 3,
+                    fill: false,
+                },
+            ],
+        }),
+        [monthlyLabels, monthlyRevenue],
+    );
+
+    // YEARLY
+    const yearlyLabels = yearly.map((x) => x.label);
+    const yearlyRevenue = yearly.map((x) => x.revenue);
+
+    const yearlyBarData = useMemo(
+        () => ({
+            labels: yearlyLabels,
+            datasets: [
+                {
+                    label: "Doanh thu theo năm (VND)",
+                    data: yearlyRevenue,
+                    borderRadius: 12,
+                },
+            ],
+        }),
+        [yearlyLabels, yearlyRevenue],
+    );
+
+    const stats = useMemo(() => {
+        const totalRevenue = summary?.totalRevenue ?? 0;
+        const revenueThisMonth = summary?.revenueThisMonth ?? 0;
+        const totalSold = summary?.totalSold ?? 0;
+        const newProducts = summary?.newProducts ?? 0;
+
+        return [
+            {
+                value: formatVND(totalRevenue),
+                label: "Tổng doanh thu",
+                iconComponent: "💰",
+                bgColor: "#ffcc66",
+            },
+            {
+                value: formatVND(revenueThisMonth),
+                label: "Doanh thu tháng này",
+                iconComponent: "📄",
+                bgColor: "#a3c7ff",
+            },
+            {
+                value: String(totalSold),
+                label: "Tổng số sản phẩm bán được",
+                iconComponent: "📈",
+                bgColor: "#ff99cc",
+            },
+            {
+                value: String(newProducts),
+                label: "Tổng số sản phẩm mới",
+                iconComponent: "🏷️",
+                bgColor: "#f7a39e",
+            },
+        ];
+    }, [summary]);
 
     return (
         <>
             <div className="admin-header">
-                <div className="header1" style={{ display: "flex" }}>
+                <div className="header1 admin-header-flex">
                     <h1>Trang chủ</h1>
                 </div>
             </div>
 
             <div className="admin-stats-row">
-                {stats.map((stat, index) => (
+                {stats.map((stat) => (
                     <div
                         className="stat-card large-stat-card"
-                        key={index}
+                        key={stat.label}
                         style={{ "--bg-color": stat.bgColor }}
                     >
                         <div className="card-icon-wrapper">
-                            <span className="card-icon">{stat.iconComponent}</span>
+                            <span className="card-icon">
+                                {stat.iconComponent}
+                            </span>
                         </div>
                         <div className="card-info">
-                            <h3 className="stat-value">{stat.value}</h3>
+                            <h3 className="stat-value">
+                                {loading ? "..." : stat.value}
+                            </h3>
                             <p className="stat-label">{stat.label}</p>
                         </div>
                     </div>
@@ -178,11 +243,55 @@ function AdminContent() {
             </div>
 
             <div className="dashboard-layout">
-                <RevenueChart />
-            </div>
+                <div className="chart-container revenue-chart">
+                    <div className="chart-header">
+                        <h3>Thống kê doanh thu</h3>
+                        <span className="chart-menu">☰</span>
+                    </div>
 
-            {/* nếu bạn muốn nút logout ở đây */}
-            {/* <button onClick={handleLogout}>Đăng xuất</button> */}
+                    <div className="admin-charts-grid-2">
+                        <ChartCard title="Doanh thu theo ngày (14 ngày gần nhất)">
+                            <div className="admin-chart-h320">
+                                <Bar
+                                    data={dailyBarData}
+                                    options={commonOptions}
+                                />
+                            </div>
+                        </ChartCard>
+
+                        <ChartCard title="Số đơn theo ngày (14 ngày gần nhất)">
+                            <div className="admin-chart-h320">
+                                <Line
+                                    data={dailyLineData}
+                                    options={commonOptions}
+                                />
+                            </div>
+                        </ChartCard>
+
+                        <div className="admin-charts-full">
+                            <div className="admin-charts-grid-2">
+                                <ChartCard title="Doanh thu theo tháng (12 tháng)">
+                                    <div className="admin-chart-h320">
+                                        <Line
+                                            data={monthlyLineData}
+                                            options={commonOptions}
+                                        />
+                                    </div>
+                                </ChartCard>
+
+                                <ChartCard title="Doanh thu theo năm (2 năm)">
+                                    <div className="admin-chart-h320">
+                                        <Bar
+                                            data={yearlyBarData}
+                                            options={commonOptions}
+                                        />
+                                    </div>
+                                </ChartCard>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </>
     );
 }

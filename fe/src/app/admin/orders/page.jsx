@@ -22,12 +22,14 @@ export default function AdminOrdersPage() {
 
     // ===== auth headers =====
     const withAuthHeaders = (headers = {}) => {
-        return token ? { ...headers, Authorization: `Bearer ${token}` } : headers;
+        return token
+            ? { ...headers, Authorization: `Bearer ${token}` }
+            : headers;
     };
 
     // ===== chọn endpoint theo role (giống products) =====
     const getOrdersPathByRole = () => {
-        // ✅ bạn muốn gắn role như products
+        //  bạn muốn gắn role như products
         if (user?.role === "admin") return "/admin/orders";
         if (user?.role === "staff") return "/staff/orders";
 
@@ -59,7 +61,9 @@ export default function AdminOrdersPage() {
 
             const res = await fetch(url, {
                 method: "GET",
-                headers: withAuthHeaders({ "Content-Type": "application/json" }),
+                headers: withAuthHeaders({
+                    "Content-Type": "application/json",
+                }),
                 cache: "no-store",
             });
 
@@ -73,26 +77,34 @@ export default function AdminOrdersPage() {
             }
 
             if (!res.ok) {
-                const msg = data?.message || data?.error || `Không thể tải đơn hàng (HTTP ${res.status})`;
+                const msg =
+                    data?.message ||
+                    data?.error ||
+                    `Không thể tải đơn hàng (HTTP ${res.status})`;
                 showToast(msg, "error");
                 setOrders([]);
                 setLoading(false);
                 return;
             }
 
-            // ✅ chấp nhận 2 kiểu response:
+            //  chấp nhận 2 kiểu response:
             // 1) backend trả mảng trực tiếp
             // 2) backend trả { items } hoặc { orders } hoặc { success, orders }
-            const list =
-                Array.isArray(data) ? data :
-                    Array.isArray(data?.items) ? data.items :
-                        Array.isArray(data?.orders) ? data.orders :
-                            [];
+            const list = Array.isArray(data)
+                ? data
+                : Array.isArray(data?.items)
+                  ? data.items
+                  : Array.isArray(data?.orders)
+                    ? data.orders
+                    : [];
 
             setOrders(list);
         } catch (e) {
             console.error(e);
-            showToast("Không thể tải đơn hàng (lỗi mạng / failed to fetch)", "error");
+            showToast(
+                "Không thể tải đơn hàng (lỗi mạng / failed to fetch)",
+                "error",
+            );
             setOrders([]);
         } finally {
             setLoading(false);
@@ -129,19 +141,28 @@ export default function AdminOrdersPage() {
 
             const res = await fetch(url, {
                 method: "PATCH",
-                headers: withAuthHeaders({ "Content-Type": "application/json" }),
+                headers: withAuthHeaders({
+                    "Content-Type": "application/json",
+                }),
                 body: JSON.stringify({ status: newStatus }),
             });
 
             const data = await res.json().catch(() => null);
 
             if (!res.ok) {
-                showToast(data?.message || data?.error || "Cập nhật trạng thái thất bại", "error");
+                showToast(
+                    data?.message ||
+                        data?.error ||
+                        "Cập nhật trạng thái thất bại",
+                    "error",
+                );
                 return;
             }
 
             // Use returned order data with updated status
-            setOrders((prev) => prev.map((o) => (o.id === order.id ? data : o)));
+            setOrders((prev) =>
+                prev.map((o) => (o.id === order.id ? data : o)),
+            );
             showToast("Cập nhật trạng thái thành công", "success");
         } catch (e) {
             console.error(e);
@@ -162,7 +183,9 @@ export default function AdminOrdersPage() {
 
             const res = await fetch(url, {
                 method: "DELETE",
-                headers: withAuthHeaders({ "Content-Type": "application/json" }),
+                headers: withAuthHeaders({
+                    "Content-Type": "application/json",
+                }),
             });
 
             const data = await res.json().catch(() => null);
@@ -170,7 +193,7 @@ export default function AdminOrdersPage() {
             if (!res.ok) {
                 showToast(
                     data?.message || data?.error || "Xoá đơn thất bại",
-                    "error"
+                    "error",
                 );
                 return;
             }
@@ -184,7 +207,6 @@ export default function AdminOrdersPage() {
             showToast("Xoá đơn thất bại (lỗi mạng)", "error");
         }
     };
-
 
     return (
         <>
@@ -226,26 +248,46 @@ export default function AdminOrdersPage() {
                     <table className="order-table">
                         <thead>
                             <tr className="table-header-row">
-                                <th className="table-header-cell text-left">Mã đơn</th>
-                                <th className="table-header-cell text-left">Khách hàng</th>
-                                <th className="table-header-cell text-left">Ngày đặt hàng</th>
-                                <th className="table-header-cell text-right">Tổng tiền</th>
-                                <th className="table-header-cell text-center">Trạng thái</th>
-                                <th className="table-header-cell text-center">Thanh toán</th>
-                                <th className="table-header-cell text-center">Thao tác</th>
+                                <th className="table-header-cell text-left">
+                                    Mã đơn
+                                </th>
+                                <th className="table-header-cell text-left">
+                                    Khách hàng
+                                </th>
+                                <th className="table-header-cell text-left">
+                                    Ngày đặt hàng
+                                </th>
+                                <th className="table-header-cell text-right">
+                                    Tổng tiền
+                                </th>
+                                <th className="table-header-cell text-center">
+                                    Trạng thái
+                                </th>
+                                <th className="table-header-cell text-center">
+                                    Thanh toán
+                                </th>
+                                <th className="table-header-cell text-center">
+                                    Thao tác
+                                </th>
                             </tr>
                         </thead>
 
                         <tbody>
                             {loading ? (
                                 <tr className="table-row-loading">
-                                    <td colSpan={7} className="table-cell-center">
+                                    <td
+                                        colSpan={7}
+                                        className="table-cell-center"
+                                    >
                                         Đang tải...
                                     </td>
                                 </tr>
                             ) : paged.length === 0 ? (
                                 <tr className="table-row-loading">
-                                    <td colSpan={7} className="table-cell-center">
+                                    <td
+                                        colSpan={7}
+                                        className="table-cell-center"
+                                    >
                                         Không có dữ liệu
                                     </td>
                                 </tr>
@@ -256,41 +298,76 @@ export default function AdminOrdersPage() {
 
                                         <td className="table-cell">
                                             <div>
-                                                <strong>{o.customer_name || o.user_full_name || "-"}</strong>
+                                                <strong>
+                                                    {o.customer_name ||
+                                                        o.user_full_name ||
+                                                        "-"}
+                                                </strong>
                                             </div>
-                                            <div className="order-customer-sub">{o.customer_email || o.user_email || "-"}</div>
-                                            <div className="order-customer-sub">{o.customer_phone || o.user_phone || "-"}</div>
+                                            <div className="order-customer-sub">
+                                                {o.customer_email ||
+                                                    o.user_email ||
+                                                    "-"}
+                                            </div>
+                                            <div className="order-customer-sub">
+                                                {o.customer_phone ||
+                                                    o.user_phone ||
+                                                    "-"}
+                                            </div>
                                         </td>
 
                                         <td className="table-cell">
                                             {o.created_at || o.order_date
-                                                ? new Date(o.created_at || o.order_date).toLocaleString("vi-VN")
+                                                ? new Date(
+                                                      o.created_at ||
+                                                          o.order_date,
+                                                  ).toLocaleString("vi-VN")
                                                 : "-"}
                                         </td>
 
                                         <td className="table-cell text-right">
-                                            {(Number(o.total_amount || 0)).toLocaleString("vi-VN")}₫
+                                            {Number(
+                                                o.total_amount || 0,
+                                            ).toLocaleString("vi-VN")}
+                                            ₫
                                         </td>
 
-                                        <td className="table-cell order-status-cell">{o.status}</td>
+                                        <td className="table-cell order-status-cell">
+                                            {o.status}
+                                        </td>
 
-                                        <td className="table-cell text-center">{o.payment_method || "-"}</td>
+                                        <td className="table-cell text-center">
+                                            {o.payment_method || "-"}
+                                        </td>
 
                                         <td className="table-cell table-actions-cell">
                                             <select
                                                 value={o.status}
-                                                onChange={(e) => updateStatus(o, e.target.value)}
+                                                onChange={(e) =>
+                                                    updateStatus(
+                                                        o,
+                                                        e.target.value,
+                                                    )
+                                                }
                                                 className="form-input-admin order-status-select"
                                             >
-                                                <option value="pending">Chờ xử lý</option>
-                                                <option value="shipped">Đang giao</option>
-                                                <option value="delivered">Hoàn thành</option>
-                                                <option value="cancelled">Đã hủy</option>
+                                                <option value="pending">
+                                                    Chờ xử lý
+                                                </option>
+                                                <option value="shipped">
+                                                    Đã giao
+                                                </option>
+                                                <option value="delivered">
+                                                    Hoàn thành
+                                                </option>
+                                                <option value="cancelled">
+                                                    Đã hủy
+                                                </option>
                                             </select>
 
-                                            <button className="action-btn btn-danger" onClick={() => removeOrder(o)}>
+                                            {/* <button className="action-btn btn-danger" onClick={() => removeOrder(o)}>
                                                 Xoá
-                                            </button>
+                                            </button> */}
                                         </td>
                                     </tr>
                                 ))
@@ -315,7 +392,9 @@ export default function AdminOrdersPage() {
                     <button
                         className="action-btn pagination-btn"
                         disabled={page === totalPages}
-                        onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                        onClick={() =>
+                            setPage((p) => Math.min(totalPages, p + 1))
+                        }
                     >
                         →
                     </button>

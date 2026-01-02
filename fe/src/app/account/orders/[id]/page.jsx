@@ -71,7 +71,9 @@ export default function OrderDetailPage() {
             setShowCancelConfirm(false);
 
             // cập nhật UI luôn khỏi reload
-            setOrder((prev) => (prev ? { ...prev, status: "cancelled" } : prev));
+            setOrder((prev) =>
+                prev ? { ...prev, status: "cancelled" } : prev,
+            );
         } catch (e) {
             console.error(e);
             showToast("Hủy đơn thất bại", "error");
@@ -115,14 +117,14 @@ export default function OrderDetailPage() {
     // Auto-refresh order status every 5 seconds
     useEffect(() => {
         if (!token || !orderId) return;
-        
+
         const interval = setInterval(async () => {
             try {
                 const res = await fetch(`${API_BASE}/orders/${orderId}`, {
                     headers: { Authorization: `Bearer ${token}` },
                     cache: "no-store",
                 });
-                
+
                 if (res.ok) {
                     const data = await res.json();
                     setOrder(data);
@@ -131,7 +133,7 @@ export default function OrderDetailPage() {
                 console.error("Auto-refresh failed:", err);
             }
         }, 5000); // Refresh every 5 seconds
-        
+
         return () => clearInterval(interval);
     }, [token, orderId]);
 
@@ -199,7 +201,9 @@ export default function OrderDetailPage() {
     );
     const shippingFee = Number(order.shipping_fee || 0);
     const discount = Number(order.discount || 0);
-    const total = Number(order.total_amount || subtotal + shippingFee - discount);
+    const total = Number(
+        order.total_amount || subtotal + shippingFee - discount,
+    );
 
     return (
         <>
@@ -212,7 +216,13 @@ export default function OrderDetailPage() {
                             <strong>{order.code || `#${order.id}`}</strong>
                         </p>
                     </div>
-                    <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                    <div
+                        style={{
+                            display: "flex",
+                            gap: "10px",
+                            alignItems: "center",
+                        }}
+                    >
                         <button
                             onClick={refreshOrder}
                             disabled={refreshing}
@@ -240,7 +250,6 @@ export default function OrderDetailPage() {
                             <h3>Trạng thái đơn hàng</h3>
                             <div className="order-status-row">
                                 {getStatusBadge(order.status)}
-
                             </div>
                         </div>
 
@@ -273,19 +282,15 @@ export default function OrderDetailPage() {
                                                     </td>
                                                     <td className="">
                                                         {formatPrice(
-                                                            Number(
-                                                                item.price,
-                                                            ),
+                                                            Number(item.price),
                                                         )}
                                                     </td>
                                                     <td className=" order-item-total">
                                                         {formatPrice(
-                                                            Number(
-                                                                item.price,
-                                                            ) *
-                                                            Number(
-                                                                item.quantity,
-                                                            ),
+                                                            Number(item.price) *
+                                                                Number(
+                                                                    item.quantity,
+                                                                ),
                                                         )}
                                                     </td>
                                                 </tr>
@@ -328,8 +333,7 @@ export default function OrderDetailPage() {
                                 </p>
                                 {order.notes && (
                                     <p>
-                                        <strong>Ghi chú:</strong>{" "}
-                                        {order.notes}
+                                        <strong>Ghi chú:</strong> {order.notes}
                                     </p>
                                 )}
                             </div>
@@ -398,8 +402,9 @@ export default function OrderDetailPage() {
                     <div className="order-cancel-modal">
                         <h3>Hủy đơn hàng?</h3>
                         <p>
-                            Bạn có chắc chắn muốn hủy đơn <strong>#{order.id}</strong> không?
-                            Hành động này không thể hoàn tác.
+                            Bạn có chắc chắn muốn hủy đơn{" "}
+                            <strong>#{order.id}</strong> không? Hành động này
+                            không thể hoàn tác.
                         </p>
                         <div className="order-cancel-modal-actions">
                             <button

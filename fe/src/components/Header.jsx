@@ -20,13 +20,13 @@ export default function Header() {
     const userMenuRef = useRef(null);
     const debounceTimer = useRef(null);
 
-    // ✅ FIX: lấy token từ context (trước bạn quên)
+    //  FIX: lấy token từ context (trước bạn quên)
     const { user, token, logout, isAuthenticated } = useAuth();
     const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3003";
 
     const [cartCount, setCartCount] = useState(0);
 
-    // ✅ Load cart count khi token đổi
+    //  Load cart count khi token đổi
     useEffect(() => {
         if (!token) {
             setCartCount(0);
@@ -43,7 +43,10 @@ export default function Header() {
             .then((data) => {
                 if (cancelled) return;
                 const items = Array.isArray(data?.items) ? data.items : [];
-                const totalQty = items.reduce((sum, it) => sum + Number(it.quantity || 1), 0);
+                const totalQty = items.reduce(
+                    (sum, it) => sum + Number(it.quantity || 1),
+                    0,
+                );
                 setCartCount(totalQty);
             })
             .catch(() => {
@@ -56,21 +59,30 @@ export default function Header() {
     }, [token, API_BASE]);
 
     useEffect(() => {
-        const history = JSON.parse(localStorage.getItem("searchHistory") || "[]");
+        const history = JSON.parse(
+            localStorage.getItem("searchHistory") || "[]",
+        );
         setSearchHistory(history);
     }, []);
 
     useEffect(() => {
         const handleClickOutside = (event) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+            if (
+                dropdownRef.current &&
+                !dropdownRef.current.contains(event.target)
+            ) {
                 setShowDropdown(false);
             }
-            if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
+            if (
+                userMenuRef.current &&
+                !userMenuRef.current.contains(event.target)
+            ) {
                 setShowUserMenu(false);
             }
         };
         document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
+        return () =>
+            document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
     useEffect(() => {
@@ -87,7 +99,7 @@ export default function Header() {
             try {
                 const res = await fetch(
                     `${API_BASE}/products/autocomplete?query=${encodeURIComponent(query)}`,
-                    { cache: "no-store" }
+                    { cache: "no-store" },
                 );
                 const data = await res.json();
                 setSuggestions(Array.isArray(data) ? data : []);
@@ -162,16 +174,33 @@ export default function Header() {
         <header className="header">
             <nav className="nav">
                 <Link href="/" className="logo">
-                    <Image src="/images/logo1_vsnvgr.png" alt="DONIDG" width={120} height={60} />
+                    <Image
+                        src="/images/logo1_vsnvgr.png"
+                        alt="DONIDG"
+                        width={120}
+                        height={60}
+                    />
                 </Link>
 
                 <ul className="nav-menu">
-                    <li><Link href="/">Trang chủ</Link></li>
-                    <li><Link href="/nike">Nike</Link></li>
-                    <li><Link href="/adidas">Adidas</Link></li>
-                    <li><Link href="/otherBrand">Hãng khác</Link></li>
-                    <li><Link href="/accessories">Phụ kiện</Link></li>
-                    <li><Link href="/ngay-hot-deal">Ngày Hot Deal</Link></li>
+                    <li>
+                        <Link href="/">Trang chủ</Link>
+                    </li>
+                    <li>
+                        <Link href="/nike">Nike</Link>
+                    </li>
+                    <li>
+                        <Link href="/adidas">Adidas</Link>
+                    </li>
+                    <li>
+                        <Link href="/otherBrand">Hãng khác</Link>
+                    </li>
+                    <li>
+                        <Link href="/accessories">Phụ kiện</Link>
+                    </li>
+                    <li>
+                        <Link href="/ngay-hot-deal">Ngày Hot Deal</Link>
+                    </li>
                 </ul>
 
                 <div className="nav-icons">
@@ -199,57 +228,96 @@ export default function Header() {
 
                                 {!isLoading && suggestions.length > 0 && (
                                     <div className="dropdown-section">
-                                        <div className="dropdown-header">Gợi ý</div>
+                                        <div className="dropdown-header">
+                                            Gợi ý
+                                        </div>
                                         {suggestions.map((item) => (
                                             <div
                                                 key={item.id}
                                                 className="dropdown-item"
-                                                onClick={() => handleSuggestionClick(item.name)}
+                                                onClick={() =>
+                                                    handleSuggestionClick(
+                                                        item.name,
+                                                    )
+                                                }
                                             >
                                                 <i className="fa-solid fa-search"></i>
                                                 <span>{item.name}</span>
-                                                {item.product_code && <span className="item-code">#{item.product_code}</span>}
+                                                {item.product_code && (
+                                                    <span className="item-code">
+                                                        #{item.product_code}
+                                                    </span>
+                                                )}
                                             </div>
                                         ))}
                                     </div>
                                 )}
 
-                                {!isLoading && suggestions.length === 0 && searchHistory.length > 0 && (
-                                    <div className="dropdown-section">
-                                        <div className="dropdown-header">
-                                            <span>Tìm kiếm gần đây</span>
-                                            <button className="clear-history-btn" onClick={clearHistory}>
-                                                Xóa tất cả
-                                            </button>
-                                        </div>
-
-                                        {searchHistory.map((item, index) => (
-                                            <div
-                                                key={index}
-                                                className="dropdown-item"
-                                                onClick={(e) => handleSearch(e, item)}
-                                            >
-                                                <i className="fa-solid fa-clock-rotate-left"></i>
-                                                <span>{item}</span>
-                                                <button className="remove-item-btn" onClick={(e) => removeFromHistory(e, item)}>
-                                                    <i className="fa-solid fa-xmark"></i>
+                                {!isLoading &&
+                                    suggestions.length === 0 &&
+                                    searchHistory.length > 0 && (
+                                        <div className="dropdown-section">
+                                            <div className="dropdown-header">
+                                                <span>Tìm kiếm gần đây</span>
+                                                <button
+                                                    className="clear-history-btn"
+                                                    onClick={clearHistory}
+                                                >
+                                                    Xóa tất cả
                                                 </button>
                                             </div>
-                                        ))}
-                                    </div>
-                                )}
 
-                                {!isLoading && suggestions.length === 0 && searchHistory.length === 0 && query.length >= 2 && (
-                                    <div className="dropdown-empty">Không tìm thấy kết quả</div>
-                                )}
+                                            {searchHistory.map(
+                                                (item, index) => (
+                                                    <div
+                                                        key={index}
+                                                        className="dropdown-item"
+                                                        onClick={(e) =>
+                                                            handleSearch(
+                                                                e,
+                                                                item,
+                                                            )
+                                                        }
+                                                    >
+                                                        <i className="fa-solid fa-clock-rotate-left"></i>
+                                                        <span>{item}</span>
+                                                        <button
+                                                            className="remove-item-btn"
+                                                            onClick={(e) =>
+                                                                removeFromHistory(
+                                                                    e,
+                                                                    item,
+                                                                )
+                                                            }
+                                                        >
+                                                            <i className="fa-solid fa-xmark"></i>
+                                                        </button>
+                                                    </div>
+                                                ),
+                                            )}
+                                        </div>
+                                    )}
+
+                                {!isLoading &&
+                                    suggestions.length === 0 &&
+                                    searchHistory.length === 0 &&
+                                    query.length >= 2 && (
+                                        <div className="dropdown-empty">
+                                            Không tìm thấy kết quả
+                                        </div>
+                                    )}
                             </div>
                         )}
                     </div>
 
-                    {/* ✅ USER ICON: login vs menu */}
+                    {/*  USER ICON: login vs menu */}
                     {isAuthenticated() ? (
                         <div className="user-menu-container" ref={userMenuRef}>
-                            <button className="icon-btn" onClick={() => setShowUserMenu(!showUserMenu)} aria-label="Tài khoản">
+                            <button
+                                className="icon-btn"
+                                onClick={() => setShowUserMenu(!showUserMenu)}
+                                aria-label="Tài khoản"
+                            >
                                 <i className="fa-icon fa-regular fa-user"></i>
                             </button>
 
@@ -258,24 +326,35 @@ export default function Header() {
                                     <div className="user-info">
                                         <i className="fa-solid fa-user-circle"></i>
                                         <div>
-                                            <p className="user-email">{user?.email}</p>
+                                            <p className="user-email">
+                                                {user?.email}
+                                            </p>
                                             <p className="user-role">
-                                                {user?.role === "admin" && "Admin"}
-                                                {user?.role === "staff" && "Nhân viên"}
-                                                {user?.role === "customer" && "Khách hàng"}
+                                                {user?.role === "admin" &&
+                                                    "Admin"}
+                                                {user?.role === "staff" &&
+                                                    "Nhân viên"}
+                                                {user?.role === "customer" &&
+                                                    "Khách hàng"}
                                             </p>
                                         </div>
                                     </div>
 
                                     <div className="user-menu-divider"></div>
 
-                                    <Link href={getUserDashboard()} className="user-menu-item">
+                                    <Link
+                                        href={getUserDashboard()}
+                                        className="user-menu-item"
+                                    >
                                         <i className="fa-solid fa-dashboard"></i>
                                         Trang chủ
                                     </Link>
 
                                     {user?.role === "customer" && (
-                                        <Link href="/account/orders" className="user-menu-item">
+                                        <Link
+                                            href="/account/orders"
+                                            className="user-menu-item"
+                                        >
                                             <i className="fa-solid fa-shopping-bag"></i>
                                             Đơn hàng của tôi
                                         </Link>
@@ -283,7 +362,10 @@ export default function Header() {
 
                                     <div className="user-menu-divider"></div>
 
-                                    <button onClick={handleLogout} className="user-menu-item logout">
+                                    <button
+                                        onClick={handleLogout}
+                                        className="user-menu-item logout"
+                                    >
                                         <i className="fa-solid fa-sign-out"></i>
                                         Đăng xuất
                                     </button>
@@ -296,7 +378,10 @@ export default function Header() {
                             className="icon-btn"
                             onClick={() => {
                                 if (typeof window !== "undefined") {
-                                    localStorage.setItem("redirectAfterLogin", window.location.pathname);
+                                    localStorage.setItem(
+                                        "redirectAfterLogin",
+                                        window.location.pathname,
+                                    );
                                 }
                             }}
                             aria-label="Đăng nhập"
@@ -306,10 +391,19 @@ export default function Header() {
                         </Link>
                     )}
 
-                    {/* ✅ CART ICON + BADGE */}
-                    <Link href="/cart" className="cart-icon-wrap" aria-label="Giỏ hàng" title="Giỏ hàng">
+                    {/*  CART ICON + BADGE */}
+                    <Link
+                        href="/cart"
+                        className="cart-icon-wrap"
+                        aria-label="Giỏ hàng"
+                        title="Giỏ hàng"
+                    >
                         <i className="fa-icon fa-solid fa-cart-shopping"></i>
-                        {cartCount > 0 && <span className="cart-badge">{cartCount > 99 ? "99+" : cartCount}</span>}
+                        {cartCount > 0 && (
+                            <span className="cart-badge">
+                                {cartCount > 99 ? "99+" : cartCount}
+                            </span>
+                        )}
                     </Link>
                 </div>
             </nav>

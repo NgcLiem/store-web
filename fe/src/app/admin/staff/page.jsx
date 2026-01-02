@@ -3,7 +3,10 @@
 import { useEffect, useState } from "react";
 import "../admin.css";
 import "./staff.css";
-import { apiGet, apiSend } from "@/lib/api";
+import { apiSend, apiGet } from "@/lib/api";
+import { useToast } from "../../../components/Toast";
+
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3003";
 
 export default function AdminStaffPage() {
     const [items, setItems] = useState([]);
@@ -11,6 +14,8 @@ export default function AdminStaffPage() {
     const [loading, setLoading] = useState(true);
     const [modalOpen, setModalOpen] = useState(false);
     const [editing, setEditing] = useState(null);
+    const { showToast } = useToast();
+    const [statusModal, setStatusModal] = useState(null);
 
     const [form, setForm] = useState({
         email: "",
@@ -29,7 +34,10 @@ export default function AdminStaffPage() {
             setItems(Array.isArray(data) ? data : []);
         } catch (e) {
             console.error(e);
-            alert("Không tải được danh sách nhân viên");
+            showToast(
+                data?.message || "Không tải được danh sách nhân viên",
+                "error",
+            );
         } finally {
             setLoading(false);
         }
@@ -38,6 +46,16 @@ export default function AdminStaffPage() {
     useEffect(() => {
         load();
     }, []);
+
+    useEffect(() => {
+        if (!statusModal) return;
+
+        const timer = setTimeout(() => {
+            setStatusModal(null);
+        }, 3000);
+
+        return () => clearTimeout(timer);
+    }, [statusModal]);
 
     const submitSearch = (e) => {
         e.preventDefault();
@@ -75,7 +93,7 @@ export default function AdminStaffPage() {
         const body = { ...form };
 
         if (!editing && !body.password) {
-            alert("Mật khẩu không được để trống");
+            showToast(data?.message || "Lưu thất bại", "error");
             return;
         }
         if (editing && !body.password) {
@@ -92,18 +110,40 @@ export default function AdminStaffPage() {
             setModalOpen(false);
         } catch (e) {
             console.error(e);
-            alert("Lưu thất bại");
+            showToast("Lưu thất bại", "error");
         }
     };
 
-    const remove = async (s) => {
+    const remove1 = async (s) => {
         if (!confirm(`Xoá nhân viên ${s.email}?`)) return;
         try {
             await apiSend(`/staff/${s.id}`, "DELETE");
             setItems((prev) => prev.filter((it) => it.id !== s.id));
         } catch (e) {
             console.error(e);
-            alert("Xoá thất bại");
+            showToast("Xóa thất bại", "error");
+        }
+    };
+
+    const remove = async (p) => {
+        const url = `${API_BASE}/staff/${p.id}`;
+
+        try {
+            const res = await fetch(url, {
+                method: "DELETE",
+            });
+
+            if (!res.ok) {
+                const data = await res.json().catch(() => null);
+                showToast(data?.message || "Xoá thất bại", "error");
+                return;
+            }
+
+            showToast("Xoá nhân viên thành công", "success");
+            setItems((prev) => prev.filter((it) => it.id !== p.id));
+        } catch (err) {
+            console.error("Lỗi xoá nhân viên:", err);
+            showToast("Xoá thất bại, thử lại sau", "error");
         }
     };
 
@@ -112,7 +152,7 @@ export default function AdminStaffPage() {
             <div className="admin-header">
                 <h1>Quản lý Nhân viên</h1>
                 <div className="quick-actions">
-                    <button className="action-btn" onClick={openCreate}>
+                    <button className="addPr" onClick={openCreate}>
                         <i className="fa-solid fa-user-plus" /> Thêm nhân viên
                     </button>
                 </div>
@@ -135,47 +175,77 @@ export default function AdminStaffPage() {
                     <table className="staff-table">
                         <thead>
                             <tr className="table-header-row">
-                                <th className="table-header-cell text-left">Email</th>
-                                <th className="table-header-cell text-left">Họ tên</th>
-                                <th className="table-header-cell text-center">SĐT</th>
-                                <th className="table-header-cell text-center">Địa chỉ</th>
-                                <th className="table-header-cell text-center">Giới tính</th>
-                                <th className="table-header-cell text-center">Thao tác</th>
+                                <th className="table-header-cell text-left">
+                                    Email
+                                </th>
+                                <th className="table-header-cell text-left">
+                                    Họ tên
+                                </th>
+                                <th className="table-header-cell text-center">
+                                    SĐT
+                                </th>
+                                <th className="table-header-cell text-center">
+                                    Địa chỉ
+                                </th>
+                                <th className="table-header-cell text-center">
+                                    Giới tính
+                                </th>
+                                <th className="table-header-cell text-center">
+                                    Thao tác
+                                </th>
                             </tr>
                         </thead>
                         <tbody>
                             {loading ? (
                                 <tr>
-                                    <td colSpan={4} className="table-cell table-cell-center">
+                                    <td
+                                        colSpan={4}
+                                        className="table-cell table-cell-center"
+                                    >
                                         Đang tải...
                                     </td>
                                 </tr>
                             ) : items.length === 0 ? (
                                 <tr>
-                                    <td colSpan={4} className="table-cell table-cell-center">
+                                    <td
+                                        colSpan={4}
+                                        className="table-cell table-cell-center"
+                                    >
                                         Không có dữ liệu
                                     </td>
                                 </tr>
                             ) : (
                                 items.map((s) => (
                                     <tr key={s.id} className="table-body-row">
-                                        <td className="table-cell">{s.email}</td>
-                                        <td className="table-cell">{s.full_name || "-"}</td>
-                                        <td className="table-cell text-center">{s.phone || "-"}</td>
-                                        <td className="table-cell text-center">{s.address || "-"}</td>
-                                        <td className="table-cell text-center">{s.sex || "-"}</td>
+                                        <td className="table-cell">
+                                            {s.email}
+                                        </td>
+                                        <td className="table-cell">
+                                            {s.full_name || "-"}
+                                        </td>
+                                        <td className="table-cell text-center">
+                                            {s.phone || "-"}
+                                        </td>
+                                        <td className="table-cell text-center">
+                                            {s.address || "-"}
+                                        </td>
+                                        <td className="table-cell text-center">
+                                            {s.sex || "-"}
+                                        </td>
                                         <td className="table-cell table-actions-cell">
                                             <button
                                                 className="action-btn"
                                                 onClick={() => openEdit(s)}
                                             >
-                                                <i className="fa-solid fa-pen" /> Sửa
+                                                <i className="fa-solid fa-pen" />{" "}
+                                                Sửa
                                             </button>
                                             <button
                                                 className="action-btn btn-danger"
                                                 onClick={() => remove(s)}
                                             >
-                                                <i className="fa-solid fa-trash" /> Xoá
+                                                <i className="fa-solid fa-trash" />{" "}
+                                                Xoá
                                             </button>
                                         </td>
                                     </tr>
@@ -199,7 +269,10 @@ export default function AdminStaffPage() {
                                     required
                                     value={form.email}
                                     onChange={(e) =>
-                                        setForm({ ...form, email: e.target.value })
+                                        setForm({
+                                            ...form,
+                                            email: e.target.value,
+                                        })
                                     }
                                 />
                                 <label>Email</label>
@@ -212,7 +285,10 @@ export default function AdminStaffPage() {
                                     required
                                     value={form.full_name}
                                     onChange={(e) =>
-                                        setForm({ ...form, full_name: e.target.value })
+                                        setForm({
+                                            ...form,
+                                            full_name: e.target.value,
+                                        })
                                     }
                                 />
                                 <label>Họ và Tên</label>
@@ -224,7 +300,10 @@ export default function AdminStaffPage() {
                                     placeholder=" "
                                     value={form.phone}
                                     onChange={(e) =>
-                                        setForm({ ...form, phone: e.target.value })
+                                        setForm({
+                                            ...form,
+                                            phone: e.target.value,
+                                        })
                                     }
                                 />
                                 <label>Điện thoại</label>
@@ -236,7 +315,10 @@ export default function AdminStaffPage() {
                                     placeholder=" "
                                     value={form.address}
                                     onChange={(e) =>
-                                        setForm({ ...form, address: e.target.value })
+                                        setForm({
+                                            ...form,
+                                            address: e.target.value,
+                                        })
                                     }
                                 />
                                 <label>Địa chỉ</label>
@@ -248,7 +330,10 @@ export default function AdminStaffPage() {
                                     placeholder=" "
                                     value={form.sex}
                                     onChange={(e) =>
-                                        setForm({ ...form, sex: e.target.value })
+                                        setForm({
+                                            ...form,
+                                            sex: e.target.value,
+                                        })
                                     }
                                 />
                                 <label>Giới tính</label>
@@ -260,15 +345,16 @@ export default function AdminStaffPage() {
                                     placeholder=" "
                                     value={form.password}
                                     onChange={(e) =>
-                                        setForm({ ...form, password: e.target.value })
+                                        setForm({
+                                            ...form,
+                                            password: e.target.value,
+                                        })
                                     }
                                     required={!editing}
                                 />
-                                <label>
-                                    Mật khẩu
-                                </label>
+                                <label>Mật khẩu</label>
                             </div>
-
+                            <span></span>
                             <div className="modal-actions">
                                 <button
                                     type="button"

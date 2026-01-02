@@ -27,6 +27,15 @@ export default function CheckoutPage() {
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
 
+    // Form nhập địa chỉ mới
+    const [useNewAddress, setUseNewAddress] = useState(false);
+    const [newAddress, setNewAddress] = useState({
+        fullName: "",
+        phone: "",
+        addressLine: "",
+        isDefault: false,
+    });
+
     useEffect(() => {
         if (!loading && (!user || !token)) {
             showToast("Vui lòng đăng nhập trước khi thanh toán", "info");
@@ -61,7 +70,6 @@ export default function CheckoutPage() {
         return () => ac.abort();
     }, [token, showToast]);
 
-
     useEffect(() => {
         if (!token) return;
 
@@ -94,9 +102,13 @@ export default function CheckoutPage() {
                 setPayments(payList);
 
                 const defaultAddr =
-                    addrList.find((a) => a.is_default === 1 || a.is_default === true) || addrList[0];
+                    addrList.find(
+                        (a) => a.is_default === 1 || a.is_default === true,
+                    ) || addrList[0];
                 const defaultPay =
-                    payList.find((p) => p.is_default === 1 || p.is_default === true) || payList[0];
+                    payList.find(
+                        (p) => p.is_default === 1 || p.is_default === true,
+                    ) || payList[0];
 
                 setSelectedAddressId(defaultAddr?.id ?? null);
                 setSelectedPaymentId(defaultPay?.id ?? null);
@@ -116,13 +128,14 @@ export default function CheckoutPage() {
     const subTotal = useMemo(
         () =>
             cartItems.reduce(
-                (sum, item) => sum + Number(item.price || 0) * Number(item.quantity || 1),
-                0
+                (sum, item) =>
+                    sum + Number(item.price || 0) * Number(item.quantity || 1),
+                0,
             ),
-        [cartItems]
+        [cartItems],
     );
 
-    const shippingFee = 0;
+    const shippingFee = 30000;
     const total = subTotal - discount + shippingFee;
 
     const handleApplyVoucher = async () => {
@@ -132,8 +145,14 @@ export default function CheckoutPage() {
         try {
             const res = await fetch(`${API_BASE}/me/vouchers/apply`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-                body: JSON.stringify({ code: voucherCode.trim(), total: subTotal }),
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                    code: voucherCode.trim(),
+                    total: subTotal,
+                }),
             });
 
             const data = await res.json().catch(() => ({}));
@@ -154,26 +173,85 @@ export default function CheckoutPage() {
     };
 
     const isMomoSelected = useMemo(() => {
-        const pm = payments.find((p) => Number(p?.id) === Number(selectedPaymentId));
+        const pm = payments.find(
+            (p) => Number(p?.id) === Number(selectedPaymentId),
+        );
         if (!pm) return false;
-        return String(pm.type).toUpperCase() === "WALLET" && String(pm.brand || "").toUpperCase() === "MOMO";
+        return (
+            String(pm.type).toUpperCase() === "WALLET" &&
+            String(pm.brand || "").toUpperCase() === "MOMO"
+        );
     }, [payments, selectedPaymentId]);
 
     const handleCheckout = async () => {
         if (!token) return;
 
         if (!cartItems.length) return showToast("Giỏ hàng trống", "error");
-        if (!selectedAddressId) return showToast("Vui lòng chọn địa chỉ giao hàng", "error");
-        if (!selectedPaymentId) return showToast("Vui lòng chọn phương thức thanh toán", "error");
+        if (!selectedPaymentId)
+            return showToast("Vui lòng chọn phương thức thanh toán", "error");
+
+        // Kiểm tra xem có sản phẩm nào không có size không
+        const itemsWithoutSize = cartItems.filter((item) => !item.size);
+        if (itemsWithoutSize.length > 0) {
+            const names = itemsWithoutSize
+                .map((i) => i.name || `Sản phẩm #${i.product_id}`)
+                .join(", ");
+            return showToast(`Vui lòng chọn size cho: ${names}`, "error");
+        }
+
+        let addressIdToUse = selectedAddressId;
+
+        // Nếu dùng địa chỉ mới, tạo trước
+        if (useNewAddress) {
+            if (!newAddress.fullName?.trim())
+                return showToast("Vui lòng nhập họ tên", "error");
+            if (!newAddress.phone?.trim())
+                return showToast("Vui lòng nhập số điện thoại", "error");
+            if (!newAddress.addressLine?.trim())
+                return showToast("Vui lòng nhập địa chỉ", "error");
+
+            try {
+                const addrRes = await fetch(`${API_BASE}/addresses`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify(newAddress),
+                });
+
+                const addrData = await addrRes.json().catch(() => ({}));
+                if (!addrRes.ok) {
+                    showToast(
+                        addrData.message || "Tạo địa chỉ thất bại",
+                        "error",
+                    );
+                    return;
+                }
+
+                addressIdToUse = addrData.id;
+            } catch (err) {
+                console.error(err);
+                showToast("Lỗi tạo địa chỉ", "error");
+                return;
+            }
+        } else {
+            if (!selectedAddressId)
+                return showToast("Vui lòng chọn địa chỉ giao hàng", "error");
+        }
 
         try {
             setSubmitting(true);
 
             const body = {
-                address_id: selectedAddressId,
+                address_id: addressIdToUse,
                 payment_method_id: selectedPaymentId,
                 items: cartItems.map((item) => ({
-                    product_id: item.product_id ?? item.productId ?? item.product?.id ?? item.id,
+                    product_id:
+                        item.product_id ??
+                        item.productId ??
+                        item.product?.id ??
+                        item.id,
                     quantity: item.quantity || 1,
                     size: item.size ?? null,
                 })),
@@ -182,7 +260,10 @@ export default function CheckoutPage() {
 
             const res = await fetch(`${API_BASE}/orders/checkout`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
                 body: JSON.stringify(body),
             });
 
@@ -193,18 +274,25 @@ export default function CheckoutPage() {
                 return;
             }
 
-            // ✅ Nếu chọn MoMo thì gọi /momo/create để lấy payUrl
+            //  Nếu chọn MoMo thì gọi /momo/create để lấy payUrl
             if (isMomoSelected) {
                 const momoRes = await fetch(`${API_BASE}/momo/create-payment`, {
                     method: "POST",
-                    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
                     body: JSON.stringify({ orderId: data.id }),
                 });
 
                 const momoData = await momoRes.json().catch(() => ({}));
                 if (!momoRes.ok) {
                     console.error(momoData);
-                    showToast(momoData.message || "Không tạo được link thanh toán MoMo", "error");
+                    showToast(
+                        momoData.message ||
+                            "Không tạo được link thanh toán MoMo",
+                        "error",
+                    );
                     return;
                 }
 
@@ -234,10 +322,11 @@ export default function CheckoutPage() {
         }
     };
 
-
     const addMomo = async () => {
         const existing = payments.find(
-            (p) => String(p?.type).toUpperCase() === "WALLET" && String(p?.brand || "").toUpperCase() === "MOMO"
+            (p) =>
+                String(p?.type).toUpperCase() === "WALLET" &&
+                String(p?.brand || "").toUpperCase() === "MOMO",
         );
         if (existing?.id) {
             setSelectedPaymentId(existing.id);
@@ -267,7 +356,10 @@ export default function CheckoutPage() {
                 return;
             }
 
-            setPayments((prev) => [created, ...(Array.isArray(prev) ? prev : [])]);
+            setPayments((prev) => [
+                created,
+                ...(Array.isArray(prev) ? prev : []),
+            ]);
             setSelectedPaymentId(created.id);
             showToast("Đã thêm & chọn MoMo", "success");
         } catch (e) {
@@ -278,7 +370,9 @@ export default function CheckoutPage() {
 
     const addCod = async () => {
         // Nếu đã có COD thì chỉ cần chọn
-        const existing = payments.find((p) => String(p?.type).toUpperCase() === "COD");
+        const existing = payments.find(
+            (p) => String(p?.type).toUpperCase() === "COD",
+        );
         if (existing?.id) {
             setSelectedPaymentId(existing.id);
             showToast("Đã chọn COD", "success");
@@ -307,7 +401,10 @@ export default function CheckoutPage() {
                 return;
             }
 
-            setPayments((prev) => [created, ...(Array.isArray(prev) ? prev : [])]);
+            setPayments((prev) => [
+                created,
+                ...(Array.isArray(prev) ? prev : []),
+            ]);
             setSelectedPaymentId(created.id);
             showToast("Đã bật thanh toán khi nhận hàng (COD)", "success");
         } catch (e) {
@@ -329,39 +426,180 @@ export default function CheckoutPage() {
                     <div className="checkout-left">
                         <section className="checkout-section">
                             <h2>Địa chỉ giao hàng</h2>
-                            {addresses.length === 0 ? (
-                                <p>
-                                    Bạn chưa có địa chỉ. Vui lòng thêm ở trang <a href="/account/addresses">Địa chỉ của bạn</a>.
-                                </p>
-                            ) : (
-                                <ul className="checkout-address-list">
-                                    {addresses.map((addr) => (
-                                        <li key={addr.id} className="checkout-address-item">
-                                            <label>
-                                                <input
-                                                    type="radio"
-                                                    name="address"
-                                                    checked={selectedAddressId === addr.id}
-                                                    onChange={() => setSelectedAddressId(addr.id)}
-                                                />
-                                                <span className="checkout-address-text">
-                                                    <strong>{addr.full_name}</strong> | {addr.phone}
-                                                    <br />
-                                                    {addr.address_line}
-                                                    {addr.is_default ? <span className="badge-default">Mặc định</span> : null}
-                                                </span>
-                                            </label>
-                                        </li>
-                                    ))}
-                                </ul>
+
+                            {addresses.length > 0 && (
+                                <div style={{ marginBottom: 16 }}>
+                                    <label
+                                        style={{
+                                            display: "flex",
+                                            alignItems: "center",
+                                            gap: 8,
+                                            marginBottom: 12,
+                                        }}
+                                    >
+                                        <input
+                                            type="radio"
+                                            checked={!useNewAddress}
+                                            onChange={() =>
+                                                setUseNewAddress(false)
+                                            }
+                                        />
+                                        <span>Chọn từ địa chỉ có sẵn</span>
+                                    </label>
+
+                                    {!useNewAddress && (
+                                        <ul className="checkout-address-list">
+                                            {addresses.map((addr) => (
+                                                <li
+                                                    key={addr.id}
+                                                    className="checkout-address-item"
+                                                >
+                                                    <label>
+                                                        <input
+                                                            type="radio"
+                                                            name="address"
+                                                            checked={
+                                                                selectedAddressId ===
+                                                                addr.id
+                                                            }
+                                                            onChange={() =>
+                                                                setSelectedAddressId(
+                                                                    addr.id,
+                                                                )
+                                                            }
+                                                        />
+                                                        <span className="checkout-address-text">
+                                                            <strong>
+                                                                {addr.full_name}
+                                                            </strong>{" "}
+                                                            | {addr.phone}
+                                                            <br />
+                                                            {addr.address_line}
+                                                            {addr.is_default ? (
+                                                                <span className="badge-default">
+                                                                    Mặc định
+                                                                </span>
+                                                            ) : null}
+                                                        </span>
+                                                    </label>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    )}
+                                </div>
+                            )}
+
+                            <label
+                                style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 8,
+                                    marginBottom: 12,
+                                }}
+                            >
+                                <input
+                                    type="radio"
+                                    checked={useNewAddress}
+                                    onChange={() => setUseNewAddress(true)}
+                                />
+                                <span>
+                                    {addresses.length > 0
+                                        ? "Nhập địa chỉ mới"
+                                        : "Nhập địa chỉ giao hàng"}
+                                </span>
+                            </label>
+
+                            {useNewAddress && (
+                                <form
+                                    style={{
+                                        display: "flex",
+                                        flexDirection: "column",
+                                        gap: 12,
+                                    }}
+                                >
+                                    <input
+                                        type="text"
+                                        placeholder="Họ tên"
+                                        value={newAddress.fullName}
+                                        onChange={(e) =>
+                                            setNewAddress({
+                                                ...newAddress,
+                                                fullName: e.target.value,
+                                            })
+                                        }
+                                        style={{
+                                            padding: 8,
+                                            border: "1px solid #ccc",
+                                            borderRadius: 4,
+                                        }}
+                                    />
+                                    <input
+                                        type="tel"
+                                        placeholder="Số điện thoại"
+                                        value={newAddress.phone}
+                                        onChange={(e) =>
+                                            setNewAddress({
+                                                ...newAddress,
+                                                phone: e.target.value,
+                                            })
+                                        }
+                                        style={{
+                                            padding: 8,
+                                            border: "1px solid #ccc",
+                                            borderRadius: 4,
+                                        }}
+                                    />
+                                    <textarea
+                                        placeholder="Địa chỉ (tòa nhà, tên đường, phường, quận, thành phố)"
+                                        value={newAddress.addressLine}
+                                        onChange={(e) =>
+                                            setNewAddress({
+                                                ...newAddress,
+                                                addressLine: e.target.value,
+                                            })
+                                        }
+                                        rows={3}
+                                        style={{
+                                            padding: 8,
+                                            border: "1px solid #ccc",
+                                            borderRadius: 4,
+                                            fontFamily: "inherit",
+                                        }}
+                                    />
+                                    <label
+                                        style={{
+                                            display: "flex",
+                                            alignItems: "center",
+                                            gap: 8,
+                                        }}
+                                    >
+                                        <input
+                                            type="checkbox"
+                                            checked={newAddress.isDefault}
+                                            onChange={(e) =>
+                                                setNewAddress({
+                                                    ...newAddress,
+                                                    isDefault: e.target.checked,
+                                                })
+                                            }
+                                        />
+                                        <span>Đặt làm địa chỉ mặc định</span>
+                                    </label>
+                                </form>
                             )}
                         </section>
 
                         <section className="checkout-section">
                             <h2>Phương thức thanh toán</h2>
 
-                            <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-                                <button
+                            <div
+                                style={{
+                                    display: "flex",
+                                    gap: 12,
+                                    flexWrap: "wrap",
+                                }}
+                            >
+                                {/* <button
                                     className="actionBtn actionBtnPrimary"
                                     type="button"
                                     onClick={addMomo}
@@ -369,7 +607,7 @@ export default function CheckoutPage() {
                                     title="Chọn hoặc thêm phương thức MoMo"
                                 >
                                     Thanh toán bằng MoMo
-                                </button>
+                                </button> */}
 
                                 <button
                                     className="actionBtn actionBtnPrimary"
@@ -386,13 +624,26 @@ export default function CheckoutPage() {
                                 <p style={{ marginTop: 8, opacity: 0.85 }}>
                                     Đang chọn:{" "}
                                     <b>
-                                        {(() => {
-                                            const pm = payments.find((p) => Number(p?.id) === Number(selectedPaymentId));
-                                            if (!pm) return `#${selectedPaymentId}`;
-                                            const t = String(pm?.type || "").toUpperCase();
-                                            const b = String(pm?.brand || "").toUpperCase();
-                                            return t === "WALLET" && b === "MOMO" ? "MoMo" : t;
-                                        })()}
+                                        COD
+                                        {/* {(() => {
+                                            const pm = payments.find(
+                                                (p) =>
+                                                    Number(p?.id) ===
+                                                    Number(selectedPaymentId),
+                                            );
+                                            if (!pm)
+                                                return `#${selectedPaymentId}`;
+                                            const t = String(
+                                                pm?.type || "",
+                                            ).toUpperCase();
+                                            const b = String(
+                                                pm?.brand || "",
+                                            ).toUpperCase();
+                                            return t === "WALLET" &&
+                                                b === "MOMO"
+                                                ? "MoMo"
+                                                : t;
+                                        })()} */}
                                     </b>
                                 </p>
                             ) : null}
@@ -404,17 +655,23 @@ export default function CheckoutPage() {
                                 <input
                                     type="text"
                                     value={voucherCode}
-                                    onChange={(e) => setVoucherCode(e.target.value)}
+                                    onChange={(e) =>
+                                        setVoucherCode(e.target.value)
+                                    }
                                     placeholder="Nhập mã voucher"
                                 />
-                                <button type="button" onClick={handleApplyVoucher}>
+                                <button
+                                    type="button"
+                                    onClick={handleApplyVoucher}
+                                >
                                     Áp dụng
                                 </button>
                             </div>
 
                             {appliedVoucher && (
                                 <p className="checkout-voucher-info">
-                                    Đã áp dụng: <strong>{appliedVoucher.code}</strong> (-{" "}
+                                    Đã áp dụng:{" "}
+                                    <strong>{appliedVoucher.code}</strong> (-{" "}
                                     {discount.toLocaleString("vi-VN")} đ)
                                 </p>
                             )}
@@ -426,15 +683,21 @@ export default function CheckoutPage() {
                             <h2>Tóm tắt đơn hàng</h2>
                             <div className="summary-line">
                                 <span>Tạm tính</span>
-                                <span>{subTotal.toLocaleString("vi-VN")} đ</span>
+                                <span>
+                                    {subTotal.toLocaleString("vi-VN")} đ
+                                </span>
                             </div>
                             <div className="summary-line">
                                 <span>Voucher</span>
-                                <span>- {discount.toLocaleString("vi-VN")} đ</span>
+                                <span>
+                                    - {discount.toLocaleString("vi-VN")} đ
+                                </span>
                             </div>
                             <div className="summary-line">
                                 <span>Phí vận chuyển</span>
-                                <span>{shippingFee.toLocaleString("vi-VN")} đ</span>
+                                <span>
+                                    {shippingFee.toLocaleString("vi-VN")} đ
+                                </span>
                             </div>
                             <div className="summary-total">
                                 <span>Thành tiền</span>
