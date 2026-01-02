@@ -316,7 +316,7 @@ export default function ProfilePage() {
                             <div className="profile-modal-actions">
                                 <button
                                     type="button"
-                                    className="btn-outline"
+                                    className="bt-outline-button"
                                     onClick={() => setShowChangePassword(false)}
                                     disabled={changingPassword}
                                 >

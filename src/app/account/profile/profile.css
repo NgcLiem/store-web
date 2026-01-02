@@ -265,3 +265,27 @@
     opacity: 0.6;
     cursor: not-allowed;
 }
+
+
+.bt-outline-button {
+    padding: 14px;
+    background: white;
+    color: #333;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin: 1rem 0;
+}
+
+.bt-outline-button:hover:not([disabled]) {
+    background: #f5f5f5;
+    border-color: #333;
+}
+
+.bt-outline-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
